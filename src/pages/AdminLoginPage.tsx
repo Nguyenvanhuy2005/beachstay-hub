@@ -26,7 +26,7 @@ const AdminLoginPage = () => {
         const { data } = await supabase.auth.getSession();
         if (data.session?.user?.email) {
           console.log('User is already authenticated:', data.session.user.email);
-          const adminCheck = await isAdmin(data.session.user.email);
+          const adminCheck = await isAdmin();
           if (adminCheck) {
             // Already authenticated as admin, redirect to admin dashboard
             console.log('User is confirmed admin, redirecting to dashboard');
@@ -82,7 +82,7 @@ const AdminLoginPage = () => {
         console.log('Login successful for:', data.user.email);
         
         // Check if user is an admin
-        const adminCheck = await isAdmin(data.user.email || '');
+        const adminCheck = await isAdmin();
         console.log('Admin check result:', adminCheck);
         
         if (adminCheck) {
