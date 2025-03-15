@@ -1,21 +1,32 @@
 
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Users, Wifi, Coffee, Bath, Tv, Loader2 } from "lucide-react";
+import { ArrowRight, Users, Wifi, Coffee, Bath, Tv, Loader2, Car, Umbrella, Ban, Plane, LifeBuoy, UtensilsCrossed, ShowerHead, Bed, FlameKindling, Refrigerator } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
 
-const iconMap = {
-  "Wifi miễn phí": <Wifi size={14} />,
-  "Free Wifi": <Wifi size={14} />,
-  "Bếp đầy đủ": <Coffee size={14} />,
-  "Full Kitchen": <Coffee size={14} />,
-  "Bồn tắm": <Bath size={14} />,
-  "Bathtub": <Bath size={14} />,
-  "Smart TV": <Tv size={14} />,
+// Map of amenity IDs to Lucide icons
+const iconMap: Record<string, React.ReactNode> = {
+  wifi: <Wifi size={14} />,
+  tv: <Tv size={14} />,
+  bath: <Bath size={14} />,
+  coffee: <Coffee size={14} />,
+  air_con: <Umbrella size={14} />,
+  minibar: <Refrigerator size={14} />,
+  safe: <Refrigerator size={14} />,
+  desk: <Refrigerator size={14} />,
+  room_service: <UtensilsCrossed size={14} />,
+  toiletries: <ShowerHead size={14} />,
+  pool: <LifeBuoy size={14} />,
+  parking: <Car size={14} />,
+  family_room: <Bed size={14} />,
+  airport_shuttle: <Plane size={14} />,
+  non_smoking: <Ban size={14} />,
+  bbq: <FlameKindling size={14} />,
+  private_beach: <Umbrella size={14} />,
 };
 
 const containerVariants = {
@@ -149,7 +160,25 @@ const RoomTypesSection = () => {
   };
 
   const getAmenityName = (amenity) => {
+    // Handle both string and object amenities
+    if (typeof amenity === 'string') {
+      return amenity;
+    }
     return language === 'vi' ? amenity.vi : amenity.en;
+  };
+
+  const getAmenityIcon = (amenity) => {
+    if (typeof amenity === 'string') {
+      return iconMap[amenity] || <Coffee size={14} />;
+    }
+    
+    // Try to find icon by matching amenity text with known keys
+    const amenityText = language === 'vi' ? amenity.vi : amenity.en;
+    const knownAmenity = Object.keys(iconMap).find(key => 
+      amenityText.toLowerCase().includes(key.toLowerCase())
+    );
+    
+    return knownAmenity ? iconMap[knownAmenity] : <Coffee size={14} />;
   };
 
   return (
@@ -214,16 +243,16 @@ const RoomTypesSection = () => {
                     <span className="text-gray-600 text-sm">{getRoomCapacity(room)}</span>
                   </div>
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {room.amenities.map((amenity, index) => {
+                    {room.amenities && room.amenities.slice(0, 5).map((amenity, index) => {
                       const amenityName = getAmenityName(amenity);
-                      const IconComponent = iconMap[amenityName];
+                      const amenityIcon = getAmenityIcon(amenity);
                       
                       return (
                         <span 
                           key={index}
                           className="inline-flex items-center text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
                         >
-                          {IconComponent && <span className="mr-1">{IconComponent}</span>}
+                          {amenityIcon && <span className="mr-1">{amenityIcon}</span>}
                           {amenityName}
                         </span>
                       );

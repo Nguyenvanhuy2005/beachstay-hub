@@ -9,6 +9,8 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { Loader2, Upload, X } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RoomAmenities, amenityOptions } from './RoomAmenities';
 
 interface AddRoomModalProps {
   open: boolean;
@@ -26,6 +28,7 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
   const [price, setPrice] = useState('');
   const [isPopular, setIsPopular] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>(['wifi', 'tv']);
   
   // Main image handling
   const [mainImage, setMainImage] = useState<File | null>(null);
@@ -74,6 +77,7 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
     setCapacityEn('');
     setPrice('');
     setIsPopular(false);
+    setSelectedAmenities(['wifi', 'tv']);
     
     // Clear main image
     if (mainImagePreview) {
@@ -139,7 +143,16 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
         galleryUrls.push(galleryImageData.publicUrl);
       }
 
-      // Create room with all images
+      // Prepare amenities data for database
+      const amenitiesData = selectedAmenities.map(id => {
+        const amenity = amenityOptions.find(a => a.id === id);
+        return {
+          vi: amenity?.name || id,
+          en: amenity?.name_en || id
+        };
+      });
+
+      // Create room with all images and amenities
       const { error: insertError } = await supabase
         .from('room_types')
         .insert({
@@ -153,7 +166,7 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
           is_popular: isPopular,
           image_url: mainImageUrl,
           gallery_images: galleryUrls,
-          amenities: ['wifi', 'ac', 'tv', 'breakfast']
+          amenities: amenitiesData
         });
 
       if (insertError) {
@@ -180,161 +193,180 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Tên phòng (VI)</Label>
-              <Input 
-                id="name" 
-                value={name} 
-                onChange={e => setName(e.target.value)}
-                placeholder="Phòng Deluxe"
-              />
-            </div>
+          <Tabs defaultValue="basic" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="basic">Thông tin cơ bản</TabsTrigger>
+              <TabsTrigger value="amenities">Tiện nghi</TabsTrigger>
+              <TabsTrigger value="images">Hình ảnh</TabsTrigger>
+            </TabsList>
             
-            <div className="space-y-2">
-              <Label htmlFor="name_en">Tên phòng (EN)</Label>
-              <Input 
-                id="name_en" 
-                value={nameEn} 
-                onChange={e => setNameEn(e.target.value)}
-                placeholder="Deluxe Room"
-              />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="description">Mô tả (VI)</Label>
-              <Textarea 
-                id="description" 
-                value={description} 
-                onChange={e => setDescription(e.target.value)}
-                placeholder="Mô tả chi tiết về phòng..."
-                rows={4}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="description_en">Mô tả (EN)</Label>
-              <Textarea 
-                id="description_en" 
-                value={descriptionEn} 
-                onChange={e => setDescriptionEn(e.target.value)}
-                placeholder="Detailed room description..."
-                rows={4}
-              />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="capacity">Sức chứa (VI)</Label>
-              <Input 
-                id="capacity" 
-                value={capacity} 
-                onChange={e => setCapacity(e.target.value)}
-                placeholder="2 người lớn, 1 trẻ em"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="capacity_en">Sức chứa (EN)</Label>
-              <Input 
-                id="capacity_en" 
-                value={capacityEn} 
-                onChange={e => setCapacityEn(e.target.value)}
-                placeholder="2 adults, 1 child"
-              />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="price">Giá phòng (VND)</Label>
-              <Input 
-                id="price" 
-                type="number" 
-                value={price} 
-                onChange={e => setPrice(e.target.value)}
-                placeholder="1500000"
-              />
-            </div>
-            
-            <div className="flex items-center space-x-2 pt-8">
-              <Switch 
-                checked={isPopular} 
-                onCheckedChange={setIsPopular} 
-                id="is-popular" 
-              />
-              <Label htmlFor="is-popular">Đánh dấu là phòng nổi bật</Label>
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="main-image">Ảnh chính (bắt buộc)</Label>
-            <div className="flex items-center space-x-4">
-              <Input 
-                id="main-image" 
-                type="file" 
-                accept="image/*" 
-                onChange={handleMainImageChange}
-                className="w-2/3"
-              />
-              
-              {mainImagePreview && (
-                <div className="relative h-20 w-20 overflow-hidden rounded-md border">
-                  <img 
-                    src={mainImagePreview} 
-                    alt="Main preview" 
-                    className="h-full w-full object-cover"
+            <TabsContent value="basic" className="space-y-4 mt-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Tên phòng (VI)</Label>
+                  <Input 
+                    id="name" 
+                    value={name} 
+                    onChange={e => setName(e.target.value)}
+                    placeholder="Phòng Deluxe"
                   />
-                  <button
-                    type="button"
-                    className="absolute top-0 right-0 bg-black/50 p-1 rounded-bl"
-                    onClick={() => {
-                      URL.revokeObjectURL(mainImagePreview);
-                      setMainImage(null);
-                      setMainImagePreview(null);
-                    }}
-                  >
-                    <X className="h-4 w-4 text-white" />
-                  </button>
                 </div>
-              )}
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="gallery-images">Ảnh bổ sung (tùy chọn)</Label>
-            <Input 
-              id="gallery-images" 
-              type="file" 
-              accept="image/*" 
-              multiple
-              onChange={handleGalleryImagesChange}
-            />
-            
-            {galleryPreviews.length > 0 && (
-              <div className="grid grid-cols-5 gap-2 mt-2">
-                {galleryPreviews.map((preview, index) => (
-                  <div key={index} className="relative h-20 w-20 overflow-hidden rounded-md border">
-                    <img 
-                      src={preview} 
-                      alt={`Gallery ${index}`} 
-                      className="h-full w-full object-cover"
-                    />
-                    <button
-                      type="button"
-                      className="absolute top-0 right-0 bg-black/50 p-1 rounded-bl"
-                      onClick={() => removeGalleryImage(index)}
-                    >
-                      <X className="h-4 w-4 text-white" />
-                    </button>
-                  </div>
-                ))}
+                
+                <div className="space-y-2">
+                  <Label htmlFor="name_en">Tên phòng (EN)</Label>
+                  <Input 
+                    id="name_en" 
+                    value={nameEn} 
+                    onChange={e => setNameEn(e.target.value)}
+                    placeholder="Deluxe Room"
+                  />
+                </div>
               </div>
-            )}
-          </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="description">Mô tả (VI)</Label>
+                  <Textarea 
+                    id="description" 
+                    value={description} 
+                    onChange={e => setDescription(e.target.value)}
+                    placeholder="Mô tả chi tiết về phòng..."
+                    rows={4}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="description_en">Mô tả (EN)</Label>
+                  <Textarea 
+                    id="description_en" 
+                    value={descriptionEn} 
+                    onChange={e => setDescriptionEn(e.target.value)}
+                    placeholder="Detailed room description..."
+                    rows={4}
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="capacity">Sức chứa (VI)</Label>
+                  <Input 
+                    id="capacity" 
+                    value={capacity} 
+                    onChange={e => setCapacity(e.target.value)}
+                    placeholder="2 người lớn, 1 trẻ em"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="capacity_en">Sức chứa (EN)</Label>
+                  <Input 
+                    id="capacity_en" 
+                    value={capacityEn} 
+                    onChange={e => setCapacityEn(e.target.value)}
+                    placeholder="2 adults, 1 child"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="price">Giá phòng (VND)</Label>
+                  <Input 
+                    id="price" 
+                    type="number" 
+                    value={price} 
+                    onChange={e => setPrice(e.target.value)}
+                    placeholder="1500000"
+                  />
+                </div>
+                
+                <div className="flex items-center space-x-2 pt-8">
+                  <Switch 
+                    checked={isPopular} 
+                    onCheckedChange={setIsPopular} 
+                    id="is-popular" 
+                  />
+                  <Label htmlFor="is-popular">Đánh dấu là phòng nổi bật</Label>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="amenities" className="space-y-4 mt-4">
+              <RoomAmenities
+                selectedAmenities={selectedAmenities}
+                onChange={setSelectedAmenities}
+              />
+            </TabsContent>
+            
+            <TabsContent value="images" className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="main-image">Ảnh chính (bắt buộc)</Label>
+                <div className="flex items-center space-x-4">
+                  <Input 
+                    id="main-image" 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleMainImageChange}
+                    className="w-2/3"
+                  />
+                  
+                  {mainImagePreview && (
+                    <div className="relative h-20 w-20 overflow-hidden rounded-md border">
+                      <img 
+                        src={mainImagePreview} 
+                        alt="Main preview" 
+                        className="h-full w-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        className="absolute top-0 right-0 bg-black/50 p-1 rounded-bl"
+                        onClick={() => {
+                          URL.revokeObjectURL(mainImagePreview);
+                          setMainImage(null);
+                          setMainImagePreview(null);
+                        }}
+                      >
+                        <X className="h-4 w-4 text-white" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="gallery-images">Ảnh bổ sung (tùy chọn)</Label>
+                <Input 
+                  id="gallery-images" 
+                  type="file" 
+                  accept="image/*" 
+                  multiple
+                  onChange={handleGalleryImagesChange}
+                />
+                
+                {galleryPreviews.length > 0 && (
+                  <div className="grid grid-cols-5 gap-2 mt-2">
+                    {galleryPreviews.map((preview, index) => (
+                      <div key={index} className="relative h-20 w-20 overflow-hidden rounded-md border">
+                        <img 
+                          src={preview} 
+                          alt={`Gallery ${index}`} 
+                          className="h-full w-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          className="absolute top-0 right-0 bg-black/50 p-1 rounded-bl"
+                          onClick={() => removeGalleryImage(index)}
+                        >
+                          <X className="h-4 w-4 text-white" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
           
           <DialogFooter>
             <Button 
