@@ -1,5 +1,5 @@
 
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export interface BookingFormData {
@@ -26,6 +26,24 @@ export const createBooking = async (bookingData: BookingFormData) => {
       toast.error('Đã xảy ra lỗi khi đặt phòng! Vui lòng thử lại sau.');
       console.error('Booking error:', error);
       return { success: false, error };
+    }
+
+    // Đặt phòng thành công, gửi thông báo qua email
+    try {
+      const emailResponse = await supabase.functions.invoke('send-booking-notification', {
+        body: { 
+          booking: bookingData,
+          adminEmail: "nvh.adser@gmail.com" // Email của admin
+        }
+      });
+      
+      if (emailResponse.error) {
+        console.error('Email notification error:', emailResponse.error);
+      } else {
+        console.log('Email notification sent successfully');
+      }
+    } catch (emailError) {
+      console.error('Failed to send email notification:', emailError);
     }
 
     // Đặt phòng thành công

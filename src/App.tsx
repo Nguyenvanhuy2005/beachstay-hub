@@ -16,6 +16,7 @@ import AmenitiesPage from "./pages/AmenitiesPage";
 import ServicesPage from "./pages/ServicesPage";
 import ContactPage from "./pages/ContactPage";
 import BookingPage from "./pages/BookingPage";
+import AdminPage from "./pages/AdminPage";
 
 // Tạo QueryClient cho React Query
 const queryClient = new QueryClient({
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="/dat-phong" element={<BookingPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />
+            <Route path="/admin" element={<AdminPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

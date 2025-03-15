@@ -11,47 +11,81 @@ import { Label } from '@/components/ui/label';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/components/ui/use-toast';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { createBooking, getRoomTypes } from '@/api/bookingApi';
 
 const BookingPage = () => {
   const { language } = useLanguage();
-  const { toast } = useToast();
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [checkIn, setCheckIn] = useState<Date | undefined>(undefined);
   const [checkOut, setCheckOut] = useState<Date | undefined>(undefined);
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
-  const [rooms, setRooms] = useState(1);
   const [roomType, setRoomType] = useState('');
+  const [specialRequests, setSpecialRequests] = useState('');
   const [loading, setLoading] = useState(false);
-
+  const [roomTypes, setRoomTypes] = useState<any[]>([]);
+  
   useEffect(() => {
     window.scrollTo(0, 0);
+    loadRoomTypes();
   }, []);
+  
+  const loadRoomTypes = async () => {
+    const data = await getRoomTypes();
+    setRoomTypes(data);
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!checkIn || !checkOut || !roomType) {
-      toast({
-        title: language === 'vi' ? 'Vui lòng điền đầy đủ thông tin' : 'Please fill in all required fields',
-        description: language === 'vi' ? 'Ngày đến, ngày đi và loại phòng là bắt buộc' : 'Check-in, check-out dates, and room type are required',
-        variant: "destructive",
-      });
+    if (!checkIn || !checkOut || !roomType || !fullName || !email || !phone) {
+      const message = language === 'vi' 
+        ? 'Vui lòng điền đầy đủ thông tin bắt buộc' 
+        : 'Please fill in all required fields';
+      
+      const description = language === 'vi'
+        ? 'Tên, email, số điện thoại, ngày đến, ngày đi và loại phòng là bắt buộc'
+        : 'Name, email, phone, check-in date, check-out date, and room type are required';
+      
       return;
     }
     
     setLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      toast({
-        title: language === 'vi' ? 'Đặt phòng thành công!' : 'Booking Successful!',
-        description: language === 'vi' 
-          ? 'Đội ngũ của chúng tôi sẽ liên hệ để xác nhận đặt phòng của bạn trong thời gian sớm nhất.' 
-          : 'Our team will contact you soon to confirm your booking.',
-      });
+    const bookingData = {
+      fullName,
+      email,
+      phone,
+      checkIn: checkIn.toISOString().split('T')[0],
+      checkOut: checkOut.toISOString().split('T')[0],
+      roomType,
+      adults,
+      children,
+      specialRequests: specialRequests || undefined
+    };
+    
+    try {
+      const result = await createBooking(bookingData);
+      
+      if (result.success) {
+        // Reset form on success
+        setFullName('');
+        setEmail('');
+        setPhone('');
+        setCheckIn(undefined);
+        setCheckOut(undefined);
+        setRoomType('');
+        setSpecialRequests('');
+        setAdults(2);
+        setChildren(0);
+      }
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -107,10 +141,48 @@ const BookingPage = () => {
                   </h2>
                   
                   <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Personal Information */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="full-name">
+                          {language === 'vi' ? 'Họ và tên' : 'Full Name'}*
+                        </Label>
+                        <Input
+                          id="full-name"
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          required
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email*</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">
+                          {language === 'vi' ? 'Số điện thoại' : 'Phone Number'}*
+                        </Label>
+                        <Input
+                          id="phone"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                    
                     {/* Date Selection */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label htmlFor="check-in">{language === 'vi' ? 'Ngày Đến' : 'Check-in Date'}</Label>
+                        <Label htmlFor="check-in">{language === 'vi' ? 'Ngày Đến' : 'Check-in Date'}*</Label>
                         <Popover>
                           <PopoverTrigger asChild>
                             <Button
@@ -138,7 +210,7 @@ const BookingPage = () => {
                       </div>
                       
                       <div className="space-y-2">
-                        <Label htmlFor="check-out">{language === 'vi' ? 'Ngày Đi' : 'Check-out Date'}</Label>
+                        <Label htmlFor="check-out">{language === 'vi' ? 'Ngày Đi' : 'Check-out Date'}*</Label>
                         <Popover>
                           <PopoverTrigger asChild>
                             <Button
@@ -168,7 +240,7 @@ const BookingPage = () => {
                     
                     {/* Room Selection */}
                     <div className="space-y-2">
-                      <Label htmlFor="room-type">{language === 'vi' ? 'Loại Phòng' : 'Room Type'}</Label>
+                      <Label htmlFor="room-type">{language === 'vi' ? 'Loại Phòng' : 'Room Type'}*</Label>
                       <select 
                         id="room-type"
                         className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-beach-500"
@@ -177,15 +249,16 @@ const BookingPage = () => {
                         required
                       >
                         <option value="">{language === 'vi' ? 'Chọn loại phòng' : 'Select room type'}</option>
-                        <option value="deluxe-sea">{language === 'vi' ? 'Phòng Deluxe Hướng Biển' : 'Sea View Deluxe Room'}</option>
-                        <option value="family">{language === 'vi' ? 'Phòng Gia Đình' : 'Family Suite'}</option>
-                        <option value="villa">{language === 'vi' ? 'Biệt Thự Bãi Biển' : 'Beach Villa'}</option>
-                        <option value="superior">{language === 'vi' ? 'Phòng Superior' : 'Superior Room'}</option>
+                        {roomTypes.map((type) => (
+                          <option key={type.id} value={type.id}>
+                            {language === 'vi' ? type.name : type.name_en} - {new Intl.NumberFormat('vi-VN').format(type.price)}đ/đêm
+                          </option>
+                        ))}
                       </select>
                     </div>
                     
                     {/* Guests Information */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <Label htmlFor="adults">{language === 'vi' ? 'Người Lớn' : 'Adults'}</Label>
                         <select 
@@ -213,20 +286,23 @@ const BookingPage = () => {
                           ))}
                         </select>
                       </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="rooms">{language === 'vi' ? 'Số Phòng' : 'Rooms'}</Label>
-                        <select 
-                          id="rooms"
-                          className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-beach-500"
-                          value={rooms}
-                          onChange={(e) => setRooms(parseInt(e.target.value))}
-                        >
-                          {[1, 2, 3, 4].map(num => (
-                            <option key={num} value={num}>{num}</option>
-                          ))}
-                        </select>
-                      </div>
+                    </div>
+                    
+                    {/* Special Requests */}
+                    <div className="space-y-2">
+                      <Label htmlFor="special-requests">
+                        {language === 'vi' ? 'Yêu cầu đặc biệt' : 'Special Requests'}
+                      </Label>
+                      <Textarea
+                        id="special-requests"
+                        value={specialRequests}
+                        onChange={(e) => setSpecialRequests(e.target.value)}
+                        placeholder={language === 'vi' 
+                          ? 'Các yêu cầu đặc biệt (nếu có)' 
+                          : 'Any special requests (if any)'
+                        }
+                        rows={4}
+                      />
                     </div>
                     
                     {/* Submit Button */}
