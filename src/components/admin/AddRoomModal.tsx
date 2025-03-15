@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { X } from 'lucide-react';
 
 interface AddRoomModalProps {
   open: boolean;
@@ -24,6 +25,8 @@ const AddRoomModal = ({ open, onOpenChange, onRoomAdded }: AddRoomModalProps) =>
   const [capacityEn, setCapacityEn] = useState('');
   const [price, setPrice] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [newGalleryImage, setNewGalleryImage] = useState('');
   const [isPopular, setIsPopular] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -35,6 +38,12 @@ const AddRoomModal = ({ open, onOpenChange, onRoomAdded }: AddRoomModalProps) =>
       // Validate inputs
       if (!name || !nameEn || !description || !descriptionEn || !capacity || !capacityEn || !price || !imageUrl) {
         toast.error('Vui lòng điền đầy đủ thông tin');
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (galleryImages.length === 0) {
+        toast.error('Vui lòng thêm ít nhất một hình ảnh cho thư viện');
         setIsSubmitting(false);
         return;
       }
@@ -54,6 +63,9 @@ const AddRoomModal = ({ open, onOpenChange, onRoomAdded }: AddRoomModalProps) =>
         { name: 'Minibar', icon: 'wine' }
       ];
 
+      // Include the main image in the gallery if not already present
+      const allGalleryImages = [imageUrl, ...galleryImages.filter(img => img !== imageUrl)];
+
       // Insert new room into database
       const { data, error } = await supabase
         .from('room_types')
@@ -67,6 +79,7 @@ const AddRoomModal = ({ open, onOpenChange, onRoomAdded }: AddRoomModalProps) =>
             capacity_en: capacityEn,
             price: priceNum,
             image_url: imageUrl,
+            gallery_images: allGalleryImages,
             is_popular: isPopular,
             amenities
           }
@@ -88,6 +101,27 @@ const AddRoomModal = ({ open, onOpenChange, onRoomAdded }: AddRoomModalProps) =>
     }
   };
 
+  const addGalleryImage = () => {
+    if (!newGalleryImage.trim()) {
+      toast.error('Vui lòng nhập URL hình ảnh');
+      return;
+    }
+    
+    if (galleryImages.includes(newGalleryImage)) {
+      toast.error('Hình ảnh này đã tồn tại trong thư viện');
+      return;
+    }
+    
+    setGalleryImages([...galleryImages, newGalleryImage]);
+    setNewGalleryImage('');
+  };
+
+  const removeGalleryImage = (index: number) => {
+    const updatedImages = [...galleryImages];
+    updatedImages.splice(index, 1);
+    setGalleryImages(updatedImages);
+  };
+
   const resetForm = () => {
     setName('');
     setNameEn('');
@@ -97,6 +131,8 @@ const AddRoomModal = ({ open, onOpenChange, onRoomAdded }: AddRoomModalProps) =>
     setCapacityEn('');
     setPrice('');
     setImageUrl('');
+    setGalleryImages([]);
+    setNewGalleryImage('');
     setIsPopular(false);
   };
 
@@ -191,7 +227,7 @@ const AddRoomModal = ({ open, onOpenChange, onRoomAdded }: AddRoomModalProps) =>
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="imageUrl">URL Hình ảnh</Label>
+              <Label htmlFor="imageUrl">URL Hình ảnh chính</Label>
               <Input
                 id="imageUrl"
                 value={imageUrl}
@@ -200,6 +236,52 @@ const AddRoomModal = ({ open, onOpenChange, onRoomAdded }: AddRoomModalProps) =>
                 required
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Thư viện hình ảnh</Label>
+            <div className="flex items-center space-x-2">
+              <Input
+                value={newGalleryImage}
+                onChange={(e) => setNewGalleryImage(e.target.value)}
+                placeholder="Nhập URL hình ảnh cho thư viện"
+                className="flex-1"
+              />
+              <Button 
+                type="button" 
+                onClick={addGalleryImage}
+                variant="outline"
+              >
+                Thêm
+              </Button>
+            </div>
+            
+            {galleryImages.length > 0 && (
+              <div className="mt-3 border rounded-md p-3">
+                <p className="text-sm text-muted-foreground mb-2">Đã thêm {galleryImages.length} hình ảnh:</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {galleryImages.map((image, index) => (
+                    <div key={index} className="flex items-center justify-between bg-muted p-2 rounded text-sm">
+                      <div className="flex items-center space-x-2">
+                        <div className="h-10 w-10 rounded overflow-hidden">
+                          <img src={image} alt="Gallery preview" className="h-full w-full object-cover" />
+                        </div>
+                        <span className="truncate max-w-[120px]">{image.split('/').pop()}</span>
+                      </div>
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6 rounded-full"
+                        onClick={() => removeGalleryImage(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center space-x-2">

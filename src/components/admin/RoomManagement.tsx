@@ -4,7 +4,7 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, Pencil, Trash2, CheckCircle, XCircle, Image } from 'lucide-react';
 import AddRoomModal from './AddRoomModal';
 import { 
   AlertDialog,
@@ -16,6 +16,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const RoomManagement = () => {
   const [rooms, setRooms] = useState<any[]>([]);
@@ -119,6 +125,7 @@ const RoomManagement = () => {
                 <TableHead>Giá</TableHead>
                 <TableHead>Sức chứa</TableHead>
                 <TableHead className="text-center">Nổi bật</TableHead>
+                <TableHead className="text-center">Hình ảnh</TableHead>
                 <TableHead className="text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
@@ -140,6 +147,44 @@ const RoomManagement = () => {
                         <XCircle className="h-5 w-5 text-muted-foreground" />
                       }
                     </Button>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button 
+                            size="icon" 
+                            variant="ghost" 
+                            className="h-8 w-8"
+                          >
+                            <div className="relative">
+                              <Image className="h-5 w-5 text-muted-foreground" />
+                              {room.gallery_images && room.gallery_images.length > 0 && (
+                                <span className="absolute -top-1.5 -right-1.5 text-xs bg-beach-600 text-white rounded-full w-4 h-4 flex items-center justify-center">
+                                  {room.gallery_images.length}
+                                </span>
+                              )}
+                            </div>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <div className="p-1">
+                            <p className="text-sm font-medium mb-1">Thư viện hình ảnh ({room.gallery_images?.length || 0})</p>
+                            {room.gallery_images && room.gallery_images.length > 0 ? (
+                              <div className="grid grid-cols-3 gap-1 max-w-[300px]">
+                                {room.gallery_images.map((img: string, idx: number) => (
+                                  <div key={idx} className="h-16 w-16 rounded overflow-hidden">
+                                    <img src={img} alt={`Gallery ${idx}`} className="h-full w-full object-cover" />
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-sm text-muted-foreground">Không có hình ảnh</p>
+                            )}
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2 justify-end">
