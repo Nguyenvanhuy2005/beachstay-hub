@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, CheckCircle, XCircle, Image } from 'lucide-react';
 import AddRoomModal from './AddRoomModal';
+import EditRoomModal from './EditRoomModal';
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +28,8 @@ const RoomManagement = () => {
   const [rooms, setRooms] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [currentRoomId, setCurrentRoomId] = useState<string | null>(null);
   const [roomToDelete, setRoomToDelete] = useState<string | null>(null);
 
   useEffect(() => {
@@ -54,6 +57,11 @@ const RoomManagement = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleEditRoom = (id: string) => {
+    setCurrentRoomId(id);
+    setEditModalOpen(true);
   };
 
   const handleDeleteRoom = async (id: string) => {
@@ -188,7 +196,11 @@ const RoomManagement = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2 justify-end">
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleEditRoom(room.id)}
+                      >
                         <Pencil className="h-4 w-4 mr-1" /> Sửa
                       </Button>
                       <Button 
@@ -214,6 +226,13 @@ const RoomManagement = () => {
         onRoomAdded={fetchRooms}
       />
 
+      <EditRoomModal
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        onRoomUpdated={fetchRooms}
+        roomId={currentRoomId}
+      />
+
       <AlertDialog open={!!roomToDelete} onOpenChange={(open) => !open && setRoomToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -230,7 +249,7 @@ const RoomManagement = () => {
             >
               Xóa
             </AlertDialogAction>
-          </AlertDialogFooter>
+          </DialogDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>

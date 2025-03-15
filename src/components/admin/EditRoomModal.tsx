@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,13 +12,14 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RoomAmenities, amenityOptions } from './RoomAmenities';
 
-interface AddRoomModalProps {
+interface EditRoomModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onRoomAdded: () => void;
+  onRoomUpdated: () => void;
+  roomId: string | null;
 }
 
-const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomAdded }) => {
+const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoomUpdated, roomId }) => {
   const [name, setName] = useState('');
   const [nameEn, setNameEn] = useState('');
   const [description, setDescription] = useState('');
@@ -27,15 +29,60 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
   const [price, setPrice] = useState('');
   const [isPopular, setIsPopular] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>(['wifi', 'tv']);
   
   // Main image handling
   const [mainImage, setMainImage] = useState<File | null>(null);
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
+  const [currentMainImageUrl, setCurrentMainImageUrl] = useState<string | null>(null);
   
   // Gallery images handling
   const [galleryImages, setGalleryImages] = useState<File[]>([]);
   const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
+  const [currentGalleryUrls, setCurrentGalleryUrls] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (roomId && open) {
+      fetchRoomDetails();
+    } else {
+      resetForm();
+    }
+  }, [roomId, open]);
+
+  const fetchRoomDetails = async () => {
+    if (!roomId) return;
+    
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('room_types')
+        .select('*')
+        .eq('id', roomId)
+        .single();
+
+      if (error) throw error;
+      
+      if (data) {
+        setName(data.name || '');
+        setNameEn(data.name_en || '');
+        setDescription(data.description || '');
+        setDescriptionEn(data.description_en || '');
+        setCapacity(data.capacity || '');
+        setCapacityEn(data.capacity_en || '');
+        setPrice(data.price?.toString() || '');
+        setIsPopular(data.is_popular || false);
+        setSelectedAmenities(data.amenities?.map((a: any) => a.id || a.vi) || ['wifi', 'tv']);
+        setCurrentMainImageUrl(data.image_url || null);
+        setCurrentGalleryUrls(data.gallery_images || []);
+      }
+    } catch (error) {
+      console.error('Error fetching room details:', error);
+      toast.error('Không thể tải thông tin phòng');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleMainImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -60,11 +107,17 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
 
   const removeGalleryImage = (index: number) => {
     // Remove the preview URL
-    URL.revokeObjectURL(galleryPreviews[index]);
+    if (galleryPreviews[index]) {
+      URL.revokeObjectURL(galleryPreviews[index]);
+    }
     
     // Remove the image and preview from state
     setGalleryImages(prev => prev.filter((_, i) => i !== index));
     setGalleryPreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removeCurrentGalleryImage = (index: number) => {
+    setCurrentGalleryUrls(prev => prev.filter((_, i) => i !== index));
   };
 
   const resetForm = () => {
@@ -84,43 +137,49 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
     }
     setMainImage(null);
     setMainImagePreview(null);
+    setCurrentMainImageUrl(null);
     
     // Clear gallery images
     galleryPreviews.forEach(url => URL.revokeObjectURL(url));
     setGalleryImages([]);
     setGalleryPreviews([]);
+    setCurrentGalleryUrls([]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name || !description || !capacity || !price || !mainImage) {
-      toast.error('Vui lòng điền đầy đủ thông tin và chọn ảnh chính');
+    if (!name || !description || !capacity || !price) {
+      toast.error('Vui lòng điền đầy đủ thông tin');
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // Upload main image first
-      const mainImagePath = `room_types/${Date.now()}_main_${mainImage.name.replace(/\s+/g, '_')}`;
-      const { error: uploadError } = await supabase.storage
-        .from('images')
-        .upload(mainImagePath, mainImage);
+      let mainImageUrl = currentMainImageUrl;
 
-      if (uploadError) {
-        throw new Error(`Error uploading main image: ${uploadError.message}`);
+      // Upload new main image if provided
+      if (mainImage) {
+        const mainImagePath = `room_types/${Date.now()}_main_${mainImage.name.replace(/\s+/g, '_')}`;
+        const { error: uploadError } = await supabase.storage
+          .from('images')
+          .upload(mainImagePath, mainImage);
+
+        if (uploadError) {
+          throw new Error(`Error uploading main image: ${uploadError.message}`);
+        }
+
+        // Get the public URL for the main image
+        const { data: mainImageData } = supabase.storage
+          .from('images')
+          .getPublicUrl(mainImagePath);
+
+        mainImageUrl = mainImageData.publicUrl;
       }
-
-      // Get the public URL for the main image
-      const { data: mainImageData } = supabase.storage
-        .from('images')
-        .getPublicUrl(mainImagePath);
-
-      const mainImageUrl = mainImageData.publicUrl;
       
-      // Upload gallery images
-      const galleryUrls: string[] = [mainImageUrl]; // Include main image in gallery by default
+      // Upload new gallery images
+      const newGalleryUrls: string[] = [...currentGalleryUrls];
       
       for (let i = 0; i < galleryImages.length; i++) {
         const file = galleryImages[i];
@@ -139,7 +198,12 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
           .from('images')
           .getPublicUrl(filePath);
           
-        galleryUrls.push(galleryImageData.publicUrl);
+        newGalleryUrls.push(galleryImageData.publicUrl);
+      }
+
+      // Ensure main image is included in gallery if not already
+      if (mainImageUrl && !newGalleryUrls.includes(mainImageUrl)) {
+        newGalleryUrls.unshift(mainImageUrl);
       }
 
       // Prepare amenities data for database
@@ -152,10 +216,10 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
         };
       });
 
-      // Create room with all images and amenities
-      const { error: insertError } = await supabase
+      // Update room with all images and amenities
+      const { error: updateError } = await supabase
         .from('room_types')
-        .insert({
+        .update({
           name,
           name_en: nameEn || name,
           description,
@@ -165,31 +229,45 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
           price: Number(price),
           is_popular: isPopular,
           image_url: mainImageUrl,
-          gallery_images: galleryUrls,
+          gallery_images: newGalleryUrls,
           amenities: amenitiesData
-        });
+        })
+        .eq('id', roomId);
 
-      if (insertError) {
-        throw insertError;
+      if (updateError) {
+        throw updateError;
       }
 
-      toast.success('Đã thêm phòng thành công');
-      onRoomAdded();
+      toast.success('Đã cập nhật phòng thành công');
+      onRoomUpdated();
       onOpenChange(false);
       resetForm();
     } catch (error) {
-      console.error('Error adding room:', error);
-      toast.error('Không thể thêm phòng: ' + (error as any).message);
+      console.error('Error updating room:', error);
+      toast.error('Không thể cập nhật phòng: ' + (error as any).message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (isLoading) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[600px]">
+          <div className="flex justify-center items-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-beach-600" />
+            <span className="ml-2">Đang tải thông tin phòng...</span>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Thêm Phòng Mới</DialogTitle>
+          <DialogTitle>Chỉnh Sửa Phòng</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -300,42 +378,88 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
             </TabsContent>
             
             <TabsContent value="images" className="space-y-4 mt-4">
+              {/* Main image section */}
               <div className="space-y-2">
-                <Label htmlFor="main-image">Ảnh chính (bắt buộc)</Label>
-                <div className="flex items-center space-x-4">
-                  <Input 
-                    id="main-image" 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={handleMainImageChange}
-                    className="w-2/3"
-                  />
-                  
-                  {mainImagePreview && (
+                <Label>Ảnh chính hiện tại</Label>
+                {currentMainImageUrl ? (
+                  <div className="flex items-center space-x-4">
                     <div className="relative h-20 w-20 overflow-hidden rounded-md border">
                       <img 
-                        src={mainImagePreview} 
-                        alt="Main preview" 
+                        src={currentMainImageUrl} 
+                        alt="Main" 
                         className="h-full w-full object-cover"
                       />
-                      <button
-                        type="button"
-                        className="absolute top-0 right-0 bg-black/50 p-1 rounded-bl"
-                        onClick={() => {
-                          URL.revokeObjectURL(mainImagePreview);
-                          setMainImage(null);
-                          setMainImagePreview(null);
-                        }}
-                      >
-                        <X className="h-4 w-4 text-white" />
-                      </button>
                     </div>
-                  )}
-                </div>
+                    <p className="text-sm text-muted-foreground">
+                      Tải lên ảnh mới để thay thế ảnh hiện tại
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Chưa có ảnh chính</p>
+                )}
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="gallery-images">Ảnh bổ sung (tùy chọn)</Label>
+                <Label htmlFor="main-image">Tải lên ảnh chính mới</Label>
+                <Input 
+                  id="main-image" 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleMainImageChange}
+                  className="w-full"
+                />
+                
+                {mainImagePreview && (
+                  <div className="relative h-20 w-20 overflow-hidden rounded-md border">
+                    <img 
+                      src={mainImagePreview} 
+                      alt="Main preview" 
+                      className="h-full w-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      className="absolute top-0 right-0 bg-black/50 p-1 rounded-bl"
+                      onClick={() => {
+                        URL.revokeObjectURL(mainImagePreview);
+                        setMainImage(null);
+                        setMainImagePreview(null);
+                      }}
+                    >
+                      <X className="h-4 w-4 text-white" />
+                    </button>
+                  </div>
+                )}
+              </div>
+              
+              {/* Gallery images section */}
+              <div className="space-y-2 mt-6">
+                <Label>Thư viện ảnh hiện tại</Label>
+                {currentGalleryUrls.length > 0 ? (
+                  <div className="grid grid-cols-5 gap-2">
+                    {currentGalleryUrls.map((url, idx) => (
+                      <div key={idx} className="relative h-20 w-20 overflow-hidden rounded-md border">
+                        <img 
+                          src={url} 
+                          alt={`Gallery ${idx}`} 
+                          className="h-full w-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          className="absolute top-0 right-0 bg-black/50 p-1 rounded-bl"
+                          onClick={() => removeCurrentGalleryImage(idx)}
+                        >
+                          <X className="h-4 w-4 text-white" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Chưa có ảnh trong thư viện</p>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="gallery-images">Tải lên ảnh bổ sung</Label>
                 <Input 
                   id="gallery-images" 
                   type="file" 
@@ -389,7 +513,7 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
               ) : (
                 <>
                   <Upload className="mr-2 h-4 w-4" />
-                  Thêm phòng
+                  Cập nhật phòng
                 </>
               )}
             </Button>
@@ -400,4 +524,4 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
   );
 };
 
-export default AddRoomModal;
+export default EditRoomModal;
