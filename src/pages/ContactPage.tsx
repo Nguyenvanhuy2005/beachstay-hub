@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import MainLayout from '@/components/layout/MainLayout';
@@ -42,7 +41,6 @@ const ContactPage = () => {
         description: language === 'vi' 
           ? 'Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất.'
           : 'We will contact you as soon as possible.',
-        variant: 'default',
       });
       
       setFormData({
