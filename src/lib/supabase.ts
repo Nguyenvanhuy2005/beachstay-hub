@@ -20,7 +20,6 @@ export const createAdminAccount = async () => {
       .from('admin_users')
       .select('*')
       .eq('email', adminEmail)
-      .eq('is_active', true)
       .single();
     
     if (adminError) {
@@ -29,13 +28,25 @@ export const createAdminAccount = async () => {
     }
     
     if (!adminData) {
-      console.log('Admin not found in admin_users table');
-      return false;
+      console.log('Admin not found in admin_users table, creating record...');
+      
+      // Create admin in the admin_users table
+      const { error: insertError } = await supabase
+        .from('admin_users')
+        .insert([{ email: adminEmail, is_active: true }]);
+        
+      if (insertError) {
+        console.error('Error inserting admin record:', insertError);
+        return false;
+      }
+      
+      console.log('Admin record created successfully in admin_users table');
+    } else {
+      console.log('Admin found in admin_users table:', adminData);
     }
     
-    console.log('Admin found in admin_users table, attempting to ensure auth account exists');
-    
     // Try signing in first to see if account exists
+    console.log('Attempting to sign in with admin credentials...');
     const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
       email: adminEmail,
       password: adminPassword,
@@ -48,23 +59,22 @@ export const createAdminAccount = async () => {
     }
     
     // If sign in fails, try to create the account
-    if (signInError) {
-      console.log('Admin auth account does not exist or credentials are invalid, creating new account');
-      
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: adminEmail,
-        password: adminPassword,
-      });
-      
-      if (signUpError) {
-        console.error('Error creating admin auth account:', signUpError);
-        return false;
-      }
-      
-      if (signUpData?.user) {
-        console.log('Admin auth account created successfully!');
-        return true;
-      }
+    console.log('Sign in failed:', signInError?.message);
+    console.log('Attempting to create admin auth account...');
+    
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: adminEmail,
+      password: adminPassword,
+    });
+    
+    if (signUpError) {
+      console.error('Error creating admin auth account:', signUpError);
+      return false;
+    }
+    
+    if (signUpData?.user) {
+      console.log('Admin auth account created successfully!', signUpData.user);
+      return true;
     }
     
     return false;
@@ -77,6 +87,7 @@ export const createAdminAccount = async () => {
 // Helper function to validate admin status
 export const isAdmin = async (email: string) => {
   try {
+    console.log('Checking if email is admin:', email);
     const { data, error } = await supabase
       .from('admin_users')
       .select('*')
@@ -89,6 +100,7 @@ export const isAdmin = async (email: string) => {
       return false;
     }
     
+    console.log('Admin check result:', !!data);
     return !!data;
   } catch (error) {
     console.error('Unexpected error checking admin status:', error);

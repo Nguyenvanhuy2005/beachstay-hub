@@ -20,24 +20,41 @@ const AdminPage = () => {
   useEffect(() => {
     // Initialize admin account and check auth status when component mounts
     const init = async () => {
-      setIsCreatingAdmin(true);
-      await createAdminAccount();
-      setIsCreatingAdmin(false);
-      await checkAuth();
+      try {
+        console.log('Initializing AdminPage component...');
+        setIsCreatingAdmin(true);
+        await createAdminAccount();
+        setIsCreatingAdmin(false);
+        await checkAuth();
+      } catch (error) {
+        console.error('Error during AdminPage initialization:', error);
+        setIsCreatingAdmin(false);
+        toast.error('Lỗi khởi tạo trang quản trị');
+      }
     };
     
     init();
   }, []);
 
   const checkAuth = async () => {
-    const { data } = await supabase.auth.getSession();
-    const authenticated = !!data.session;
-    setIsAuthenticated(authenticated);
-    
-    if (authenticated && data.session?.user?.email) {
-      const adminCheck = await isAdmin(data.session.user.email);
-      setIsAuthorized(adminCheck);
-    } else {
+    try {
+      console.log('Checking authentication status...');
+      const { data } = await supabase.auth.getSession();
+      const authenticated = !!data.session;
+      console.log('Is authenticated:', authenticated);
+      setIsAuthenticated(authenticated);
+      
+      if (authenticated && data.session?.user?.email) {
+        console.log('Checking if user is admin:', data.session.user.email);
+        const adminCheck = await isAdmin(data.session.user.email);
+        console.log('Is admin:', adminCheck);
+        setIsAuthorized(adminCheck);
+      } else {
+        setIsAuthorized(false);
+      }
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+      setIsAuthenticated(false);
       setIsAuthorized(false);
     }
   };
@@ -113,10 +130,33 @@ const AdminPage = () => {
       }
       
       // Then try to create/reset the auth account
+      await supabase.auth.signOut();
+      
+      try {
+        // Try to delete existing admin account if it exists (may fail if not exists, that's ok)
+        await supabase.auth.admin.deleteUser('admin@annamvillage.vn');
+      } catch (e) {
+        console.log('Error deleting user (this is expected if user does not exist):', e);
+      }
+      
+      // Create a new admin account
       const success = await createAdminAccount();
       
       if (success) {
         toast.success('Tài khoản admin đã được khởi tạo lại');
+        // Try to log in with the new account
+        const { error } = await supabase.auth.signInWithPassword({
+          email: 'admin@annamvillage.vn',
+          password: 'admin',
+        });
+        
+        if (error) {
+          console.error('Error logging in after reset:', error);
+          toast.error('Đăng nhập thất bại sau khi khởi tạo lại: ' + error.message);
+        } else {
+          await checkAuth();
+          toast.success('Đăng nhập tự động sau khi khởi tạo lại');
+        }
       } else {
         toast.error('Không thể khởi tạo lại tài khoản admin');
       }

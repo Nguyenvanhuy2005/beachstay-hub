@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 const AdminDashboard = () => {
@@ -16,6 +17,7 @@ const AdminDashboard = () => {
   const fetchBookings = async () => {
     setIsLoading(true);
     try {
+      console.log('Fetching bookings...');
       const { data, error } = await supabase
         .from('bookings')
         .select('*')
@@ -25,6 +27,7 @@ const AdminDashboard = () => {
         throw error;
       }
 
+      console.log('Bookings fetched:', data?.length || 0);
       setBookings(data || []);
     } catch (error) {
       console.error('Error fetching bookings:', error);
@@ -36,6 +39,7 @@ const AdminDashboard = () => {
 
   const updateBookingStatus = async (id: string, status: string) => {
     try {
+      console.log(`Updating booking ${id} to status: ${status}`);
       const { error } = await supabase
         .from('bookings')
         .update({ status })
