@@ -30,25 +30,33 @@ const ContactPage = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.name || !formData.email || !formData.message) {
+      toast({
+        title: language === 'vi' ? 'Vui lòng điền đầy đủ thông tin' : 'Please fill in all required fields',
+        description: language === 'vi' ? 'Tên, email và tin nhắn là bắt buộc' : 'Name, email, and message are required',
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setLoading(true);
     
-    // Simulate form submission
+    // Simulate API call
     setTimeout(() => {
-      toast({
-        title: language === 'vi' ? 'Gửi Thành Công!' : 'Sent Successfully!',
-        description: language === 'vi' 
-          ? 'Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất.'
-          : 'We will contact you as soon as possible.',
-      });
-      
       setFormData({
         name: '',
         email: '',
         phone: '',
         subject: '',
         message: '',
+      });
+      
+      toast({
+        title: language === 'vi' ? 'Gửi thành công!' : 'Sent Successfully!',
+        description: language === 'vi' ? 'Chúng tôi sẽ liên hệ lại với bạn sớm nhất có thể.' : 'We will get back to you as soon as possible.',
       });
       
       setLoading(false);

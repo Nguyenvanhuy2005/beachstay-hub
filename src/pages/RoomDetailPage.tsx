@@ -10,6 +10,13 @@ import { Loader2, ChevronLeft, Calendar, Users, Check } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const RoomDetailPage = () => {
   const { id } = useParams();
@@ -92,6 +99,11 @@ const RoomDetailPage = () => {
         capacity_en: '2 adults, 1 child',
         price: 2500000,
         image_url: '/lovable-uploads/3de4ca25-b7f7-4567-8e8a-de3b9ef3e8ab.png',
+        gallery_images: [
+          '/lovable-uploads/3de4ca25-b7f7-4567-8e8a-de3b9ef3e8ab.png',
+          '/lovable-uploads/4f6b5954-4f23-421b-b0cd-beee0b9c8bc3.png',
+          '/lovable-uploads/570e7af9-b072-46c1-a4b0-b982c09d1df4.png',
+        ],
         amenities: [
           'Wifi miễn phí',
           'Điều hòa',
@@ -115,6 +127,12 @@ const RoomDetailPage = () => {
         capacity_en: '2 adults, 2 children',
         price: 3800000,
         image_url: '/lovable-uploads/dd828878-82ae-4104-959b-b8793c180d89.png',
+        gallery_images: [
+          '/lovable-uploads/dd828878-82ae-4104-959b-b8793c180d89.png',
+          '/lovable-uploads/842f894d-4d09-4b7b-9de4-e68c7d1e2e30.png',
+          '/lovable-uploads/26bc6833-6fd8-438f-b47b-a5d5dbd6dc10.png',
+          '/lovable-uploads/447ed5f1-0675-492c-8437-bb1fdf09ab86.png',
+        ],
         amenities: [
           'Wifi miễn phí',
           'Điều hòa',
@@ -139,6 +157,11 @@ const RoomDetailPage = () => {
         capacity_en: '4 adults, 2 children',
         price: 7500000,
         image_url: '/lovable-uploads/21668da3-408e-4c55-845e-d0812b05e091.png',
+        gallery_images: [
+          '/lovable-uploads/21668da3-408e-4c55-845e-d0812b05e091.png',
+          '/lovable-uploads/cdfb47b1-e949-44cc-85b1-de98fba2961e.png',
+          '/lovable-uploads/595dc250-29ec-4d1d-873b-d34aecdba712.png',
+        ],
         amenities: [
           'Hồ bơi riêng',
           'Wifi miễn phí',
@@ -164,6 +187,11 @@ const RoomDetailPage = () => {
         capacity_en: '2 adults',
         price: 1800000,
         image_url: '/lovable-uploads/570e7af9-b072-46c1-a4b0-b982c09d1df4.png',
+        gallery_images: [
+          '/lovable-uploads/570e7af9-b072-46c1-a4b0-b982c09d1df4.png',
+          '/lovable-uploads/ff2fe940-82b8-4f88-a56c-eeaea2c86b0c.png',
+          '/lovable-uploads/4f6b5954-4f23-421b-b0cd-beee0b9c8bc3.png',
+        ],
         amenities: [
           'Wifi miễn phí',
           'Điều hòa',
@@ -200,6 +228,10 @@ const RoomDetailPage = () => {
       capacity_en: '2 adults, 1 child',
       price: 2500000,
       image_url: '/lovable-uploads/3de4ca25-b7f7-4567-8e8a-de3b9ef3e8ab.png',
+      gallery_images: [
+        '/lovable-uploads/3de4ca25-b7f7-4567-8e8a-de3b9ef3e8ab.png',
+        '/lovable-uploads/4f6b5954-4f23-421b-b0cd-beee0b9c8bc3.png',
+      ],
       amenities: [
         'Wifi miễn phí',
         'Điều hòa',
@@ -324,6 +356,40 @@ const RoomDetailPage = () => {
             </Link>
           </Button>
         </div>
+        
+        {/* Image Gallery Section */}
+        <motion.div 
+          className="mb-12"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <h2 className="font-serif text-2xl font-bold mb-6 text-beach-900">
+            {language === 'vi' ? 'Hình Ảnh Phòng' : 'Room Gallery'}
+          </h2>
+          
+          <Carousel className="w-full">
+            <CarouselContent>
+              {roomType.gallery_images && roomType.gallery_images.map((image, index) => (
+                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1">
+                    <div className="aspect-video overflow-hidden rounded-lg border border-beach-100">
+                      <img 
+                        src={image} 
+                        alt={`${getName()} - ${index + 1}`} 
+                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                      />
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <div className="hidden md:block">
+              <CarouselPrevious className="-left-4 bg-white" />
+              <CarouselNext className="-right-4 bg-white" />
+            </div>
+          </Carousel>
+        </motion.div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <motion.div 
