@@ -54,44 +54,90 @@ serve(async (req) => {
       }
     );
 
-    const { booking, adminEmail } = await req.json();
+    const requestData = await req.json();
+    
+    // Check which type of notification to send
+    if (requestData.booking) {
+      // Handle booking notification
+      const { booking, adminEmail } = requestData;
 
-    // Format dates
-    const checkInDate = new Date(booking.checkIn).toLocaleDateString('vi-VN');
-    const checkOutDate = new Date(booking.checkOut).toLocaleDateString('vi-VN');
+      // Format dates
+      const checkInDate = new Date(booking.checkIn).toLocaleDateString('vi-VN');
+      const checkOutDate = new Date(booking.checkOut).toLocaleDateString('vi-VN');
 
-    // Prepare email content
-    const emailHtml = `
-      <h1>Thông Báo Đặt Phòng Mới</h1>
-      <p>Có một đặt phòng mới tại Annam Village:</p>
-      <hr>
-      <h2>Chi Tiết Đặt Phòng</h2>
-      <ul>
-        <li><strong>Tên khách hàng:</strong> ${booking.fullName}</li>
-        <li><strong>Email:</strong> ${booking.email}</li>
-        <li><strong>Số điện thoại:</strong> ${booking.phone}</li>
-        <li><strong>Ngày đến:</strong> ${checkInDate}</li>
-        <li><strong>Ngày đi:</strong> ${checkOutDate}</li>
-        <li><strong>Loại phòng:</strong> ${booking.roomType}</li>
-        <li><strong>Số người lớn:</strong> ${booking.adults}</li>
-        <li><strong>Số trẻ em:</strong> ${booking.children}</li>
-        ${booking.specialRequests ? `<li><strong>Yêu cầu đặc biệt:</strong> ${booking.specialRequests}</li>` : ''}
-      </ul>
-      <p>Vui lòng xác nhận đặt phòng này càng sớm càng tốt.</p>
-      <p>Xin cảm ơn,<br>Hệ thống Annam Village</p>
-    `;
+      // Prepare email content
+      const emailHtml = `
+        <h1>Thông Báo Đặt Phòng Mới</h1>
+        <p>Có một đặt phòng mới tại Annam Village:</p>
+        <hr>
+        <h2>Chi Tiết Đặt Phòng</h2>
+        <ul>
+          <li><strong>Tên khách hàng:</strong> ${booking.fullName}</li>
+          <li><strong>Email:</strong> ${booking.email}</li>
+          <li><strong>Số điện thoại:</strong> ${booking.phone}</li>
+          <li><strong>Ngày đến:</strong> ${checkInDate}</li>
+          <li><strong>Ngày đi:</strong> ${checkOutDate}</li>
+          <li><strong>Loại phòng:</strong> ${booking.roomType}</li>
+          <li><strong>Số người lớn:</strong> ${booking.adults}</li>
+          <li><strong>Số trẻ em:</strong> ${booking.children}</li>
+          ${booking.specialRequests ? `<li><strong>Yêu cầu đặc biệt:</strong> ${booking.specialRequests}</li>` : ''}
+        </ul>
+        <p>Vui lòng xác nhận đặt phòng này càng sớm càng tốt.</p>
+        <p>Xin cảm ơn,<br>Hệ thống Annam Village</p>
+      `;
 
-    // Send email to admin
-    const emailResponse = await sendEmail({
-      to: adminEmail,
-      subject: `[Annam Village] Đặt Phòng Mới từ ${booking.fullName}`,
-      html: emailHtml,
-    });
+      // Send email to admin
+      const emailResponse = await sendEmail({
+        to: adminEmail,
+        subject: `[Annam Village] Đặt Phòng Mới từ ${booking.fullName}`,
+        html: emailHtml,
+      });
 
-    return new Response(JSON.stringify(emailResponse), {
-      status: 200,
+      return new Response(JSON.stringify(emailResponse), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    } 
+    else if (requestData.blogPost) {
+      // Handle blog post notification
+      const { blogPost, adminEmail } = requestData;
+      
+      // Prepare email content for blog post
+      const emailHtml = `
+        <h1>Thông Báo Bài Viết Mới</h1>
+        <p>Một bài viết mới đã được tạo trên Annam Village:</p>
+        <hr>
+        <h2>Chi Tiết Bài Viết</h2>
+        <ul>
+          <li><strong>Tiêu đề:</strong> ${blogPost.title}</li>
+          <li><strong>Tác giả:</strong> ${blogPost.author}</li>
+          <li><strong>Ngày tạo:</strong> ${new Date(blogPost.created_at).toLocaleDateString('vi-VN')}</li>
+          <li><strong>Trạng thái:</strong> ${blogPost.published ? 'Đã xuất bản' : 'Bản nháp'}</li>
+          <li><strong>Đường dẫn:</strong> /blog/${blogPost.slug}</li>
+        </ul>
+        <p>Truy cập trang quản trị để xem và quản lý bài viết.</p>
+        <p>Xin cảm ơn,<br>Hệ thống Annam Village</p>
+      `;
+      
+      // Send email to admin
+      const emailResponse = await sendEmail({
+        to: adminEmail,
+        subject: `[Annam Village] Bài Viết Mới: ${blogPost.title}`,
+        html: emailHtml,
+      });
+      
+      return new Response(JSON.stringify(emailResponse), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+    
+    // If neither booking nor blogPost is provided
+    return new Response(JSON.stringify({ error: "Invalid request data" }), {
+      status: 400,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
+
   } catch (error) {
     console.error("Error sending email:", error);
     return new Response(JSON.stringify({ error: error.message }), {
