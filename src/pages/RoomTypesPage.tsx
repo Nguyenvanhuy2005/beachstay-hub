@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -14,7 +13,7 @@ const RoomTypesPage = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Sample room types data
+  // Sample room types data with numeric IDs
   const roomTypes = [
     {
       id: 1,
@@ -146,7 +145,7 @@ const RoomTypesPage = () => {
               ? 'Hãy liên hệ với đội ngũ chăm sóc khách hàng của chúng tôi để được tư vấn lựa chọn phòng phù hợp nhất với nhu cầu của bạn.'
               : 'Contact our customer care team for advice on choosing the most suitable room for your needs.'}
           </p>
-          <Button asChild size="lg">
+          <Button asChild size="lg" className="bg-beach-600 hover:bg-beach-700 text-white">
             <Link to="/lien-he">
               {language === 'vi' ? 'Liên Hệ Ngay' : 'Contact Now'}
             </Link>
