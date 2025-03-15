@@ -75,5 +75,5 @@ redirect_uri = ""
 url = ""
 
 [functions]
-# PORT to use for Edge Functions.
+# Port to use for Edge Functions.
 port = 54321
