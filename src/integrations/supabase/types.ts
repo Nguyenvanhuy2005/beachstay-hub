@@ -63,16 +63,26 @@ export type Database = {
       blog_posts: {
         Row: {
           author: string
+          canonical_url: string | null
           content: string
           content_en: string
           created_at: string | null
           excerpt: string | null
           excerpt_en: string | null
           featured_image: string | null
+          focus_keyword: string | null
+          focus_keyword_en: string | null
           id: string
+          meta_description: string | null
+          meta_description_en: string | null
+          meta_keywords: string[] | null
+          meta_title: string | null
+          meta_title_en: string | null
           published: boolean | null
           published_at: string | null
+          seo_score: number | null
           slug: string
+          structured_data: Json | null
           tags: Json | null
           title: string
           title_en: string
@@ -80,16 +90,26 @@ export type Database = {
         }
         Insert: {
           author: string
+          canonical_url?: string | null
           content: string
           content_en: string
           created_at?: string | null
           excerpt?: string | null
           excerpt_en?: string | null
           featured_image?: string | null
+          focus_keyword?: string | null
+          focus_keyword_en?: string | null
           id?: string
+          meta_description?: string | null
+          meta_description_en?: string | null
+          meta_keywords?: string[] | null
+          meta_title?: string | null
+          meta_title_en?: string | null
           published?: boolean | null
           published_at?: string | null
+          seo_score?: number | null
           slug: string
+          structured_data?: Json | null
           tags?: Json | null
           title: string
           title_en: string
@@ -97,16 +117,26 @@ export type Database = {
         }
         Update: {
           author?: string
+          canonical_url?: string | null
           content?: string
           content_en?: string
           created_at?: string | null
           excerpt?: string | null
           excerpt_en?: string | null
           featured_image?: string | null
+          focus_keyword?: string | null
+          focus_keyword_en?: string | null
           id?: string
+          meta_description?: string | null
+          meta_description_en?: string | null
+          meta_keywords?: string[] | null
+          meta_title?: string | null
+          meta_title_en?: string | null
           published?: boolean | null
           published_at?: string | null
+          seo_score?: number | null
           slug?: string
+          structured_data?: Json | null
           tags?: Json | null
           title?: string
           title_en?: string
