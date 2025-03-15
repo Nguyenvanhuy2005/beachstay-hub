@@ -1,12 +1,12 @@
 
-import { Pool, Utensils, Wifi, Smile, Bike, Coffee } from "lucide-react";
+import { Bath, Utensils, Wifi, Smile, Bike, Coffee } from "lucide-react";
 
 const amenities = [
   {
     id: 1,
     name: "Hồ Bơi",
     description: "Thư giãn và tận hưởng làn nước mát tại hồ bơi ngoài trời với view đẹp",
-    icon: Pool,
+    icon: Bath,
   },
   {
     id: 2,
