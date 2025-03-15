@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -45,7 +44,7 @@ const BlogPostPage = () => {
           setPost(data);
           
           // Fetch related posts based on tags
-          if (data.tags && data.tags.length > 0) {
+          if (data.tags && Array.isArray(data.tags) && data.tags.length > 0) {
             fetchRelatedPosts(data.id, data.tags);
           }
         } else {
@@ -122,7 +121,7 @@ const BlogPostPage = () => {
     // Combine featured image and gallery images
     const allImages = [
       post.featured_image,
-      ...(post.gallery_images || [])
+      ...(Array.isArray(post.gallery_images) ? post.gallery_images : [])
     ].filter(Boolean);
     
     if (allImages.length === 0) {
@@ -133,12 +132,12 @@ const BlogPostPage = () => {
   };
 
   const handlePrevImage = () => {
-    const allImages = [post.featured_image, ...(post.gallery_images || [])].filter(Boolean);
+    const allImages = [post.featured_image, ...(Array.isArray(post.gallery_images) ? post.gallery_images : [])].filter(Boolean);
     setCurrentImageIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1));
   };
 
   const handleNextImage = () => {
-    const allImages = [post.featured_image, ...(post.gallery_images || [])].filter(Boolean);
+    const allImages = [post.featured_image, ...(Array.isArray(post.gallery_images) ? post.gallery_images : [])].filter(Boolean);
     setCurrentImageIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1));
   };
 
@@ -239,7 +238,9 @@ const BlogPostPage = () => {
     );
   }
 
-  const hasMultipleImages = post.featured_image && post.gallery_images && post.gallery_images.length > 0;
+  const hasMultipleImages = post.featured_image && 
+                           Array.isArray(post.gallery_images) && 
+                           post.gallery_images.length > 0;
   const currentPostUrl = window.location.href;
   const readingTime = getReadingTime(getContent());
 
@@ -292,7 +293,7 @@ const BlogPostPage = () => {
               
               {/* Image counter */}
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-20">
-                {currentImageIndex + 1} / {[post.featured_image, ...(post.gallery_images || [])].filter(Boolean).length}
+                {currentImageIndex + 1} / {[post.featured_image, ...(Array.isArray(post.gallery_images) ? post.gallery_images : [])].filter(Boolean).length}
               </div>
             </>
           )}
