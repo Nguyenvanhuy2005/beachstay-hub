@@ -13,50 +13,47 @@ export const createAdminAccount = async () => {
   const adminPassword = 'admin';
   
   try {
-    // Try to sign in with the admin credentials to check if account exists
-    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      email: adminEmail,
-      password: adminPassword,
-    });
+    console.log('Attempting to create admin account...');
     
-    // If sign in succeeds, the admin account already exists
-    if (signInData?.user) {
-      console.log('Admin account already exists and is valid');
-      return true;
-    }
-    
-    // If error is not "Invalid login credentials", it might be a different issue
-    if (signInError && !signInError.message.includes('Invalid login credentials')) {
-      console.error('Error checking if admin exists:', signInError);
-    }
-    
-    // Attempt to create the admin account
-    console.log('Admin account does not exist or password is incorrect. Creating account...');
+    // First, try to create the account
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: adminEmail,
       password: adminPassword,
     });
     
     if (signUpError) {
-      // If sign up fails because the user already exists but with different password
+      // If the error indicates the user already exists, try to sign in
       if (signUpError.message.includes('already registered')) {
-        console.log('Admin email already registered but with different password');
-        // In a real app, you might want to handle this differently
+        console.log('Admin email already registered, attempting to sign in...');
+        
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: adminEmail,
+          password: adminPassword,
+        });
+        
+        if (signInError) {
+          console.error('Error signing in with existing admin account:', signInError);
+          return false;
+        }
+        
+        if (signInData?.user) {
+          console.log('Successfully signed in with existing admin account');
+          return true;
+        }
+      } else {
+        console.error('Error creating admin account:', signUpError);
         return false;
       }
-      
-      console.error('Error creating admin account:', signUpError);
-      return false;
     }
     
     if (signUpData?.user) {
-      console.log('Admin account created successfully');
+      console.log('Admin account created successfully!');
       return true;
     }
     
     return false;
   } catch (error) {
-    console.error('Unexpected error creating admin account:', error);
+    console.error('Unexpected error during admin account setup:', error);
     return false;
   }
 };

@@ -12,17 +12,20 @@ import { toast } from 'sonner';
 const AdminPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [email, setEmail] = useState('admin@annamvillage.vn');
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState('admin');
   const [isLoading, setIsLoading] = useState(false);
+  const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
 
   useEffect(() => {
-    // Initialize admin account if needed
-    const initAdmin = async () => {
+    // Initialize admin account and check auth status when component mounts
+    const init = async () => {
+      setIsCreatingAdmin(true);
       await createAdminAccount();
+      setIsCreatingAdmin(false);
+      await checkAuth();
     };
     
-    initAdmin();
-    checkAuth();
+    init();
   }, []);
 
   const checkAuth = async () => {
@@ -35,18 +38,32 @@ const AdminPage = () => {
     setIsLoading(true);
     
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log(`Attempting to log in with: ${email}`);
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Login error:', error);
+        throw error;
+      }
       
-      setIsAuthenticated(true);
-      toast.success('Đăng nhập thành công');
+      if (data.user) {
+        console.log('Login successful:', data.user);
+        setIsAuthenticated(true);
+        toast.success('Đăng nhập thành công');
+      }
     } catch (error: any) {
       console.error('Error logging in:', error);
       toast.error('Đăng nhập thất bại: ' + (error.message || 'Vui lòng kiểm tra email và mật khẩu'));
+      
+      // If login fails, try creating the admin account again
+      toast.info('Đang thử tạo tài khoản admin...');
+      const created = await createAdminAccount();
+      if (created) {
+        toast.info('Tài khoản admin đã được tạo, vui lòng thử đăng nhập lại');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -56,6 +73,19 @@ const AdminPage = () => {
     await supabase.auth.signOut();
     setIsAuthenticated(false);
     toast.success('Đã đăng xuất');
+  };
+
+  const handleAdminReset = async () => {
+    setIsLoading(true);
+    toast.info('Đang khởi tạo lại tài khoản admin...');
+    const success = await createAdminAccount();
+    setIsLoading(false);
+    
+    if (success) {
+      toast.success('Tài khoản admin đã được khởi tạo lại');
+    } else {
+      toast.error('Không thể khởi tạo lại tài khoản admin');
+    }
   };
 
   if (isAuthenticated === null) {
@@ -78,39 +108,54 @@ const AdminPage = () => {
             <div className="max-w-md mx-auto">
               <Card>
                 <CardContent className="pt-6">
-                  <form onSubmit={handleLogin} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email" 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="admin@annamvillage.vn"
-                        required
-                      />
+                  {isCreatingAdmin ? (
+                    <div className="text-center py-4">
+                      <p className="mb-2">Đang tạo tài khoản admin...</p>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Mật khẩu</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      Tài khoản mặc định: admin@annamvillage.vn / admin
-                    </div>
-                    <Button 
-                      type="submit" 
-                      className="w-full mt-4" 
-                      disabled={isLoading}
-                    >
-                      {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-                    </Button>
-                  </form>
+                  ) : (
+                    <form onSubmit={handleLogin} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                          id="email"
+                          type="email" 
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="admin@annamvillage.vn"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="password">Mật khẩu</Label>
+                        <Input
+                          id="password"
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        Tài khoản mặc định: admin@annamvillage.vn / admin
+                      </div>
+                      <Button 
+                        type="submit" 
+                        className="w-full mt-4" 
+                        disabled={isLoading}
+                      >
+                        {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                      </Button>
+                      <Button 
+                        type="button" 
+                        variant="outline"
+                        className="w-full mt-2" 
+                        onClick={handleAdminReset}
+                        disabled={isLoading}
+                      >
+                        Khởi tạo lại tài khoản admin
+                      </Button>
+                    </form>
+                  )}
                 </CardContent>
               </Card>
             </div>
