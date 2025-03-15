@@ -1,0 +1,262 @@
+
+import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { supabase } from '@/integrations/supabase/client';
+import MainLayout from '@/components/layout/MainLayout';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { Button } from '@/components/ui/button';
+import { Loader2, ChevronLeft, Calendar, Users, Check } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+
+const RoomDetailPage = () => {
+  const { id } = useParams();
+  const [roomType, setRoomType] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { language } = useLanguage();
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    
+    const fetchRoomType = async () => {
+      try {
+        setLoading(true);
+        
+        if (id) {
+          const { data, error } = await supabase
+            .from('room_types')
+            .select('*')
+            .eq('id', id)
+            .single();
+          
+          if (error) {
+            console.error('Error fetching room type:', error);
+            return;
+          }
+          
+          if (data) {
+            setRoomType(data);
+          } else {
+            // Fallback to hardcoded data if no data in the database
+            setRoomType({
+              id: '1',
+              name: 'Phòng Deluxe Hướng Biển',
+              name_en: 'Deluxe Ocean View Room',
+              description: 'Phòng Deluxe Hướng Biển rộng rãi với tầm nhìn tuyệt đẹp ra đại dương. Phòng được thiết kế hiện đại, thoáng mát với ban công riêng, nơi bạn có thể thưởng thức ánh bình minh và hoàng hôn tuyệt đẹp trên biển. Phòng được trang bị đầy đủ tiện nghi cao cấp, từ TV màn hình phẳng, minibar đến phòng tắm sang trọng với bồn tắm và vòi sen riêng biệt.',
+              description_en: 'Spacious Deluxe Ocean View Room with a breathtaking view of the ocean. The room is designed in a modern, airy style with a private balcony where you can enjoy beautiful sunrises and sunsets over the sea. The room is fully equipped with premium amenities, from a flat-screen TV, minibar to a luxurious bathroom with separate bathtub and shower.',
+              capacity: '2 người lớn, 1 trẻ em',
+              capacity_en: '2 adults, 1 child',
+              price: 2500000,
+              image_url: '/lovable-uploads/3de4ca25-b7f7-4567-8e8a-de3b9ef3e8ab.png',
+              amenities: [
+                'Wifi miễn phí',
+                'Điều hòa',
+                'TV màn hình phẳng',
+                'Minibar',
+                'Két an toàn',
+                'Bồn tắm',
+                'Ban công riêng',
+                'Đồ vệ sinh cá nhân cao cấp',
+                'Dịch vụ phòng 24/7',
+              ],
+              is_popular: true
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Unexpected error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchRoomType();
+  }, [id]);
+  
+  const getName = () => {
+    return language === 'vi' ? roomType.name : roomType.name_en;
+  };
+  
+  const getDescription = () => {
+    return language === 'vi' ? roomType.description : roomType.description_en;
+  };
+  
+  const getCapacity = () => {
+    return language === 'vi' ? roomType.capacity : roomType.capacity_en;
+  };
+  
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
+      style: 'currency',
+      currency: language === 'vi' ? 'VND' : 'USD',
+      maximumFractionDigits: 0,
+    }).format(language === 'vi' ? price : Math.round(price / 23000));
+  };
+  
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="container mx-auto px-4 py-20 flex justify-center items-center">
+          <Loader2 className="h-10 w-10 animate-spin text-beach-600" />
+        </div>
+      </MainLayout>
+    );
+  }
+  
+  if (!roomType) {
+    return (
+      <MainLayout>
+        <div className="container mx-auto px-4 py-20 text-center">
+          <h1 className="font-serif text-3xl font-bold mb-4 text-gray-900">
+            {language === 'vi' ? 'Không Tìm Thấy Loại Phòng' : 'Room Type Not Found'}
+          </h1>
+          <p className="text-gray-700 mb-8">
+            {language === 'vi' 
+              ? 'Loại phòng bạn đang tìm kiếm không tồn tại hoặc đã được gỡ bỏ.'
+              : 'The room type you are looking for does not exist or has been removed.'}
+          </p>
+          <Button asChild>
+            <Link to="/loai-phong">
+              <ChevronLeft className="mr-2 h-4 w-4" />
+              {language === 'vi' ? 'Xem Tất Cả Loại Phòng' : 'View All Room Types'}
+            </Link>
+          </Button>
+        </div>
+      </MainLayout>
+    );
+  }
+  
+  return (
+    <MainLayout>
+      {/* Hero Banner */}
+      <div className="relative h-80 md:h-96 bg-beach-900">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-beach-900/70 to-beach-900/90 z-10"></div>
+          <img 
+            src={roomType.image_url} 
+            alt={getName()} 
+            className="w-full h-full object-cover"
+          />
+        </div>
+        
+        <div className="relative z-20 container mx-auto px-4 h-full flex items-center">
+          <div className="max-w-3xl text-white">
+            <motion.h1 
+              className="font-serif text-4xl md:text-5xl font-bold mb-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              {getName()}
+            </motion.h1>
+            <motion.div 
+              className="flex items-center gap-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <Badge className="bg-beach-600">{formatPrice(roomType.price)}/{language === 'vi' ? 'đêm' : 'night'}</Badge>
+              <Badge variant="outline" className="border-beach-300 text-beach-50">
+                <Users className="h-3 w-3 mr-1" />
+                {getCapacity()}
+              </Badge>
+            </motion.div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Room Details */}
+      <div className="container mx-auto px-4 py-16">
+        <div className="flex flex-wrap gap-4 mb-8 items-center">
+          <Button asChild variant="outline">
+            <Link to="/loai-phong">
+              <ChevronLeft className="mr-2 h-4 w-4" />
+              {language === 'vi' ? 'Tất Cả Loại Phòng' : 'All Room Types'}
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link to="/dat-phong">
+              <Calendar className="mr-2 h-4 w-4" />
+              {language === 'vi' ? 'Đặt Phòng Ngay' : 'Book Now'}
+            </Link>
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <motion.div 
+            className="lg:col-span-2"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="font-serif text-2xl font-bold mb-6 text-beach-900">{language === 'vi' ? 'Mô Tả' : 'Description'}</h2>
+            <p className="text-beach-800 leading-relaxed mb-8">{getDescription()}</p>
+            
+            <div>
+              <h3 className="font-serif text-xl font-bold mb-4 text-beach-900">{language === 'vi' ? 'Tiện Nghi Phòng' : 'Room Amenities'}</h3>
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {roomType.amenities.map((amenity, index) => (
+                  <li key={index} className="flex items-center gap-2 text-beach-700">
+                    <Check className="h-4 w-4 text-beach-600" />
+                    <span>{amenity}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="bg-beach-50 p-6 rounded-lg border border-beach-100 sticky top-24">
+              <h3 className="font-serif text-xl font-bold mb-4 text-beach-900">{language === 'vi' ? 'Tóm Tắt' : 'Summary'}</h3>
+              
+              <div className="space-y-4 mb-6">
+                <div>
+                  <p className="text-sm text-beach-600">{language === 'vi' ? 'Giá' : 'Price'}</p>
+                  <p className="text-lg font-bold text-beach-900">{formatPrice(roomType.price)}/{language === 'vi' ? 'đêm' : 'night'}</p>
+                </div>
+                
+                <div>
+                  <p className="text-sm text-beach-600">{language === 'vi' ? 'Sức Chứa' : 'Capacity'}</p>
+                  <p className="text-lg text-beach-900">{getCapacity()}</p>
+                </div>
+                
+                <Separator className="bg-beach-200" />
+                
+                <div>
+                  <p className="text-sm text-beach-600 mb-2">{language === 'vi' ? 'Bao Gồm' : 'Includes'}</p>
+                  <ul className="space-y-2">
+                    <li className="flex gap-2 text-beach-700">
+                      <Check className="h-4 w-4 text-beach-600" />
+                      <span>{language === 'vi' ? 'Bữa sáng miễn phí' : 'Free breakfast'}</span>
+                    </li>
+                    <li className="flex gap-2 text-beach-700">
+                      <Check className="h-4 w-4 text-beach-600" />
+                      <span>{language === 'vi' ? 'Wifi miễn phí' : 'Free Wifi'}</span>
+                    </li>
+                    <li className="flex gap-2 text-beach-700">
+                      <Check className="h-4 w-4 text-beach-600" />
+                      <span>{language === 'vi' ? 'Hủy phòng miễn phí trước 3 ngày' : 'Free cancellation before 3 days'}</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              
+              <Button asChild className="w-full">
+                <Link to="/dat-phong">
+                  {language === 'vi' ? 'Đặt Phòng Ngay' : 'Book Now'}
+                </Link>
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </MainLayout>
+  );
+};
+
+export default RoomDetailPage;
