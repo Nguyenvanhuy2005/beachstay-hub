@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -85,7 +84,6 @@ const AdminDashboard = () => {
               <TabsTrigger value="content">Nội Dung</TabsTrigger>
             </TabsList>
             
-            {/* Bookings Tab */}
             <TabsContent value="bookings" className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium">Danh Sách Đặt Phòng</h3>
@@ -153,14 +151,12 @@ const AdminDashboard = () => {
               )}
             </TabsContent>
             
-            {/* Rooms Tab */}
             <TabsContent value="rooms" className="space-y-4">
               <div className="text-center py-4">
                 <p>Tính năng quản lý phòng sẽ được phát triển trong tương lai</p>
               </div>
             </TabsContent>
             
-            {/* Content Tab */}
             <TabsContent value="content" className="space-y-4">
               <div className="text-center py-4">
                 <p>Tính năng quản lý nội dung sẽ được phát triển trong tương lai</p>

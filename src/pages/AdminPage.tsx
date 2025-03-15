@@ -2,15 +2,16 @@
 import React, { useEffect, useState } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import AdminDashboard from '@/components/admin/AdminDashboard';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { supabase, createAdminAccount } from '@/lib/supabase';
+import { supabase, createAdminAccount, isAdmin } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 const AdminPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
   const [email, setEmail] = useState('admin@annamvillage.vn');
   const [password, setPassword] = useState('admin');
   const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +31,15 @@ const AdminPage = () => {
 
   const checkAuth = async () => {
     const { data } = await supabase.auth.getSession();
-    setIsAuthenticated(!!data.session);
+    const authenticated = !!data.session;
+    setIsAuthenticated(authenticated);
+    
+    if (authenticated && data.session?.user?.email) {
+      const adminCheck = await isAdmin(data.session.user.email);
+      setIsAuthorized(adminCheck);
+    } else {
+      setIsAuthorized(false);
+    }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -51,15 +60,28 @@ const AdminPage = () => {
       
       if (data.user) {
         console.log('Login successful:', data.user);
-        setIsAuthenticated(true);
-        toast.success('Đăng nhập thành công');
+        
+        // Check if user is in admin_users table
+        const adminCheck = await isAdmin(data.user.email || '');
+        
+        if (adminCheck) {
+          setIsAuthenticated(true);
+          setIsAuthorized(true);
+          toast.success('Đăng nhập thành công');
+        } else {
+          // User authenticated but not authorized
+          await supabase.auth.signOut();
+          setIsAuthenticated(false);
+          setIsAuthorized(false);
+          toast.error('Tài khoản không có quyền quản trị');
+        }
       }
     } catch (error: any) {
       console.error('Error logging in:', error);
       toast.error('Đăng nhập thất bại: ' + (error.message || 'Vui lòng kiểm tra email và mật khẩu'));
       
       // If login fails, try creating the admin account again
-      toast.info('Đang thử tạo tài khoản admin...');
+      toast.info('Đang thử tạo lại tài khoản admin...');
       const created = await createAdminAccount();
       if (created) {
         toast.info('Tài khoản admin đã được tạo, vui lòng thử đăng nhập lại');
@@ -72,19 +94,37 @@ const AdminPage = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setIsAuthenticated(false);
+    setIsAuthorized(false);
     toast.success('Đã đăng xuất');
   };
 
   const handleAdminReset = async () => {
     setIsLoading(true);
     toast.info('Đang khởi tạo lại tài khoản admin...');
-    const success = await createAdminAccount();
-    setIsLoading(false);
     
-    if (success) {
-      toast.success('Tài khoản admin đã được khởi tạo lại');
-    } else {
-      toast.error('Không thể khởi tạo lại tài khoản admin');
+    try {
+      // First ensure the admin exists in the admin_users table
+      const { error: adminError } = await supabase
+        .from('admin_users')
+        .upsert([{ email: 'admin@annamvillage.vn', is_active: true }]);
+      
+      if (adminError) {
+        throw adminError;
+      }
+      
+      // Then try to create/reset the auth account
+      const success = await createAdminAccount();
+      
+      if (success) {
+        toast.success('Tài khoản admin đã được khởi tạo lại');
+      } else {
+        toast.error('Không thể khởi tạo lại tài khoản admin');
+      }
+    } catch (error: any) {
+      console.error('Error resetting admin:', error);
+      toast.error('Lỗi khi khởi tạo lại tài khoản admin: ' + error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -104,10 +144,13 @@ const AdminPage = () => {
         <div className="container mx-auto px-4">
           <h1 className="text-3xl font-bold mb-8 text-beach-900">Trang Quản Trị</h1>
           
-          {!isAuthenticated ? (
+          {!isAuthenticated || !isAuthorized ? (
             <div className="max-w-md mx-auto">
               <Card>
-                <CardContent className="pt-6">
+                <CardHeader>
+                  <CardTitle>Đăng nhập quản trị</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-2">
                   {isCreatingAdmin ? (
                     <div className="text-center py-4">
                       <p className="mb-2">Đang tạo tài khoản admin...</p>

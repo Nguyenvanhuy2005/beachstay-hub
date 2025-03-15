@@ -13,47 +13,85 @@ export const createAdminAccount = async () => {
   const adminPassword = 'admin';
   
   try {
-    console.log('Attempting to create admin account...');
+    console.log('Checking if admin exists in admin_users table...');
     
-    // First, try to create the account
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+    // First check if the email exists in our admin_users table
+    const { data: adminData, error: adminError } = await supabase
+      .from('admin_users')
+      .select('*')
+      .eq('email', adminEmail)
+      .eq('is_active', true)
+      .single();
+    
+    if (adminError) {
+      console.error('Error checking admin status:', adminError);
+      return false;
+    }
+    
+    if (!adminData) {
+      console.log('Admin not found in admin_users table');
+      return false;
+    }
+    
+    console.log('Admin found in admin_users table, attempting to ensure auth account exists');
+    
+    // Try signing in first to see if account exists
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
       email: adminEmail,
       password: adminPassword,
     });
     
-    if (signUpError) {
-      // If the error indicates the user already exists, try to sign in
-      if (signUpError.message.includes('already registered')) {
-        console.log('Admin email already registered, attempting to sign in...');
-        
-        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-          email: adminEmail,
-          password: adminPassword,
-        });
-        
-        if (signInError) {
-          console.error('Error signing in with existing admin account:', signInError);
-          return false;
-        }
-        
-        if (signInData?.user) {
-          console.log('Successfully signed in with existing admin account');
-          return true;
-        }
-      } else {
-        console.error('Error creating admin account:', signUpError);
-        return false;
-      }
+    // If sign in succeeds, the account exists
+    if (signInData?.user) {
+      console.log('Admin auth account exists and credentials are valid');
+      return true;
     }
     
-    if (signUpData?.user) {
-      console.log('Admin account created successfully!');
-      return true;
+    // If sign in fails, try to create the account
+    if (signInError) {
+      console.log('Admin auth account does not exist or credentials are invalid, creating new account');
+      
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: adminEmail,
+        password: adminPassword,
+      });
+      
+      if (signUpError) {
+        console.error('Error creating admin auth account:', signUpError);
+        return false;
+      }
+      
+      if (signUpData?.user) {
+        console.log('Admin auth account created successfully!');
+        return true;
+      }
     }
     
     return false;
   } catch (error) {
     console.error('Unexpected error during admin account setup:', error);
+    return false;
+  }
+};
+
+// Helper function to validate admin status
+export const isAdmin = async (email: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('admin_users')
+      .select('*')
+      .eq('email', email)
+      .eq('is_active', true)
+      .single();
+    
+    if (error) {
+      console.error('Error checking admin status:', error);
+      return false;
+    }
+    
+    return !!data;
+  } catch (error) {
+    console.error('Unexpected error checking admin status:', error);
     return false;
   }
 };
