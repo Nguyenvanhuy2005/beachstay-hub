@@ -116,12 +116,12 @@ const RoomTypesPage = () => {
                     </div>
                     <p className="text-beach-700 mb-6 flex-grow">{room.description}</p>
                     <div className="mt-auto flex justify-between items-center">
-                      <Button asChild variant="outline">
+                      <Button asChild className="rounded-md border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 transition-colors">
                         <Link to={`/loai-phong/${room.id}`}>
                           {language === 'vi' ? 'Chi Tiết' : 'Details'}
                         </Link>
                       </Button>
-                      <Button asChild>
+                      <Button asChild className="bg-beach-600 hover:bg-beach-700 text-white">
                         <Link to="/dat-phong">
                           {language === 'vi' ? 'Đặt Ngay' : 'Book Now'}
                         </Link>

@@ -237,7 +237,7 @@ const RoomTypesSection = () => {
                       <span className="text-gray-500 text-sm"> / {language === 'vi' ? 'đêm' : 'night'}</span>
                     </div>
                     <Link to={`/loai-phong/${room.id}`}>
-                      <Button variant="outline" className="border-beach-500 text-beach-700 hover:bg-beach-50">
+                      <Button className="rounded-md border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 transition-colors">
                         {language === 'vi' ? 'Chi Tiết' : 'Details'}
                       </Button>
                     </Link>

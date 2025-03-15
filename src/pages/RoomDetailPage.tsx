@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -38,7 +37,6 @@ const RoomDetailPage = () => {
           if (data) {
             setRoomType(data);
           } else {
-            // Fallback to hardcoded data if no data in the database
             setRoomType({
               id: '1',
               name: 'Phòng Deluxe Hướng Biển',
@@ -169,13 +167,13 @@ const RoomDetailPage = () => {
       {/* Room Details */}
       <div className="container mx-auto px-4 py-16">
         <div className="flex flex-wrap gap-4 mb-8 items-center">
-          <Button asChild variant="outline">
+          <Button asChild className="rounded-md border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 transition-colors">
             <Link to="/loai-phong">
               <ChevronLeft className="mr-2 h-4 w-4" />
               {language === 'vi' ? 'Tất Cả Loại Phòng' : 'All Room Types'}
             </Link>
           </Button>
-          <Button asChild>
+          <Button asChild className="bg-beach-600 hover:bg-beach-700 text-white">
             <Link to="/dat-phong">
               <Calendar className="mr-2 h-4 w-4" />
               {language === 'vi' ? 'Đặt Phòng Ngay' : 'Book Now'}
@@ -246,7 +244,7 @@ const RoomDetailPage = () => {
                 </div>
               </div>
               
-              <Button asChild className="w-full">
+              <Button asChild className="w-full bg-beach-600 hover:bg-beach-700 text-white">
                 <Link to="/dat-phong">
                   {language === 'vi' ? 'Đặt Phòng Ngay' : 'Book Now'}
                 </Link>
