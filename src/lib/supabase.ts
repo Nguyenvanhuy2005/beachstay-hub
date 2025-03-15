@@ -13,15 +13,31 @@ export const createAdminAccount = async () => {
   const adminPassword = 'admin';
   
   try {
-    // Check if admin already exists
-    const { data: existingUser } = await supabase
-      .from('users')
-      .select('email')
-      .eq('email', adminEmail)
-      .maybeSingle();
+    // First check if the user exists in auth
+    const { data: authUser, error: authError } = await supabase.auth.admin.getUserByEmail(adminEmail);
     
-    if (!existingUser) {
-      // Create admin user if it doesn't exist
+    // If auth error is not "User not found", it's likely a permission issue
+    if (authError && !authError.message.includes('User not found')) {
+      console.error('Error checking if admin exists:', authError);
+      
+      // Try sign-up method instead
+      console.log('Attempting admin sign-up instead...');
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: adminEmail,
+        password: adminPassword,
+      });
+      
+      if (signUpError) {
+        console.error('Error creating admin account:', signUpError);
+        return false;
+      }
+      
+      console.log('Admin account created successfully via sign-up');
+      return true;
+    }
+    
+    // If user doesn't exist, create it
+    if (!authUser) {
       const { error } = await supabase.auth.signUp({
         email: adminEmail,
         password: adminPassword,
@@ -40,6 +56,24 @@ export const createAdminAccount = async () => {
     }
   } catch (error) {
     console.error('Unexpected error creating admin account:', error);
-    return false;
+    
+    // Fallback: try regular sign-up
+    try {
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: adminEmail,
+        password: adminPassword,
+      });
+      
+      if (signUpError) {
+        console.error('Fallback signup also failed:', signUpError);
+        return false;
+      }
+      
+      console.log('Admin account created successfully via fallback');
+      return true;
+    } catch (fallbackError) {
+      console.error('Fallback also failed with unexpected error:', fallbackError);
+      return false;
+    }
   }
 };
