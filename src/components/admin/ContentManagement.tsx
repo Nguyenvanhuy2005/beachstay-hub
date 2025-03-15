@@ -4,10 +4,24 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { Plus, Pencil, Trash2, ExternalLink } from 'lucide-react';
+import AddBlogPostModal from './AddBlogPostModal';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const ContentManagement = () => {
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     fetchContent();
@@ -41,6 +55,47 @@ const ContentManagement = () => {
     return new Date(dateString).toLocaleDateString('vi-VN');
   };
 
+  const handleDeletePost = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('blog_posts')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      toast.success('Đã xóa bài viết thành công');
+      fetchContent();
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      toast.error('Không thể xóa bài viết');
+    } finally {
+      setPostToDelete(null);
+    }
+  };
+
+  const togglePublished = async (id: string, currentValue: boolean) => {
+    try {
+      const updates = {
+        published: !currentValue,
+        published_at: !currentValue ? new Date().toISOString() : null
+      };
+
+      const { error } = await supabase
+        .from('blog_posts')
+        .update(updates)
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      toast.success(`Bài viết đã được ${!currentValue ? 'xuất bản' : 'chuyển về bản nháp'}`);
+      fetchContent();
+    } catch (error) {
+      console.error('Error updating post:', error);
+      toast.error('Không thể cập nhật trạng thái bài viết');
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -49,8 +104,8 @@ const ContentManagement = () => {
           <Button onClick={fetchContent} variant="outline" size="sm">
             Làm mới
           </Button>
-          <Button size="sm">
-            Tạo bài viết mới
+          <Button onClick={() => setAddModalOpen(true)} size="sm">
+            <Plus className="mr-1 h-4 w-4" /> Tạo bài viết mới
           </Button>
         </div>
       </div>
@@ -58,7 +113,13 @@ const ContentManagement = () => {
       {isLoading ? (
         <div className="text-center py-4">Đang tải...</div>
       ) : blogPosts.length === 0 ? (
-        <div className="text-center py-4">Chưa có bài viết nào</div>
+        <div className="text-center py-12 bg-muted/40 rounded-md">
+          <h3 className="text-lg font-medium mb-2">Chưa có bài viết nào</h3>
+          <p className="text-muted-foreground mb-4">Hãy tạo bài viết đầu tiên cho trang web của bạn</p>
+          <Button onClick={() => setAddModalOpen(true)}>
+            <Plus className="mr-1 h-4 w-4" /> Tạo bài viết mới
+          </Button>
+        </div>
       ) : (
         <div className="overflow-x-auto rounded-md border">
           <Table>
@@ -68,7 +129,7 @@ const ContentManagement = () => {
                 <TableHead>Tác giả</TableHead>
                 <TableHead>Ngày đăng</TableHead>
                 <TableHead>Trạng thái</TableHead>
-                <TableHead>Thao tác</TableHead>
+                <TableHead className="text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -78,15 +139,47 @@ const ContentManagement = () => {
                   <TableCell>{post.author}</TableCell>
                   <TableCell>{formatDate(post.published_at || post.created_at)}</TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${post.published ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                      {post.published ? 'Đã đăng' : 'Bản nháp'}
-                    </span>
+                    <div className="flex items-center">
+                      <span 
+                        className={`px-2 py-1 rounded-full text-xs font-medium 
+                        ${post.published ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}
+                      >
+                        {post.published ? 'Đã đăng' : 'Bản nháp'}
+                      </span>
+                      <Button 
+                        onClick={() => togglePublished(post.id, post.published)}
+                        variant="ghost" 
+                        size="sm" 
+                        className="ml-2 h-8"
+                      >
+                        {post.published ? 'Chuyển về nháp' : 'Xuất bản'}
+                      </Button>
+                    </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-2 justify-end">
                       <Button size="sm" variant="outline">
-                        Chỉnh sửa
+                        <Pencil className="h-4 w-4 mr-1" /> Sửa
                       </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-red-500 border-red-200 hover:bg-red-50"
+                        onClick={() => setPostToDelete(post.id)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" /> Xóa
+                      </Button>
+                      {post.published && (
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          asChild
+                        >
+                          <a href={`/blog/${post.slug}`} target="_blank" rel="noreferrer">
+                            <ExternalLink className="h-4 w-4 mr-1" /> Xem
+                          </a>
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -95,6 +188,32 @@ const ContentManagement = () => {
           </Table>
         </div>
       )}
+
+      <AddBlogPostModal 
+        open={addModalOpen} 
+        onOpenChange={setAddModalOpen} 
+        onPostAdded={fetchContent} 
+      />
+
+      <AlertDialog open={!!postToDelete} onOpenChange={(open) => !open && setPostToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa bài viết này? Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction 
+              className="bg-red-500 hover:bg-red-600"
+              onClick={() => postToDelete && handleDeletePost(postToDelete)}
+            >
+              Xóa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
