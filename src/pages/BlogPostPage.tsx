@@ -1,25 +1,32 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import MainLayout from '@/components/layout/MainLayout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Calendar, User, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Loader2, ChevronLeft, ChevronRight, Share2, Clock } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { motion } from 'framer-motion';
+import { Helmet } from 'react-helmet';
+import { toast } from 'sonner';
 
 const BlogPostPage = () => {
   const { slug } = useParams();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const { language } = useLanguage();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [relatedPosts, setRelatedPosts] = useState([]);
 
   useEffect(() => {
     const fetchBlogPost = async () => {
       try {
         setLoading(true);
+        setError(false);
+        
+        console.log('Fetching blog post with slug:', slug);
         const { data, error } = await supabase
           .from('blog_posts')
           .select('*')
@@ -29,52 +36,26 @@ const BlogPostPage = () => {
 
         if (error) {
           console.error('Error fetching blog post:', error);
+          setError(true);
           return;
         }
 
         if (data) {
+          console.log('Blog post retrieved:', data);
           setPost(data);
+          
+          // Fetch related posts based on tags
+          if (data.tags && data.tags.length > 0) {
+            fetchRelatedPosts(data.id, data.tags);
+          }
         } else {
-          // Fallback to hardcoded data if no data in the database
-          setPost({
-            id: '1',
-            title: 'Top 5 Hoạt Động Không Thể Bỏ Lỡ Tại Vũng Tàu',
-            title_en: 'Top 5 Activities You Can\'t Miss in Vung Tau',
-            slug: 'top-5-hoat-dong-tai-vung-tau',
-            content: `<p>Vũng Tàu là điểm đến du lịch biển nổi tiếng tại miền Nam Việt Nam, chỉ cách TP.HCM khoảng 2 giờ di chuyển. Với bãi biển đẹp, khí hậu mát mẻ và nhiều điểm tham quan thú vị, Vũng Tàu luôn là lựa chọn hàng đầu cho kỳ nghỉ ngắn ngày.</p>
-            <h2>1. Tắm biển tại Bãi Sau</h2>
-            <p>Bãi Sau (hay còn gọi là Bãi Thùy Vân) là một trong những bãi biển đẹp nhất Vũng Tàu với bờ cát trắng mịn trải dài, nước biển trong xanh và sóng nhẹ. Đây là nơi lý tưởng để tắm biển, tắm nắng hoặc chơi các môn thể thao trên biển.</p>
-            <h2>2. Check-in tại Tượng Chúa Kitô</h2>
-            <p>Tượng Chúa Kitô Vua là biểu tượng nổi tiếng của Vũng Tàu, nằm trên đỉnh Núi Nhỏ. Du khách có thể leo 811 bậc thang để lên đến tượng và thưởng ngoạn toàn cảnh thành phố và biển từ trên cao.</p>
-            <h2>3. Khám phá Hải đăng Vũng Tàu</h2>
-            <p>Hải đăng Vũng Tàu nằm trên đỉnh Núi Nhỏ, là một trong những ngọn hải đăng cổ nhất Việt Nam. Đây không chỉ là điểm tham quan mà còn là địa điểm lý tưởng để ngắm bình minh hoặc hoàng hôn tuyệt đẹp.</p>
-            <h2>4. Thưởng thức hải sản tươi ngon</h2>
-            <p>Vũng Tàu nổi tiếng với các món hải sản tươi ngon như bánh khọt, hải sản nướng, gỏi cá trích... Du khách có thể thưởng thức tại các nhà hàng ven biển hoặc khu chợ hải sản Lưới Đỏ.</p>
-            <h2>5. Tham quan khu du lịch Hồ Mây</h2>
-            <p>Khu du lịch Hồ Mây nằm trên đỉnh Núi Lớn, cung cấp nhiều hoạt động giải trí như trò chơi mạo hiểm, vườn thú, công viên nước và nhiều dịch vụ khác. Từ đây, du khách cũng có thể ngắm toàn cảnh thành phố.</p>`,
-            content_en: `<p>Vung Tau is a famous beach destination in southern Vietnam, just about 2 hours away from Ho Chi Minh City. With beautiful beaches, pleasant climate and many interesting attractions, Vung Tau is always a top choice for a short getaway.</p>
-            <h2>1. Swimming at Back Beach</h2>
-            <p>Back Beach (or Thuy Van Beach) is one of the most beautiful beaches in Vung Tau with long, fine white sand, clear blue water and gentle waves. This is an ideal place for swimming, sunbathing or playing water sports.</p>
-            <h2>2. Check-in at Christ the King Statue</h2>
-            <p>The Christ the King Statue is a famous symbol of Vung Tau, located on Small Mountain. Visitors can climb 811 steps to reach the statue and enjoy panoramic views of the city and sea from above.</p>
-            <h2>3. Explore Vung Tau Lighthouse</h2>
-            <p>Vung Tau Lighthouse is located on Small Mountain and is one of the oldest lighthouses in Vietnam. It is not only a tourist attraction but also an ideal place to watch beautiful sunrises or sunsets.</p>
-            <h2>4. Enjoy fresh seafood</h2>
-            <p>Vung Tau is famous for its fresh seafood dishes such as banh khot (mini pancakes), grilled seafood, herring fish salad, etc. Visitors can enjoy these at seaside restaurants or at the Luoi Do seafood market.</p>
-            <h2>5. Visit Ho May Tourist Park</h2>
-            <p>Ho May Tourist Park is located on Big Mountain and offers many recreational activities such as adventure games, zoo, water park and many other services. From here, visitors can also see panoramic views of the city.</p>`,
-            featured_image: '/lovable-uploads/447ed5f1-0675-492c-8437-bb1fdf09ab86.png',
-            gallery_images: [
-              '/lovable-uploads/570e7af9-b072-46c1-a4b0-b982c09d1df4.png',
-              '/lovable-uploads/842f894d-4d09-4b7b-9de4-e68c7d1e2e30.png'
-            ],
-            author: 'Tuấn Anh',
-            published_at: '2023-08-15',
-            tags: ['du lịch', 'biển', 'hoạt động', 'travel', 'beach', 'activities'],
-          });
+          // If no data found, set error state
+          setError(true);
+          console.log('No blog post found with this slug');
         }
       } catch (error) {
         console.error('Unexpected error:', error);
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -82,8 +63,31 @@ const BlogPostPage = () => {
 
     if (slug) {
       fetchBlogPost();
+      // Reset scroll position
+      window.scrollTo(0, 0);
     }
   }, [slug]);
+
+  const fetchRelatedPosts = async (currentPostId, tags) => {
+    try {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('id, title, title_en, slug, featured_image, published_at')
+        .eq('published', true)
+        .neq('id', currentPostId)
+        .order('published_at', { ascending: false })
+        .limit(3);
+
+      if (error) {
+        console.error('Error fetching related posts:', error);
+        return;
+      }
+
+      setRelatedPosts(data || []);
+    } catch (error) {
+      console.error('Unexpected error when fetching related posts:', error);
+    }
+  };
 
   const getTitle = () => {
     return language === 'vi' ? post.title : post.title_en;
@@ -100,6 +104,16 @@ const BlogPostPage = () => {
       month: 'long',
       day: 'numeric',
     }).format(date);
+  };
+
+  const getReadingTime = (content) => {
+    // Average reading speed: 200 words per minute
+    const wordCount = content?.split(/\s+/).length || 0;
+    const readingTimeMinutes = Math.max(1, Math.ceil(wordCount / 200));
+    
+    return language === 'vi' 
+      ? `${readingTimeMinutes} phút đọc`
+      : `${readingTimeMinutes} min read`;
   };
 
   const getImageToShow = () => {
@@ -127,7 +141,7 @@ const BlogPostPage = () => {
   };
 
   const getMetaTitle = () => {
-    if (!post) return '';
+    if (!post) return language === 'vi' ? 'Không tìm thấy bài viết' : 'Post Not Found';
     return language === 'vi' 
       ? (post.meta_title || post.title)
       : (post.meta_title_en || post.title_en);
@@ -136,49 +150,32 @@ const BlogPostPage = () => {
   const getMetaDescription = () => {
     if (!post) return '';
     return language === 'vi'
-      ? (post.meta_description || post.excerpt)
-      : (post.meta_description_en || post.excerpt_en);
+      ? (post.meta_description || post.excerpt || `Đọc bài viết ${post.title} tại Annam Village`)
+      : (post.meta_description_en || post.excerpt_en || `Read ${post.title_en} at Annam Village`);
   };
 
-  // Set meta tags for SEO
-  useEffect(() => {
-    if (post) {
-      // Set document title
-      document.title = getMetaTitle();
-      
-      // Set meta description
-      let metaDescription = document.querySelector('meta[name="description"]');
-      if (!metaDescription) {
-        metaDescription = document.createElement('meta');
-        metaDescription.setAttribute('name', 'description');
-        document.head.appendChild(metaDescription);
-      }
-      metaDescription.setAttribute('content', getMetaDescription() || '');
-      
-      // Set meta keywords
-      let metaKeywords = document.querySelector('meta[name="keywords"]');
-      if (!metaKeywords) {
-        metaKeywords = document.createElement('meta');
-        metaKeywords.setAttribute('name', 'keywords');
-        document.head.appendChild(metaKeywords);
-      }
-      const keywords = language === 'vi' ? post.keywords : post.keywords_en;
-      if (keywords) {
-        metaKeywords.setAttribute('content', keywords);
-      }
-      
-      // Return cleanup function
-      return () => {
-        document.title = 'Annam Village';
-        if (metaDescription) metaDescription.remove();
-        if (metaKeywords) metaKeywords.remove();
-      };
+  const handleSharePost = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: getTitle(),
+        text: getMetaDescription(),
+        url: window.location.href,
+      })
+        .then(() => console.log('Successful share'))
+        .catch((error) => console.log('Error sharing', error));
+    } else {
+      // Fallback for browsers that don't support the Web Share API
+      navigator.clipboard.writeText(window.location.href);
+      toast.success(language === 'vi' ? 'Đã sao chép đường dẫn' : 'Link copied to clipboard');
     }
-  }, [post, language]);
+  };
 
   if (loading) {
     return (
       <MainLayout>
+        <Helmet>
+          <title>{language === 'vi' ? 'Đang tải...' : 'Loading...'} | Annam Village</title>
+        </Helmet>
         <div className="container mx-auto px-4 py-20 flex justify-center items-center">
           <Loader2 className="h-10 w-10 animate-spin text-beach-600" />
         </div>
@@ -186,35 +183,85 @@ const BlogPostPage = () => {
     );
   }
 
-  if (!post) {
+  if (error || !post) {
     return (
       <MainLayout>
-        <div className="container mx-auto px-4 py-20 text-center">
-          <h1 className="font-serif text-3xl font-bold mb-4 text-gray-900">
-            {language === 'vi' ? 'Không Tìm Thấy Bài Viết' : 'Post Not Found'}
-          </h1>
-          <p className="text-gray-700 mb-8">
-            {language === 'vi' 
-              ? 'Bài viết bạn đang tìm kiếm không tồn tại hoặc đã được gỡ bỏ.'
-              : 'The post you are looking for does not exist or has been removed.'}
-          </p>
-          <Button asChild>
-            <Link to="/blog">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              {language === 'vi' ? 'Quay Lại Blog' : 'Back to Blog'}
-            </Link>
-          </Button>
+        <Helmet>
+          <title>{language === 'vi' ? 'Không tìm thấy bài viết' : 'Post Not Found'} | Annam Village</title>
+          <meta 
+            name="description" 
+            content={language === 'vi' 
+              ? 'Bài viết bạn đang tìm kiếm không tồn tại hoặc đã được gỡ bỏ.' 
+              : 'The post you are looking for does not exist or has been removed.'} 
+          />
+          <meta name="robots" content="noindex, follow" />
+        </Helmet>
+        
+        <div className="container mx-auto px-4 py-20 md:py-32">
+          <div className="max-w-3xl mx-auto text-center">
+            <motion.h1 
+              className="text-3xl md:text-4xl font-serif font-bold mb-6 text-beach-900"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              {language === 'vi' ? 'Không Tìm Thấy Bài Viết' : 'Post Not Found'}
+            </motion.h1>
+            
+            <motion.p 
+              className="text-lg text-gray-700 mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              {language === 'vi' 
+                ? 'Bài viết bạn đang tìm kiếm không tồn tại hoặc đã được gỡ bỏ.'
+                : 'The post you are looking for does not exist or has been removed.'}
+            </motion.p>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <Button asChild className="bg-beach-600 hover:bg-beach-700">
+                <Link to="/blog">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  {language === 'vi' ? 'Quay Lại Blog' : 'Back to Blog'}
+                </Link>
+              </Button>
+            </motion.div>
+          </div>
         </div>
       </MainLayout>
     );
   }
 
   const hasMultipleImages = post.featured_image && post.gallery_images && post.gallery_images.length > 0;
+  const currentPostUrl = window.location.href;
+  const readingTime = getReadingTime(getContent());
 
   return (
     <MainLayout>
+      <Helmet>
+        <title>{getMetaTitle()} | Annam Village</title>
+        <meta name="description" content={getMetaDescription()} />
+        {post.keywords && <meta name="keywords" content={language === 'vi' ? post.keywords : post.keywords_en} />}
+        <meta property="og:title" content={getMetaTitle()} />
+        <meta property="og:description" content={getMetaDescription()} />
+        <meta property="og:image" content={post.featured_image} />
+        <meta property="og:url" content={currentPostUrl} />
+        <meta property="og:type" content="article" />
+        <meta property="article:published_time" content={post.published_at} />
+        <meta property="article:author" content={post.author} />
+        {post.tags && post.tags.map((tag) => (
+          <meta property="article:tag" content={tag} key={tag} />
+        ))}
+        <link rel="canonical" href={currentPostUrl} />
+      </Helmet>
+      
       {/* Hero Banner */}
-      <div className="relative h-96 bg-beach-900">
+      <div className="relative h-80 md:h-96 bg-beach-900">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-beach-900/70 to-beach-900/90 z-10"></div>
           <img 
@@ -229,12 +276,14 @@ const BlogPostPage = () => {
               <button 
                 onClick={handlePrevImage}
                 className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full z-20"
+                aria-label={language === 'vi' ? 'Ảnh trước' : 'Previous image'}
               >
                 <ChevronLeft className="h-6 w-6" />
               </button>
               <button 
                 onClick={handleNextImage}
                 className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full z-20"
+                aria-label={language === 'vi' ? 'Ảnh sau' : 'Next image'}
               >
                 <ChevronRight className="h-6 w-6" />
               </button>
@@ -256,10 +305,10 @@ const BlogPostPage = () => {
                 </Badge>
               ))}
             </div>
-            <h1 className="font-serif text-4xl md:text-5xl font-bold mb-4">
+            <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
               {getTitle()}
             </h1>
-            <div className="flex items-center gap-6 text-beach-100">
+            <div className="flex flex-wrap items-center gap-4 md:gap-6 text-beach-100 text-sm md:text-base">
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4" />
                 <span>{post.author}</span>
@@ -267,6 +316,10 @@ const BlogPostPage = () => {
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
                 <span>{formatDate(post.published_at)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                <span>{readingTime}</span>
               </div>
             </div>
           </div>
@@ -277,18 +330,19 @@ const BlogPostPage = () => {
       {post.gallery_images && post.gallery_images.length > 0 && (
         <div className="bg-gray-100 py-6">
           <div className="container mx-auto px-4">
-            <div className="flex overflow-x-auto space-x-4 pb-2">
+            <div className="flex overflow-x-auto space-x-4 pb-2 scrollbar-hide">
               {[post.featured_image, ...post.gallery_images].filter(Boolean).map((image, index) => (
                 <div 
                   key={index}
                   onClick={() => setCurrentImageIndex(index)}
-                  className={`shrink-0 w-24 h-24 rounded-md overflow-hidden cursor-pointer border-2 
+                  className={`shrink-0 w-16 h-16 md:w-24 md:h-24 rounded-md overflow-hidden cursor-pointer border-2 
                     ${currentImageIndex === index ? 'border-beach-500' : 'border-transparent'}`}
                 >
                   <img 
                     src={image} 
-                    alt={`Gallery ${index + 1}`} 
+                    alt={`${getTitle()} - ${language === 'vi' ? 'Hình ảnh' : 'Image'} ${index + 1}`} 
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                 </div>
               ))}
@@ -298,30 +352,65 @@ const BlogPostPage = () => {
       )}
       
       {/* Article Content */}
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-12 md:py-16">
         <div className="max-w-4xl mx-auto">
-          <Button asChild variant="outline" className="mb-8">
-            <Link to="/blog">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              {language === 'vi' ? 'Quay Lại Blog' : 'Back to Blog'}
-            </Link>
-          </Button>
+          <div className="flex justify-between items-center mb-8">
+            <Button asChild variant="outline" className="rounded-full">
+              <Link to="/blog">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                {language === 'vi' ? 'Quay Lại Blog' : 'Back to Blog'}
+              </Link>
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              onClick={handleSharePost} 
+              className="rounded-full"
+              aria-label={language === 'vi' ? 'Chia sẻ bài viết' : 'Share post'}
+            >
+              <Share2 className="mr-2 h-4 w-4" />
+              {language === 'vi' ? 'Chia sẻ' : 'Share'}
+            </Button>
+          </div>
           
           {post.excerpt && (
-            <div className="mb-8 bg-beach-50 p-6 rounded-lg border border-beach-100">
+            <motion.div 
+              className="mb-8 bg-beach-50 p-6 rounded-lg border border-beach-100"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
               <p className="text-lg italic text-beach-800">
                 {language === 'vi' ? post.excerpt : post.excerpt_en}
               </p>
-            </div>
+            </motion.div>
           )}
           
-          <motion.div 
-            className="prose prose-lg max-w-none"
+          <motion.article 
+            className="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-beach-900 prose-img:rounded-lg prose-a:text-beach-600 prose-a:no-underline hover:prose-a:underline"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             dangerouslySetInnerHTML={{ __html: getContent() }}
           />
+          
+          {/* Share buttons */}
+          <div className="mt-12 pt-6 border-t border-gray-200">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-beach-900">
+                {language === 'vi' ? 'Chia sẻ bài viết này' : 'Share this post'}
+              </h3>
+              <Button 
+                variant="outline" 
+                onClick={handleSharePost} 
+                className="rounded-full"
+                aria-label={language === 'vi' ? 'Chia sẻ bài viết' : 'Share post'}
+              >
+                <Share2 className="mr-2 h-4 w-4" />
+                {language === 'vi' ? 'Chia sẻ' : 'Share'}
+              </Button>
+            </div>
+          </div>
           
           {/* Author Info */}
           <div className="mt-12 pt-8 border-t border-gray-200">
@@ -337,6 +426,39 @@ const BlogPostPage = () => {
               </div>
             </div>
           </div>
+          
+          {/* Related Posts */}
+          {relatedPosts.length > 0 && (
+            <div className="mt-16 pt-8 border-t border-gray-200">
+              <h3 className="text-2xl font-serif font-bold text-beach-900 mb-6">
+                {language === 'vi' ? 'Bài Viết Liên Quan' : 'Related Posts'}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {relatedPosts.map((relatedPost) => (
+                  <Link 
+                    key={relatedPost.id} 
+                    to={`/blog/${relatedPost.slug}`}
+                    className="group"
+                  >
+                    <div className="rounded-lg overflow-hidden h-40 mb-3">
+                      <img 
+                        src={relatedPost.featured_image || '/placeholder.svg'} 
+                        alt={language === 'vi' ? relatedPost.title : relatedPost.title_en} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                      />
+                    </div>
+                    <h4 className="font-medium text-beach-900 group-hover:text-beach-600 transition-colors line-clamp-2">
+                      {language === 'vi' ? relatedPost.title : relatedPost.title_en}
+                    </h4>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {formatDate(relatedPost.published_at)}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </MainLayout>
