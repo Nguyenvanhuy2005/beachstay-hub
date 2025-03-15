@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import MainLayout from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
@@ -32,42 +32,34 @@ const RoomDetailPage = () => {
         setLoading(true);
         
         if (id) {
-          // First try to fetch from the local list if not a UUID
-          if (!isValidUUID(id)) {
-            // Get the hardcoded room data
+          console.log("Fetching room with ID:", id);
+          
+          // Try to fetch from Supabase
+          const { data, error } = await supabase
+            .from('room_types')
+            .select('*')
+            .eq('id', id)
+            .single();
+          
+          if (error) {
+            console.error('Error fetching room type:', error);
+            // Try to get from hardcoded data if Supabase fails
             const hardcodedRoom = getHardcodedRoomData(id);
             if (hardcodedRoom) {
+              console.log("Using hardcoded room data:", hardcodedRoom);
               setRoomType(hardcodedRoom);
-              setLoading(false);
-              return;
+            } else {
+              toast.error(language === 'vi' ? 'Không thể tìm thấy loại phòng' : 'Room type not found');
             }
+          } else if (data) {
+            console.log("Supabase returned room data:", data);
+            setRoomType(data);
+          } else {
+            // If we get here, we need to use fallback data
+            const fallbackRoom = getFallbackRoom(id);
+            console.log("Using fallback room data:", fallbackRoom);
+            setRoomType(fallbackRoom);
           }
-          
-          // Try to fetch from Supabase if it might be a UUID
-          try {
-            const { data, error } = await supabase
-              .from('room_types')
-              .select('*')
-              .eq('id', id)
-              .single();
-            
-            if (error) {
-              console.error('Error fetching room type:', error);
-              // Fall back to hardcoded data
-              setRoomType(getFallbackRoom(id));
-              return;
-            }
-            
-            if (data) {
-              setRoomType(data);
-              return;
-            }
-          } catch (error) {
-            console.error('Supabase query error:', error);
-          }
-          
-          // If we got here, we need to use fallback data
-          setRoomType(getFallbackRoom(id));
         }
       } catch (error) {
         console.error('Unexpected error:', error);
@@ -79,12 +71,6 @@ const RoomDetailPage = () => {
     
     fetchRoomType();
   }, [id, language]);
-  
-  // Helper function to check if a string is a valid UUID
-  const isValidUUID = (str) => {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    return uuidRegex.test(str);
-  };
   
   // Get hardcoded room data by numeric ID
   const getHardcodedRoomData = (roomId) => {
@@ -404,7 +390,7 @@ const RoomDetailPage = () => {
             <div>
               <h3 className="font-serif text-xl font-bold mb-4 text-beach-900">{language === 'vi' ? 'Tiện Nghi Phòng' : 'Room Amenities'}</h3>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {roomType.amenities.map((amenity, index) => (
+                {roomType.amenities && roomType.amenities.map((amenity, index) => (
                   <li key={index} className="flex items-center gap-2 text-beach-700">
                     <Check className="h-4 w-4 text-beach-600" />
                     <span>{amenity}</span>

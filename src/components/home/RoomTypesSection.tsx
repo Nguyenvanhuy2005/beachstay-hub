@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Users, Wifi, Coffee, Bath, Tv, Loader2, Car, Umbrella, Ban, Plane, LifeBuoy, UtensilsCrossed, ShowerHead, Bed, FlameKindling, Refrigerator } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
+import { getRoomTypes } from "@/api/bookingApi";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
 
@@ -59,82 +59,26 @@ const RoomTypesSection = () => {
     const fetchRoomTypes = async () => {
       try {
         setLoading(true);
-        const { data, error } = await supabase
-          .from('room_types')
-          .select('*')
-          .order('price', { ascending: false });
-
-        if (error) {
-          console.error('Error fetching room types:', error);
-          return;
-        }
-
+        const data = await getRoomTypes();
+        
         if (data && data.length > 0) {
-          setRoomTypes(data);
+          // Chỉ hiển thị tối đa 3 phòng ở trang chủ
+          const featuredRooms = data.filter(room => room.is_popular).slice(0, 3);
+          if (featuredRooms.length < 3) {
+            // Nếu không đủ phòng "popular", thêm các phòng khác
+            const otherRooms = data.filter(room => !room.is_popular).slice(0, 3 - featuredRooms.length);
+            setRoomTypes([...featuredRooms, ...otherRooms]);
+          } else {
+            setRoomTypes(featuredRooms);
+          }
         } else {
-          // Fallback to hardcoded data if no data in the database
-          setRoomTypes([
-            {
-              id: 1,
-              name: "Villa Hồ Bơi Riêng",
-              name_en: "Private Pool Villa",
-              image_url: "/lovable-uploads/21668da3-408e-4c55-845e-d0812b05e091.png",
-              description: "Villa 2 phòng ngủ với hồ bơi riêng, không gian rộng rãi và đầy đủ tiện nghi hiện đại.",
-              description_en: "2 bedroom villa with private pool, spacious and fully equipped with modern amenities.",
-              capacity: "4 người lớn, 2 trẻ em",
-              capacity_en: "4 adults, 2 children",
-              price: 3500000,
-              amenities: [
-                { vi: "Hồ bơi riêng", en: "Private pool" }, 
-                { vi: "Wifi miễn phí", en: "Free Wifi" }, 
-                { vi: "Bếp đầy đủ", en: "Full Kitchen" }, 
-                { vi: "Dịch vụ dọn phòng", en: "Housekeeping" }, 
-                { vi: "Smart TV", en: "Smart TV" }
-              ],
-              is_popular: true,
-            },
-            {
-              id: 2,
-              name: "Căn Hộ Hướng Biển",
-              name_en: "Sea View Apartment",
-              image_url: "/lovable-uploads/dd828878-82ae-4104-959b-b8793c180d89.png",
-              description: "Căn hộ với view biển tuyệt đẹp, thiết kế hiện đại và không gian thoáng đãng.",
-              description_en: "Apartment with beautiful sea views, modern design and spacious atmosphere.",
-              capacity: "2 người lớn, 1 trẻ em",
-              capacity_en: "2 adults, 1 child",
-              price: 1800000,
-              amenities: [
-                { vi: "View biển", en: "Sea view" }, 
-                { vi: "Wifi miễn phí", en: "Free Wifi" }, 
-                { vi: "Bàn làm việc", en: "Work desk" }, 
-                { vi: "Dịch vụ dọn phòng", en: "Housekeeping" }, 
-                { vi: "Smart TV", en: "Smart TV" }
-              ],
-              is_popular: false,
-            },
-            {
-              id: 3,
-              name: "Phòng Deluxe",
-              name_en: "Deluxe Room",
-              image_url: "/lovable-uploads/ff2fe940-82b8-4f88-a56c-eeaea2c86b0c.png",
-              description: "Phòng nghỉ sang trọng với nội thất cao cấp, view đẹp và tiện nghi đầy đủ.",
-              description_en: "Luxurious room with premium furnishings, beautiful views and full amenities.",
-              capacity: "2 người lớn",
-              capacity_en: "2 adults",
-              price: 1200000,
-              amenities: [
-                { vi: "Bồn tắm", en: "Bathtub" }, 
-                { vi: "Wifi miễn phí", en: "Free Wifi" }, 
-                { vi: "Minibar", en: "Minibar" }, 
-                { vi: "Dịch vụ dọn phòng", en: "Housekeeping" }, 
-                { vi: "Smart TV", en: "Smart TV" }
-              ],
-              is_popular: false,
-            },
-          ]);
+          // Fallback nếu không có dữ liệu
+          console.log('No room data from API, using fallback data');
+          setRoomTypes([]);
         }
       } catch (error) {
-        console.error('Unexpected error:', error);
+        console.error('Error in fetchRoomTypes:', error);
+        setRoomTypes([]);
       } finally {
         setLoading(false);
       }
@@ -206,6 +150,17 @@ const RoomTypesSection = () => {
           <div className="flex justify-center items-center py-20">
             <Loader2 className="h-10 w-10 animate-spin text-beach-600" />
           </div>
+        ) : roomTypes.length === 0 ? (
+          <div className="text-center py-10">
+            <p className="text-beach-700">
+              {language === 'vi' ? 'Chưa có loại phòng nào.' : 'No room types available yet.'}
+            </p>
+            <Button asChild className="mt-4 bg-beach-600 hover:bg-beach-700 text-white">
+              <Link to="/loai-phong">
+                {language === 'vi' ? 'Xem Tất Cả Loại Phòng' : 'View All Room Types'} <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
         ) : (
           <motion.div 
             className="grid grid-cols-1 md:grid-cols-3 gap-8"
@@ -242,22 +197,24 @@ const RoomTypesSection = () => {
                     <Users size={18} className="text-beach-600 mr-2" />
                     <span className="text-gray-600 text-sm">{getRoomCapacity(room)}</span>
                   </div>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {room.amenities && room.amenities.slice(0, 5).map((amenity, index) => {
-                      const amenityName = getAmenityName(amenity);
-                      const amenityIcon = getAmenityIcon(amenity);
-                      
-                      return (
-                        <span 
-                          key={index}
-                          className="inline-flex items-center text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
-                        >
-                          {amenityIcon && <span className="mr-1">{amenityIcon}</span>}
-                          {amenityName}
-                        </span>
-                      );
-                    })}
-                  </div>
+                  {room.amenities && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {Array.isArray(room.amenities) && room.amenities.slice(0, 5).map((amenity, index) => {
+                        const amenityName = getAmenityName(amenity);
+                        const amenityIcon = getAmenityIcon(amenity);
+                        
+                        return (
+                          <span 
+                            key={index}
+                            className="inline-flex items-center text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
+                          >
+                            {amenityIcon && <span className="mr-1">{amenityIcon}</span>}
+                            {amenityName}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
                   <div className="flex justify-between items-center mt-6">
                     <div>
                       <span className="text-beach-700 font-bold text-xl">

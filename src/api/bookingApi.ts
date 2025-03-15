@@ -71,6 +71,7 @@ export const createBooking = async (bookingData: BookingFormData) => {
 
 export const getRoomTypes = async () => {
   try {
+    console.log('Fetching room types from Supabase...');
     const { data, error } = await supabase
       .from('room_types')
       .select('*')
@@ -81,9 +82,10 @@ export const getRoomTypes = async () => {
       return [];
     }
 
+    console.log('Room types fetched successfully:', data);
     return data || [];
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Unexpected error in getRoomTypes:', error);
     return [];
   }
 };
