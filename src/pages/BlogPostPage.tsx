@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import MainLayout from '@/components/layout/MainLayout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Calendar, User, Loader2 } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { motion } from 'framer-motion';
 
@@ -14,6 +14,7 @@ const BlogPostPage = () => {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const { language } = useLanguage();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const fetchBlogPost = async () => {
@@ -63,6 +64,10 @@ const BlogPostPage = () => {
             <h2>5. Visit Ho May Tourist Park</h2>
             <p>Ho May Tourist Park is located on Big Mountain and offers many recreational activities such as adventure games, zoo, water park and many other services. From here, visitors can also see panoramic views of the city.</p>`,
             featured_image: '/lovable-uploads/447ed5f1-0675-492c-8437-bb1fdf09ab86.png',
+            gallery_images: [
+              '/lovable-uploads/570e7af9-b072-46c1-a4b0-b982c09d1df4.png',
+              '/lovable-uploads/842f894d-4d09-4b7b-9de4-e68c7d1e2e30.png'
+            ],
             author: 'Tuấn Anh',
             published_at: '2023-08-15',
             tags: ['du lịch', 'biển', 'hoạt động', 'travel', 'beach', 'activities'],
@@ -97,6 +102,80 @@ const BlogPostPage = () => {
     }).format(date);
   };
 
+  const getImageToShow = () => {
+    // Combine featured image and gallery images
+    const allImages = [
+      post.featured_image,
+      ...(post.gallery_images || [])
+    ].filter(Boolean);
+    
+    if (allImages.length === 0) {
+      return '/placeholder.svg';
+    }
+    
+    return allImages[currentImageIndex];
+  };
+
+  const handlePrevImage = () => {
+    const allImages = [post.featured_image, ...(post.gallery_images || [])].filter(Boolean);
+    setCurrentImageIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1));
+  };
+
+  const handleNextImage = () => {
+    const allImages = [post.featured_image, ...(post.gallery_images || [])].filter(Boolean);
+    setCurrentImageIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1));
+  };
+
+  const getMetaTitle = () => {
+    if (!post) return '';
+    return language === 'vi' 
+      ? (post.meta_title || post.title)
+      : (post.meta_title_en || post.title_en);
+  };
+
+  const getMetaDescription = () => {
+    if (!post) return '';
+    return language === 'vi'
+      ? (post.meta_description || post.excerpt)
+      : (post.meta_description_en || post.excerpt_en);
+  };
+
+  // Set meta tags for SEO
+  useEffect(() => {
+    if (post) {
+      // Set document title
+      document.title = getMetaTitle();
+      
+      // Set meta description
+      let metaDescription = document.querySelector('meta[name="description"]');
+      if (!metaDescription) {
+        metaDescription = document.createElement('meta');
+        metaDescription.setAttribute('name', 'description');
+        document.head.appendChild(metaDescription);
+      }
+      metaDescription.setAttribute('content', getMetaDescription() || '');
+      
+      // Set meta keywords
+      let metaKeywords = document.querySelector('meta[name="keywords"]');
+      if (!metaKeywords) {
+        metaKeywords = document.createElement('meta');
+        metaKeywords.setAttribute('name', 'keywords');
+        document.head.appendChild(metaKeywords);
+      }
+      const keywords = language === 'vi' ? post.keywords : post.keywords_en;
+      if (keywords) {
+        metaKeywords.setAttribute('content', keywords);
+      }
+      
+      // Return cleanup function
+      return () => {
+        document.title = 'Annam Village';
+        if (metaDescription) metaDescription.remove();
+        if (metaKeywords) metaKeywords.remove();
+      };
+    }
+  }, [post, language]);
+
   if (loading) {
     return (
       <MainLayout>
@@ -130,6 +209,8 @@ const BlogPostPage = () => {
     );
   }
 
+  const hasMultipleImages = post.featured_image && post.gallery_images && post.gallery_images.length > 0;
+
   return (
     <MainLayout>
       {/* Hero Banner */}
@@ -137,18 +218,41 @@ const BlogPostPage = () => {
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-beach-900/70 to-beach-900/90 z-10"></div>
           <img 
-            src={post.featured_image} 
+            src={getImageToShow()} 
             alt={getTitle()} 
             className="w-full h-full object-cover"
           />
+          
+          {/* Image Navigation */}
+          {hasMultipleImages && (
+            <>
+              <button 
+                onClick={handlePrevImage}
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full z-20"
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </button>
+              <button 
+                onClick={handleNextImage}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full z-20"
+              >
+                <ChevronRight className="h-6 w-6" />
+              </button>
+              
+              {/* Image counter */}
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-20">
+                {currentImageIndex + 1} / {[post.featured_image, ...(post.gallery_images || [])].filter(Boolean).length}
+              </div>
+            </>
+          )}
         </div>
         
         <div className="relative z-20 container mx-auto px-4 h-full flex items-center">
           <div className="max-w-3xl text-white">
-            <div className="flex gap-2 mb-4">
-              {post.tags && post.tags.slice(0, 3).map((tag, index) => (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {post.tags && post.tags.slice(0, language === 'vi' ? 3 : 6).map((tag, index) => (
                 <Badge key={index} className="bg-beach-600/80">
-                  {language === 'vi' ? tag : post.tags[index + 3]}
+                  {tag}
                 </Badge>
               ))}
             </div>
@@ -169,6 +273,30 @@ const BlogPostPage = () => {
         </div>
       </div>
       
+      {/* Gallery Preview (if multiple images) */}
+      {post.gallery_images && post.gallery_images.length > 0 && (
+        <div className="bg-gray-100 py-6">
+          <div className="container mx-auto px-4">
+            <div className="flex overflow-x-auto space-x-4 pb-2">
+              {[post.featured_image, ...post.gallery_images].filter(Boolean).map((image, index) => (
+                <div 
+                  key={index}
+                  onClick={() => setCurrentImageIndex(index)}
+                  className={`shrink-0 w-24 h-24 rounded-md overflow-hidden cursor-pointer border-2 
+                    ${currentImageIndex === index ? 'border-beach-500' : 'border-transparent'}`}
+                >
+                  <img 
+                    src={image} 
+                    alt={`Gallery ${index + 1}`} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Article Content */}
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
@@ -179,6 +307,14 @@ const BlogPostPage = () => {
             </Link>
           </Button>
           
+          {post.excerpt && (
+            <div className="mb-8 bg-beach-50 p-6 rounded-lg border border-beach-100">
+              <p className="text-lg italic text-beach-800">
+                {language === 'vi' ? post.excerpt : post.excerpt_en}
+              </p>
+            </div>
+          )}
+          
           <motion.div 
             className="prose prose-lg max-w-none"
             initial={{ opacity: 0, y: 20 }}
@@ -186,6 +322,21 @@ const BlogPostPage = () => {
             transition={{ duration: 0.5 }}
             dangerouslySetInnerHTML={{ __html: getContent() }}
           />
+          
+          {/* Author Info */}
+          <div className="mt-12 pt-8 border-t border-gray-200">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-beach-200 rounded-full flex items-center justify-center text-beach-600 font-bold text-xl">
+                {post.author.charAt(0)}
+              </div>
+              <div className="ml-4">
+                <p className="font-medium">{post.author}</p>
+                <p className="text-sm text-gray-500">
+                  {language === 'vi' ? 'Đăng ngày' : 'Posted on'} {formatDate(post.published_at)}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </MainLayout>

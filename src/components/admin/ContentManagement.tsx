@@ -4,7 +4,7 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, ExternalLink } from 'lucide-react';
+import { Plus, Pencil, Trash2, ExternalLink, ImageIcon } from 'lucide-react';
 import AddBlogPostModal from './AddBlogPostModal';
 import { 
   AlertDialog,
@@ -16,6 +16,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from '@/components/ui/badge';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 
 const ContentManagement = () => {
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
@@ -25,7 +27,32 @@ const ContentManagement = () => {
 
   useEffect(() => {
     fetchContent();
+    ensureStorageBucketExists();
   }, []);
+
+  const ensureStorageBucketExists = async () => {
+    try {
+      // Check if blog-images bucket exists
+      const { data: buckets, error } = await supabase.storage.listBuckets();
+      
+      if (error) throw error;
+      
+      const blogImagesBucketExists = buckets.some(bucket => bucket.name === 'blog-images');
+      
+      if (!blogImagesBucketExists) {
+        console.log('Creating blog-images bucket');
+        // Create blog-images bucket
+        const { error: createError } = await supabase.storage.createBucket('blog-images', {
+          public: true
+        });
+        
+        if (createError) throw createError;
+        console.log('Blog images bucket created successfully');
+      }
+    } catch (error) {
+      console.error('Error ensuring storage bucket exists:', error);
+    }
+  };
 
   const fetchContent = async () => {
     setIsLoading(true);
@@ -96,6 +123,19 @@ const ContentManagement = () => {
     }
   };
 
+  const truncateText = (text: string, maxLength: number = 50) => {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
+
+  const countImagesInHTML = (html: string) => {
+    if (!html) return 0;
+    const regex = /<img[^>]+>/g;
+    const matches = html.match(regex);
+    return matches ? matches.length : 0;
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -129,23 +169,28 @@ const ContentManagement = () => {
                 <TableHead>Tác giả</TableHead>
                 <TableHead>Ngày đăng</TableHead>
                 <TableHead>Trạng thái</TableHead>
+                <TableHead>Media</TableHead>
                 <TableHead className="text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {blogPosts.map((post) => (
                 <TableRow key={post.id}>
-                  <TableCell className="font-medium">{post.title}</TableCell>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">{truncateText(post.title, 40)}</div>
+                      <div className="text-xs text-muted-foreground mt-1">/blog/{post.slug}</div>
+                    </div>
+                  </TableCell>
                   <TableCell>{post.author}</TableCell>
                   <TableCell>{formatDate(post.published_at || post.created_at)}</TableCell>
                   <TableCell>
                     <div className="flex items-center">
-                      <span 
-                        className={`px-2 py-1 rounded-full text-xs font-medium 
-                        ${post.published ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}
+                      <Badge 
+                        className={`${post.published ? 'bg-green-100 text-green-800 hover:bg-green-100' : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100'}`}
                       >
                         {post.published ? 'Đã đăng' : 'Bản nháp'}
-                      </span>
+                      </Badge>
                       <Button 
                         onClick={() => togglePublished(post.id, post.published)}
                         variant="ghost" 
@@ -155,6 +200,40 @@ const ContentManagement = () => {
                         {post.published ? 'Chuyển về nháp' : 'Xuất bản'}
                       </Button>
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    <HoverCard>
+                      <HoverCardTrigger asChild>
+                        <div className="flex items-center cursor-pointer">
+                          <ImageIcon className="h-4 w-4 mr-1 text-muted-foreground" />
+                          <span className="text-sm">
+                            {post.featured_image ? '1' : '0'} + 
+                            {post.gallery_images?.length || 0} + 
+                            {countImagesInHTML(post.content)}
+                          </span>
+                        </div>
+                      </HoverCardTrigger>
+                      <HoverCardContent className="w-80">
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium">Hình ảnh trong bài viết</p>
+                          <div className="text-sm">
+                            <p>Ảnh đại diện: {post.featured_image ? '1' : '0'}</p>
+                            <p>Thư viện ảnh: {post.gallery_images?.length || 0}</p>
+                            <p>Ảnh trong nội dung: {countImagesInHTML(post.content)}</p>
+                          </div>
+                          {post.featured_image && (
+                            <div className="mt-2">
+                              <p className="text-xs text-muted-foreground mb-1">Ảnh đại diện:</p>
+                              <img 
+                                src={post.featured_image} 
+                                alt="Featured" 
+                                className="w-full h-32 object-cover rounded"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </HoverCardContent>
+                    </HoverCard>
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2 justify-end">
