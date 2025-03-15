@@ -4,9 +4,10 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Users, Wifi, Coffee, Bath, Tv, Loader2, Car, Umbrella, Ban, Plane, LifeBuoy, UtensilsCrossed, ShowerHead, Bed, FlameKindling, Refrigerator } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { getRoomTypes } from "@/api/bookingApi";
+import { supabase } from "@/lib/supabase";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 // Map of amenity IDs to Lucide icons
 const iconMap: Record<string, React.ReactNode> = {
@@ -59,25 +60,47 @@ const RoomTypesSection = () => {
     const fetchRoomTypes = async () => {
       try {
         setLoading(true);
-        const data = await getRoomTypes();
+        console.log('Fetching room types for homepage...');
         
-        if (data && data.length > 0) {
-          // Chỉ hiển thị tối đa 3 phòng ở trang chủ
-          const featuredRooms = data.filter(room => room.is_popular).slice(0, 3);
-          if (featuredRooms.length < 3) {
-            // Nếu không đủ phòng "popular", thêm các phòng khác
-            const otherRooms = data.filter(room => !room.is_popular).slice(0, 3 - featuredRooms.length);
-            setRoomTypes([...featuredRooms, ...otherRooms]);
-          } else {
-            setRoomTypes(featuredRooms);
-          }
-        } else {
-          // Fallback nếu không có dữ liệu
-          console.log('No room data from API, using fallback data');
+        // Get popular rooms first
+        const { data: popularRooms, error: popularError } = await supabase
+          .from('room_types')
+          .select('*')
+          .eq('is_popular', true)
+          .order('price', { ascending: false });
+          
+        if (popularError) {
+          console.error('Error fetching popular room types:', popularError);
+          toast.error(language === 'vi' ? 'Không thể tải dữ liệu phòng nổi bật' : 'Error loading popular rooms');
           setRoomTypes([]);
+          return;
         }
+        
+        let featuredRooms = popularRooms || [];
+        console.log('Fetched popular rooms:', featuredRooms.length);
+        
+        // If we don't have 3 popular rooms, get some other rooms to fill up
+        if (featuredRooms.length < 3) {
+          const { data: otherRooms, error: otherError } = await supabase
+            .from('room_types')
+            .select('*')
+            .eq('is_popular', false)
+            .order('price', { ascending: false })
+            .limit(3 - featuredRooms.length);
+            
+          if (!otherError && otherRooms) {
+            console.log('Fetched additional rooms:', otherRooms.length);
+            featuredRooms = [...featuredRooms, ...otherRooms];
+          }
+        }
+        
+        // Limit to 3 rooms for homepage
+        featuredRooms = featuredRooms.slice(0, 3);
+        console.log('Total rooms for homepage:', featuredRooms.length);
+        setRoomTypes(featuredRooms);
       } catch (error) {
         console.error('Error in fetchRoomTypes:', error);
+        toast.error(language === 'vi' ? 'Đã xảy ra lỗi khi tải dữ liệu' : 'Error loading data');
         setRoomTypes([]);
       } finally {
         setLoading(false);
@@ -85,7 +108,7 @@ const RoomTypesSection = () => {
     };
 
     fetchRoomTypes();
-  }, []);
+  }, [language]);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN').format(price);
@@ -197,9 +220,9 @@ const RoomTypesSection = () => {
                     <Users size={18} className="text-beach-600 mr-2" />
                     <span className="text-gray-600 text-sm">{getRoomCapacity(room)}</span>
                   </div>
-                  {room.amenities && (
+                  {room.amenities && Array.isArray(room.amenities) && (
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {Array.isArray(room.amenities) && room.amenities.slice(0, 5).map((amenity, index) => {
+                      {room.amenities.slice(0, 5).map((amenity, index) => {
                         const amenityName = getAmenityName(amenity);
                         const amenityIcon = getAmenityIcon(amenity);
                         

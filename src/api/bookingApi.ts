@@ -82,7 +82,7 @@ export const getRoomTypes = async () => {
       return [];
     }
 
-    console.log('Room types fetched successfully:', data);
+    console.log('Room types fetched successfully:', data?.length || 0);
     return data || [];
   } catch (error) {
     console.error('Unexpected error in getRoomTypes:', error);
@@ -104,7 +104,7 @@ export const checkRoomAvailability = async (roomTypeId: string, checkIn: string,
       return { available: false, error };
     }
 
-    // Fix: access the first element of the array returned by the RPC
+    // Access the first element of the array returned by the RPC
     if (data && data.length > 0) {
       return { 
         available: data[0].available, 

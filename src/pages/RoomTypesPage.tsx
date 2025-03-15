@@ -6,9 +6,10 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { getRoomTypes } from '@/api/bookingApi';
+import { supabase } from '@/lib/supabase';
 import { Loader2, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 
 const RoomTypesPage = () => {
   const { language } = useLanguage();
@@ -23,11 +24,26 @@ const RoomTypesPage = () => {
   const fetchRoomTypes = async () => {
     try {
       setLoading(true);
-      const data = await getRoomTypes();
-      console.log('Fetched room types:', data);
-      setRoomTypes(data);
+      console.log('Fetching room types from Supabase...');
+      
+      const { data, error } = await supabase
+        .from('room_types')
+        .select('*')
+        .order('price', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching room types:', error);
+        toast.error(language === 'vi' ? 'Không thể tải dữ liệu phòng' : 'Error loading room data');
+        setRoomTypes([]);
+        return;
+      }
+
+      console.log('Room types fetched successfully:', data?.length || 0);
+      setRoomTypes(data || []);
     } catch (error) {
-      console.error('Error fetching room types:', error);
+      console.error('Unexpected error in fetchRoomTypes:', error);
+      toast.error(language === 'vi' ? 'Đã xảy ra lỗi không mong muốn' : 'An unexpected error occurred');
+      setRoomTypes([]);
     } finally {
       setLoading(false);
     }
