@@ -29,11 +29,9 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>(['wifi', 'tv']);
   
-  // Main image handling
   const [mainImage, setMainImage] = useState<File | null>(null);
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   
-  // Gallery images handling
   const [galleryImages, setGalleryImages] = useState<File[]>([]);
   const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
 
@@ -49,20 +47,16 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
     if (e.target.files && e.target.files.length > 0) {
       const newFiles = Array.from(e.target.files);
       
-      // Create previews for the new files
       const newPreviews = newFiles.map(file => URL.createObjectURL(file));
       
-      // Update state with new files and previews
       setGalleryImages(prev => [...prev, ...newFiles]);
       setGalleryPreviews(prev => [...prev, ...newPreviews]);
     }
   };
 
   const removeGalleryImage = (index: number) => {
-    // Remove the preview URL
     URL.revokeObjectURL(galleryPreviews[index]);
     
-    // Remove the image and preview from state
     setGalleryImages(prev => prev.filter((_, i) => i !== index));
     setGalleryPreviews(prev => prev.filter((_, i) => i !== index));
   };
@@ -78,14 +72,12 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
     setIsPopular(false);
     setSelectedAmenities(['wifi', 'tv']);
     
-    // Clear main image
     if (mainImagePreview) {
       URL.revokeObjectURL(mainImagePreview);
     }
     setMainImage(null);
     setMainImagePreview(null);
     
-    // Clear gallery images
     galleryPreviews.forEach(url => URL.revokeObjectURL(url));
     setGalleryImages([]);
     setGalleryPreviews([]);
@@ -102,25 +94,31 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
     setIsSubmitting(true);
 
     try {
-      // Upload main image first
       const mainImagePath = `room_types/${Date.now()}_main_${mainImage.name.replace(/\s+/g, '_')}`;
-      const { error: uploadError } = await supabase.storage
+      
+      console.log('Uploading main image to path:', mainImagePath);
+      const { error: uploadError, data: uploadData } = await supabase.storage
         .from('images')
-        .upload(mainImagePath, mainImage);
+        .upload(mainImagePath, mainImage, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
       if (uploadError) {
+        console.error('Upload error details:', uploadError);
         throw new Error(`Error uploading main image: ${uploadError.message}`);
       }
 
-      // Get the public URL for the main image
+      console.log('Main image uploaded successfully:', uploadData);
+
       const { data: mainImageData } = supabase.storage
         .from('images')
         .getPublicUrl(mainImagePath);
 
       const mainImageUrl = mainImageData.publicUrl;
+      console.log('Main image URL:', mainImageUrl);
       
-      // Upload gallery images
-      const galleryUrls: string[] = [mainImageUrl]; // Include main image in gallery by default
+      const galleryUrls: string[] = [mainImageUrl];
       
       for (let i = 0; i < galleryImages.length; i++) {
         const file = galleryImages[i];
@@ -128,11 +126,14 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
         
         const { error: galleryUploadError } = await supabase.storage
           .from('images')
-          .upload(filePath, file);
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
           
         if (galleryUploadError) {
           console.error(`Error uploading gallery image ${i}:`, galleryUploadError);
-          continue; // Skip this image but continue with others
+          continue;
         }
         
         const { data: galleryImageData } = supabase.storage
@@ -142,7 +143,6 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
         galleryUrls.push(galleryImageData.publicUrl);
       }
 
-      // Prepare amenities data for database
       const amenitiesData = selectedAmenities.map(id => {
         const amenity = amenityOptions.find(a => a.id === id);
         return {
@@ -152,7 +152,12 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
         };
       });
 
-      // Create room with all images and amenities
+      console.log('Creating room record with data:', {
+        name,
+        image_url: mainImageUrl,
+        gallery_images: galleryUrls
+      });
+
       const { error: insertError } = await supabase
         .from('room_types')
         .insert({

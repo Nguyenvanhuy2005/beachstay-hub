@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -32,12 +31,10 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
   const [isLoading, setIsLoading] = useState(true);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>(['wifi', 'tv']);
   
-  // Main image handling
   const [mainImage, setMainImage] = useState<File | null>(null);
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   const [currentMainImageUrl, setCurrentMainImageUrl] = useState<string | null>(null);
   
-  // Gallery images handling
   const [galleryImages, setGalleryImages] = useState<File[]>([]);
   const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
   const [currentGalleryUrls, setCurrentGalleryUrls] = useState<string[]>([]);
@@ -96,22 +93,18 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
     if (e.target.files && e.target.files.length > 0) {
       const newFiles = Array.from(e.target.files);
       
-      // Create previews for the new files
       const newPreviews = newFiles.map(file => URL.createObjectURL(file));
       
-      // Update state with new files and previews
       setGalleryImages(prev => [...prev, ...newFiles]);
       setGalleryPreviews(prev => [...prev, ...newPreviews]);
     }
   };
 
   const removeGalleryImage = (index: number) => {
-    // Remove the preview URL
     if (galleryPreviews[index]) {
       URL.revokeObjectURL(galleryPreviews[index]);
     }
     
-    // Remove the image and preview from state
     setGalleryImages(prev => prev.filter((_, i) => i !== index));
     setGalleryPreviews(prev => prev.filter((_, i) => i !== index));
   };
@@ -131,7 +124,6 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
     setIsPopular(false);
     setSelectedAmenities(['wifi', 'tv']);
     
-    // Clear main image
     if (mainImagePreview) {
       URL.revokeObjectURL(mainImagePreview);
     }
@@ -139,7 +131,6 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
     setMainImagePreview(null);
     setCurrentMainImageUrl(null);
     
-    // Clear gallery images
     galleryPreviews.forEach(url => URL.revokeObjectURL(url));
     setGalleryImages([]);
     setGalleryPreviews([]);
@@ -159,18 +150,19 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
     try {
       let mainImageUrl = currentMainImageUrl;
 
-      // Upload new main image if provided
       if (mainImage) {
         const mainImagePath = `room_types/${Date.now()}_main_${mainImage.name.replace(/\s+/g, '_')}`;
         const { error: uploadError } = await supabase.storage
           .from('images')
-          .upload(mainImagePath, mainImage);
+          .upload(mainImagePath, mainImage, {
+            cacheControl: '3600',
+            upsert: false
+          });
 
         if (uploadError) {
           throw new Error(`Error uploading main image: ${uploadError.message}`);
         }
 
-        // Get the public URL for the main image
         const { data: mainImageData } = supabase.storage
           .from('images')
           .getPublicUrl(mainImagePath);
@@ -178,7 +170,6 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
         mainImageUrl = mainImageData.publicUrl;
       }
       
-      // Upload new gallery images
       const newGalleryUrls: string[] = [...currentGalleryUrls];
       
       for (let i = 0; i < galleryImages.length; i++) {
@@ -187,11 +178,14 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
         
         const { error: galleryUploadError } = await supabase.storage
           .from('images')
-          .upload(filePath, file);
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
           
         if (galleryUploadError) {
           console.error(`Error uploading gallery image ${i}:`, galleryUploadError);
-          continue; // Skip this image but continue with others
+          continue;
         }
         
         const { data: galleryImageData } = supabase.storage
@@ -201,12 +195,10 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
         newGalleryUrls.push(galleryImageData.publicUrl);
       }
 
-      // Ensure main image is included in gallery if not already
       if (mainImageUrl && !newGalleryUrls.includes(mainImageUrl)) {
         newGalleryUrls.unshift(mainImageUrl);
       }
 
-      // Prepare amenities data for database
       const amenitiesData = selectedAmenities.map(id => {
         const amenity = amenityOptions.find(a => a.id === id);
         return {
@@ -216,7 +208,6 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
         };
       });
 
-      // Update room with all images and amenities
       const { error: updateError } = await supabase
         .from('room_types')
         .update({
@@ -378,7 +369,6 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
             </TabsContent>
             
             <TabsContent value="images" className="space-y-4 mt-4">
-              {/* Main image section */}
               <div className="space-y-2">
                 <Label>Ảnh chính hiện tại</Label>
                 {currentMainImageUrl ? (
@@ -431,7 +421,6 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
                 )}
               </div>
               
-              {/* Gallery images section */}
               <div className="space-y-2 mt-6">
                 <Label>Thư viện ảnh hiện tại</Label>
                 {currentGalleryUrls.length > 0 ? (
