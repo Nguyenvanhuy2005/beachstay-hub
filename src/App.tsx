@@ -20,7 +20,7 @@ import AdminPage from "./pages/AdminPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 
-// Tạo QueryClient cho React Query
+// Create QueryClient for React Query
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

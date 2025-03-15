@@ -1,617 +1,448 @@
 
 import React, { useState, useRef } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { supabase } from '@/lib/supabase';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
-import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { Loader2, Plus, X, Upload } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ImagePlus, X, Upload } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription } from '@/components/ui/form';
-import { useForm } from 'react-hook-form';
 
-interface AddBlogPostModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onPostAdded: () => void;
-}
-
-// Rich Text Editor modules and formats config
-const editorModules = {
-  toolbar: [
-    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-    ['bold', 'italic', 'underline', 'strike'],
-    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-    [{ 'indent': '-1' }, { 'indent': '+1' }],
-    ['link', 'image', 'video'],
-    [{ 'align': [] }],
-    ['clean']
-  ],
-};
-
-const editorFormats = [
-  'header',
-  'bold', 'italic', 'underline', 'strike',
-  'list', 'bullet', 'indent',
-  'link', 'image', 'video',
-  'align'
-];
-
-const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }: AddBlogPostModalProps) => {
-  // Form data states
+const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }) => {
   const [title, setTitle] = useState('');
   const [titleEn, setTitleEn] = useState('');
+  const [slug, setSlug] = useState('');
   const [content, setContent] = useState('');
   const [contentEn, setContentEn] = useState('');
   const [excerpt, setExcerpt] = useState('');
   const [excerptEn, setExcerptEn] = useState('');
-  const [slug, setSlug] = useState('');
-  const [author, setAuthor] = useState('Admin');
-  const [featuredImage, setFeaturedImage] = useState<File | null>(null);
-  const [featuredImagePreview, setFeaturedImagePreview] = useState('');
-  const [galleryImages, setGalleryImages] = useState<File[]>([]);
-  const [galleryImagePreviews, setGalleryImagePreviews] = useState<string[]>([]);
+  const [author, setAuthor] = useState('');
+  const [tagInput, setTagInput] = useState('');
+  const [tags, setTags] = useState([]);
   const [published, setPublished] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // SEO fields
-  const [metaTitle, setMetaTitle] = useState('');
-  const [metaTitleEn, setMetaTitleEn] = useState('');
-  const [metaDescription, setMetaDescription] = useState('');
-  const [metaDescriptionEn, setMetaDescriptionEn] = useState('');
-  const [keywords, setKeywords] = useState('');
-  const [keywordsEn, setKeywordsEn] = useState('');
+  const [featuredImage, setFeaturedImage] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [featuredImageUrl, setFeaturedImageUrl] = useState('');
   
-  // File input refs
-  const featuredImageRef = useRef<HTMLInputElement>(null);
-  const galleryImagesRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef(null);
 
-  const generateSlug = (text: string) => {
-    return text
-      .toLowerCase()
-      .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g, 'a')
-      .replace(/[èéẹẻẽêềếệểễ]/g, 'e')
-      .replace(/[ìíịỉĩ]/g, 'i')
-      .replace(/[òóọỏõôồốộổỗơờớợởỡ]/g, 'o')
-      .replace(/[ùúụủũưừứựửữ]/g, 'u')
-      .replace(/[ỳýỵỷỹ]/g, 'y')
-      .replace(/đ/g, 'd')
-      .replace(/\s+/g, '-')
-      .replace(/[^\w\-]+/g, '')
-      .replace(/\-\-+/g, '-')
-      .replace(/^-+/, '')
-      .replace(/-+$/, '');
+  const quillModules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'indent': '-1'}, { 'indent': '+1' }],
+      ['link', 'image'],
+      ['clean']
+    ],
   };
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const quillFormats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet', 'indent',
+    'link', 'image'
+  ];
+
+  const handleTitleChange = (e) => {
     const newTitle = e.target.value;
     setTitle(newTitle);
     
-    // Auto-generate meta title if empty
-    if (!metaTitle) {
-      setMetaTitle(newTitle);
-    }
-    
-    // Auto-generate slug from title if user hasn't manually changed it
-    if (!slug || slug === generateSlug(title)) {
+    // Generate slug from title if slug is empty
+    if (!slug) {
       setSlug(generateSlug(newTitle));
     }
   };
 
-  const handleTitleEnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTitleEn = e.target.value;
-    setTitleEn(newTitleEn);
+  const generateSlug = (text) => {
+    return text
+      .toString()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-') // Replace spaces with -
+      .replace(/[^\w\-]+/g, '') // Remove all non-word chars
+      .replace(/\-\-+/g, '-'); // Replace multiple - with single -
+  };
+
+  const handleAddTag = (e) => {
+    if (e.key === 'Enter' && tagInput.trim()) {
+      e.preventDefault();
+      if (!tags.includes(tagInput.trim())) {
+        setTags([...tags, tagInput.trim()]);
+      }
+      setTagInput('');
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleFeaturedImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
     
-    // Auto-generate meta title if empty
-    if (!metaTitleEn) {
-      setMetaTitleEn(newTitleEn);
-    }
-  };
-
-  const handleFeaturedImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setFeaturedImage(file);
-      
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          setFeaturedImagePreview(event.target.result as string);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleGalleryImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const files = Array.from(e.target.files);
-      setGalleryImages(prev => [...prev, ...files]);
-      
-      // Create previews
-      const newPreviews: string[] = [];
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          if (event.target?.result) {
-            newPreviews.push(event.target.result as string);
-            if (newPreviews.length === files.length) {
-              setGalleryImagePreviews(prev => [...prev, ...newPreviews]);
-            }
-          }
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-  };
-
-  const removeGalleryImage = (index: number) => {
-    setGalleryImages(prev => prev.filter((_, i) => i !== index));
-    setGalleryImagePreviews(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const resetForm = () => {
-    setTitle('');
-    setTitleEn('');
-    setContent('');
-    setContentEn('');
-    setExcerpt('');
-    setExcerptEn('');
-    setSlug('');
-    setAuthor('Admin');
-    setFeaturedImage(null);
-    setFeaturedImagePreview('');
-    setGalleryImages([]);
-    setGalleryImagePreviews([]);
-    setPublished(false);
-    setMetaTitle('');
-    setMetaTitleEn('');
-    setMetaDescription('');
-    setMetaDescriptionEn('');
-    setKeywords('');
-    setKeywordsEn('');
-  };
-
-  const uploadImage = async (file: File, bucket: string = 'blog-images'): Promise<string> => {
     try {
-      // Create a unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      setUploadingImage(true);
       
-      // Upload the file
+      // Check file size
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast.error('Kích thước tệp quá lớn (tối đa 5MB)');
+        return;
+      }
+      
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Chỉ chấp nhận tệp hình ảnh');
+        return;
+      }
+      
+      // Generate a unique path for the image
+      const timestamp = new Date().getTime();
+      const fileName = `${timestamp}-${file.name}`;
+      const filePath = `blog-images/${fileName}`;
+      
+      // Upload to Supabase Storage
       const { data, error } = await supabase.storage
-        .from(bucket)
-        .upload(filePath, file);
+        .from('blog-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error uploading image:', error);
+        toast.error('Không thể tải lên hình ảnh');
+        return;
+      }
       
-      // Get the public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from(bucket)
+      // Get public URL of the uploaded image
+      const { data: urlData } = supabase.storage
+        .from('blog-images')
         .getPublicUrl(filePath);
       
-      return publicUrl;
+      setFeaturedImage(file);
+      setFeaturedImageUrl(urlData.publicUrl);
+      toast.success('Đã tải lên hình ảnh thành công');
+      
     } catch (error) {
-      console.error('Error uploading image:', error);
-      throw error;
+      console.error('Unexpected error uploading image:', error);
+      toast.error('Không thể tải lên hình ảnh');
+    } finally {
+      setUploadingImage(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
+    if (!title || !titleEn || !slug || !content || !contentEn || !author) {
+      toast.error('Vui lòng điền đầy đủ thông tin bắt buộc');
+      return;
+    }
+    
     setIsSubmitting(true);
-
+    
     try {
-      // Validate inputs
-      if (!title || !titleEn || !content || !contentEn || !slug || !author) {
-        toast.error('Vui lòng điền đầy đủ thông tin bắt buộc');
+      // Check if slug already exists
+      const { data: existingPost, error: checkError } = await supabase
+        .from('blog_posts')
+        .select('id')
+        .eq('slug', slug)
+        .maybeSingle();
+      
+      if (checkError) {
+        throw checkError;
+      }
+      
+      if (existingPost) {
+        toast.error('Đường dẫn (slug) đã tồn tại, vui lòng sử dụng một đường dẫn khác');
         setIsSubmitting(false);
         return;
       }
-
-      // Upload featured image if provided
-      let featuredImageUrl = '';
-      if (featuredImage) {
-        featuredImageUrl = await uploadImage(featuredImage);
-      }
-
-      // Upload gallery images if provided
-      const galleryUrls: string[] = [];
-      if (galleryImages.length > 0) {
-        for (const image of galleryImages) {
-          const imageUrl = await uploadImage(image);
-          galleryUrls.push(imageUrl);
-        }
-      }
-
-      // Current date for published_at if publishing immediately
-      const publishedAt = published ? new Date().toISOString() : null;
-
-      // Insert new blog post into database
+      
+      // Create new blog post
+      const newPost = {
+        title,
+        title_en: titleEn,
+        slug,
+        content,
+        content_en: contentEn,
+        excerpt: excerpt || null,
+        excerpt_en: excerptEn || null,
+        author,
+        tags,
+        published,
+        published_at: published ? new Date().toISOString() : null,
+        featured_image: featuredImageUrl || null,
+      };
+      
       const { data, error } = await supabase
         .from('blog_posts')
-        .insert([
-          {
-            title,
-            title_en: titleEn,
-            content,
-            content_en: contentEn,
-            excerpt,
-            excerpt_en: excerptEn,
-            slug,
-            author,
-            featured_image: featuredImageUrl,
-            gallery_images: galleryUrls,
-            published,
-            published_at: publishedAt,
-            tags: keywords ? keywords.split(',').map(tag => tag.trim()) : [],
-            meta_title: metaTitle || title,
-            meta_title_en: metaTitleEn || titleEn,
-            meta_description: metaDescription || excerpt,
-            meta_description_en: metaDescriptionEn || excerptEn,
-            keywords: keywords,
-            keywords_en: keywordsEn
-          }
-        ]);
-
+        .insert(newPost)
+        .select();
+      
       if (error) {
         throw error;
       }
-
-      toast.success('Đã thêm bài viết mới thành công');
+      
+      toast.success('Đã tạo bài viết thành công');
       onPostAdded();
-      resetForm();
+      handleReset();
       onOpenChange(false);
+      
     } catch (error) {
-      console.error('Error adding blog post:', error);
-      toast.error('Không thể thêm bài viết: ' + (error as Error).message);
+      console.error('Error creating blog post:', error);
+      toast.error('Không thể tạo bài viết');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const handleReset = () => {
+    setTitle('');
+    setTitleEn('');
+    setSlug('');
+    setContent('');
+    setContentEn('');
+    setExcerpt('');
+    setExcerptEn('');
+    setAuthor('');
+    setTags([]);
+    setTagInput('');
+    setPublished(false);
+    setFeaturedImage(null);
+    setFeaturedImageUrl('');
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[900px] max-h-[95vh] overflow-hidden p-0">
-        <DialogHeader className="px-6 pt-6 pb-2">
-          <DialogTitle>Thêm Bài Viết Mới</DialogTitle>
+    <Dialog open={open} onOpenChange={(newOpen) => {
+      if (!newOpen) {
+        handleReset();
+      }
+      onOpenChange(newOpen);
+    }}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Tạo Bài Viết Mới</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit}>
-          <Tabs defaultValue="content" className="w-full">
-            <div className="px-6">
-              <TabsList className="grid grid-cols-4 mb-4">
-                <TabsTrigger value="content">Nội dung</TabsTrigger>
-                <TabsTrigger value="seo">SEO</TabsTrigger>
-                <TabsTrigger value="images">Hình ảnh</TabsTrigger>
-                <TabsTrigger value="publication">Xuất bản</TabsTrigger>
-              </TabsList>
-            </div>
+        <div className="py-4 space-y-6">
+          <Tabs defaultValue="vietnamese">
+            <TabsList className="mb-4">
+              <TabsTrigger value="vietnamese">Tiếng Việt</TabsTrigger>
+              <TabsTrigger value="english">Tiếng Anh</TabsTrigger>
+              <TabsTrigger value="metadata">Metadata</TabsTrigger>
+            </TabsList>
             
-            <ScrollArea className="h-[calc(95vh-200px)] px-6">
-              <TabsContent value="content" className="space-y-4 mt-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Tiêu đề (Tiếng Việt) <span className="text-red-500">*</span></Label>
-                    <Input
-                      id="title"
-                      value={title}
-                      onChange={handleTitleChange}
-                      placeholder="Tiêu đề bài viết"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="titleEn">Tiêu đề (Tiếng Anh) <span className="text-red-500">*</span></Label>
-                    <Input
-                      id="titleEn"
-                      value={titleEn}
-                      onChange={handleTitleEnChange}
-                      placeholder="Post title"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="slug">Slug URL <span className="text-red-500">*</span></Label>
-                  <Input
-                    id="slug"
-                    value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
-                    placeholder="ten-bai-viet"
-                    required
+            <TabsContent value="vietnamese" className="space-y-4">
+              <div>
+                <Label htmlFor="title">Tiêu Đề (Tiếng Việt) <span className="text-red-500">*</span></Label>
+                <Input 
+                  id="title" 
+                  value={title} 
+                  onChange={handleTitleChange} 
+                  placeholder="Nhập tiêu đề bài viết" 
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="excerpt">Tóm Tắt (Tiếng Việt)</Label>
+                <Textarea 
+                  id="excerpt" 
+                  value={excerpt} 
+                  onChange={(e) => setExcerpt(e.target.value)} 
+                  placeholder="Tóm tắt ngắn gọn về bài viết (sẽ hiển thị ở trang danh sách)" 
+                  rows={3} 
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="content">Nội Dung (Tiếng Việt) <span className="text-red-500">*</span></Label>
+                <div className="mt-1 mb-8 h-64 border rounded-md">
+                  <ReactQuill 
+                    theme="snow" 
+                    value={content} 
+                    onChange={setContent}
+                    modules={quillModules}
+                    formats={quillFormats}
+                    placeholder="Nhập nội dung bài viết..."
+                    className="h-56"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Slug sẽ được dùng trong URL của bài viết. Ví dụ: /blog/ten-bai-viet
-                  </p>
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="excerpt">Tóm tắt (Tiếng Việt)</Label>
-                    <Textarea
-                      id="excerpt"
-                      value={excerpt}
-                      onChange={(e) => setExcerpt(e.target.value)}
-                      placeholder="Tóm tắt ngắn về bài viết..."
-                      rows={3}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Tóm tắt ngắn sẽ hiển thị ở trang danh sách bài viết
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="excerptEn">Tóm tắt (Tiếng Anh)</Label>
-                    <Textarea
-                      id="excerptEn"
-                      value={excerptEn}
-                      onChange={(e) => setExcerptEn(e.target.value)}
-                      placeholder="Short excerpt about the post..."
-                      rows={3}
-                    />
-                  </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="english" className="space-y-4">
+              <div>
+                <Label htmlFor="title_en">Tiêu Đề (Tiếng Anh) <span className="text-red-500">*</span></Label>
+                <Input 
+                  id="title_en" 
+                  value={titleEn} 
+                  onChange={(e) => setTitleEn(e.target.value)} 
+                  placeholder="Enter post title" 
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="excerpt_en">Tóm Tắt (Tiếng Anh)</Label>
+                <Textarea 
+                  id="excerpt_en" 
+                  value={excerptEn} 
+                  onChange={(e) => setExcerptEn(e.target.value)} 
+                  placeholder="Brief excerpt about the post (will be displayed in the listing page)" 
+                  rows={3} 
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="content_en">Nội Dung (Tiếng Anh) <span className="text-red-500">*</span></Label>
+                <div className="mt-1 mb-8 h-64 border rounded-md">
+                  <ReactQuill 
+                    theme="snow" 
+                    value={contentEn} 
+                    onChange={setContentEn}
+                    modules={quillModules}
+                    formats={quillFormats}
+                    placeholder="Enter post content..."
+                    className="h-56"
+                  />
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="content">Nội dung (Tiếng Việt) <span className="text-red-500">*</span></Label>
-                  <div className="min-h-[250px]">
-                    <ReactQuill
-                      theme="snow"
-                      value={content}
-                      onChange={setContent}
-                      modules={editorModules}
-                      formats={editorFormats}
-                      placeholder="Nhập nội dung bài viết..."
-                    />
-                  </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="metadata" className="space-y-4">
+              <div>
+                <Label htmlFor="slug">Đường Dẫn (Slug) <span className="text-red-500">*</span></Label>
+                <Input 
+                  id="slug" 
+                  value={slug} 
+                  onChange={(e) => setSlug(e.target.value)} 
+                  placeholder="duong-dan-bai-viet" 
+                />
+                <p className="text-sm text-gray-500 mt-1">URL: /blog/{slug}</p>
+              </div>
+              
+              <div>
+                <Label htmlFor="author">Tác Giả <span className="text-red-500">*</span></Label>
+                <Input 
+                  id="author" 
+                  value={author} 
+                  onChange={(e) => setAuthor(e.target.value)} 
+                  placeholder="Tên tác giả" 
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="tags">Thẻ</Label>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {tags.map((tag, index) => (
+                    <Badge key={index} className="flex items-center gap-1">
+                      {tag}
+                      <button 
+                        type="button" 
+                        onClick={() => handleRemoveTag(tag)}
+                        className="text-xs hover:bg-red-600 rounded-full h-4 w-4 inline-flex items-center justify-center"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="contentEn">Nội dung (Tiếng Anh) <span className="text-red-500">*</span></Label>
-                  <div className="min-h-[250px]">
-                    <ReactQuill
-                      theme="snow"
-                      value={contentEn}
-                      onChange={setContentEn}
-                      modules={editorModules}
-                      formats={editorFormats}
-                      placeholder="Enter post content..."
-                    />
-                  </div>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="seo" className="space-y-4 mt-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="metaTitle">Meta Title (Tiếng Việt)</Label>
-                    <Input
-                      id="metaTitle"
-                      value={metaTitle}
-                      onChange={(e) => setMetaTitle(e.target.value)}
-                      placeholder="Meta title cho SEO"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Để trống để sử dụng tiêu đề bài viết
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="metaTitleEn">Meta Title (Tiếng Anh)</Label>
-                    <Input
-                      id="metaTitleEn"
-                      value={metaTitleEn}
-                      onChange={(e) => setMetaTitleEn(e.target.value)}
-                      placeholder="Meta title for SEO"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="metaDescription">Meta Description (Tiếng Việt)</Label>
-                    <Textarea
-                      id="metaDescription"
-                      value={metaDescription}
-                      onChange={(e) => setMetaDescription(e.target.value)}
-                      placeholder="Mô tả cho SEO"
-                      rows={3}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Mô tả tóm tắt về bài viết, tối ưu 150-160 ký tự
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="metaDescriptionEn">Meta Description (Tiếng Anh)</Label>
-                    <Textarea
-                      id="metaDescriptionEn"
-                      value={metaDescriptionEn}
-                      onChange={(e) => setMetaDescriptionEn(e.target.value)}
-                      placeholder="Description for SEO"
-                      rows={3}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="keywords">Từ khóa (Tiếng Việt)</Label>
-                    <Textarea
-                      id="keywords"
-                      value={keywords}
-                      onChange={(e) => setKeywords(e.target.value)}
-                      placeholder="du lịch, biển, resort, nghỉ dưỡng"
-                      rows={2}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Các từ khóa phân cách bằng dấu phẩy (,)
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="keywordsEn">Từ khóa (Tiếng Anh)</Label>
-                    <Textarea
-                      id="keywordsEn"
-                      value={keywordsEn}
-                      onChange={(e) => setKeywordsEn(e.target.value)}
-                      placeholder="travel, beach, resort, vacation"
-                      rows={2}
-                    />
-                  </div>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="images" className="space-y-6 mt-0">
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="featuredImage">Hình ảnh đại diện</Label>
-                    <div className="mt-2 flex flex-col space-y-2">
-                      <div className="flex items-center space-x-4">
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          onClick={() => featuredImageRef.current?.click()}
-                          className="w-full"
-                        >
-                          <ImagePlus className="h-4 w-4 mr-2" />
-                          Chọn hình ảnh đại diện
-                        </Button>
-                        <input
-                          ref={featuredImageRef}
-                          type="file"
-                          accept="image/*"
-                          onChange={handleFeaturedImageChange}
-                          className="hidden"
-                        />
-                      </div>
-                      
-                      {featuredImagePreview && (
-                        <div className="relative w-full h-48 bg-gray-100 rounded-md overflow-hidden">
-                          <img 
-                            src={featuredImagePreview} 
-                            alt="Featured preview" 
-                            className="w-full h-full object-contain"
-                          />
-                          <Button 
-                            type="button"
-                            variant="destructive" 
-                            size="icon" 
-                            className="absolute top-2 right-2 h-8 w-8"
-                            onClick={() => {
-                              setFeaturedImage(null);
-                              setFeaturedImagePreview('');
-                            }}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      )}
+                <Input 
+                  id="tags" 
+                  value={tagInput} 
+                  onChange={(e) => setTagInput(e.target.value)} 
+                  onKeyDown={handleAddTag} 
+                  placeholder="Nhập thẻ và nhấn Enter" 
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="featured-image">Ảnh Đại Diện</Label>
+                <div className="mt-2">
+                  {featuredImageUrl ? (
+                    <div className="relative w-full h-48 rounded-md overflow-hidden mb-2">
+                      <img 
+                        src={featuredImageUrl} 
+                        alt="Featured" 
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full"
+                        onClick={() => {
+                          setFeaturedImage(null);
+                          setFeaturedImageUrl('');
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
                     </div>
-                  </div>
-
-                  <div className="mt-6">
-                    <Label htmlFor="galleryImages">Thư viện hình ảnh</Label>
-                    <div className="mt-2 flex flex-col space-y-4">
-                      <div className="flex items-center space-x-4">
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          onClick={() => galleryImagesRef.current?.click()}
-                          className="w-full"
-                        >
-                          <Upload className="h-4 w-4 mr-2" />
-                          Thêm hình ảnh vào thư viện
-                        </Button>
-                        <input
-                          ref={galleryImagesRef}
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={handleGalleryImagesChange}
-                          className="hidden"
-                        />
-                      </div>
-                      
-                      {galleryImagePreviews.length > 0 && (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
-                          {galleryImagePreviews.map((preview, index) => (
-                            <div key={index} className="relative group aspect-square bg-gray-100 rounded-md overflow-hidden">
-                              <img 
-                                src={preview} 
-                                alt={`Gallery image ${index + 1}`} 
-                                className="w-full h-full object-cover"
-                              />
-                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
-                                <Button 
-                                  type="button"
-                                  variant="destructive" 
-                                  size="icon" 
-                                  className="opacity-0 group-hover:opacity-100 h-8 w-8"
-                                  onClick={() => removeGalleryImage(index)}
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                  ) : (
+                    <Button
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingImage}
+                      className="w-full h-24 border-dashed"
+                    >
+                      {uploadingImage ? (
+                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                      ) : (
+                        <Upload className="h-5 w-5 mr-2" />
                       )}
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="publication" className="space-y-4 mt-0">
-                <div className="space-y-2">
-                  <Label htmlFor="author">Tác giả</Label>
-                  <Input
-                    id="author"
-                    value={author}
-                    onChange={(e) => setAuthor(e.target.value)}
-                    placeholder="Tên tác giả"
-                    required
+                      {uploadingImage ? 'Đang tải lên...' : 'Tải lên ảnh đại diện'}
+                    </Button>
+                  )}
+                  <input 
+                    type="file" 
+                    ref={fileInputRef}
+                    className="hidden" 
+                    accept="image/*"
+                    onChange={handleFeaturedImageChange}
                   />
                 </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="published"
-                    checked={published}
-                    onCheckedChange={setPublished}
-                  />
-                  <Label htmlFor="published">Đăng bài ngay</Label>
-                </div>
-                
-                <div className="bg-muted/30 p-4 rounded-md mt-4">
-                  <h3 className="font-medium mb-2">Hướng dẫn SEO:</h3>
-                  <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
-                    <li>Sử dụng tiêu đề hấp dẫn có chứa từ khóa chính</li>
-                    <li>Viết mô tả thu hút người đọc, tối ưu 150-160 ký tự</li>
-                    <li>Cấu trúc bài viết rõ ràng với các tiêu đề h2, h3</li>
-                    <li>Thêm hình ảnh có alt text mô tả</li>
-                    <li>Sử dụng từ khóa tự nhiên trong nội dung</li>
-                  </ul>
-                </div>
-              </TabsContent>
-            </ScrollArea>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Switch 
+                  id="published" 
+                  checked={published}
+                  onCheckedChange={setPublished}
+                />
+                <Label htmlFor="published">Xuất bản ngay</Label>
+              </div>
+            </TabsContent>
           </Tabs>
-
-          <DialogFooter className="p-6 border-t">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Hủy
-            </Button>
-            <Button type="submit" disabled={isSubmitting} className="ml-2">
-              {isSubmitting ? 'Đang xử lý...' : 'Thêm bài viết'}
-            </Button>
-          </DialogFooter>
-        </form>
+        </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Hủy
+          </Button>
+          <Button onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Đang Tạo...
+              </>
+            ) : (
+              <>
+                <Plus className="mr-2 h-4 w-4" />
+                Tạo Bài Viết
+              </>
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

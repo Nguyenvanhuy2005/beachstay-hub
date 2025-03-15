@@ -1,6 +1,10 @@
 
+// Follow this setup guide to integrate the Deno language server with your editor:
+// https://deno.land/manual/getting_started/setup_your_environment
+// This enables autocomplete, go to definition, etc.
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -8,76 +12,72 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight request
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
-  try {
-    // Create a Supabase client with the service role key (required for admin operations)
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-    );
-
-    // Define the buckets to create
-    const bucketsToCreate = [
-      {
-        name: 'images',
-        public: true,
-      }
-    ];
-
-    // Try to create each bucket
-    const results = await Promise.all(
-      bucketsToCreate.map(async (bucket) => {
-        try {
-          // Check if bucket already exists
-          const { data: existingBucket, error: getBucketError } = await supabaseAdmin
-            .storage
-            .getBucket(bucket.name);
-
-          if (getBucketError && getBucketError.message !== 'The resource was not found') {
-            throw getBucketError;
-          }
-
-          if (existingBucket) {
-            return { name: bucket.name, status: 'already_exists' };
-          }
-
-          // Create the bucket
-          const { data, error } = await supabaseAdmin
-            .storage
-            .createBucket(bucket.name, {
-              public: bucket.public,
-              fileSizeLimit: 10485760, // 10MB
-            });
-
-          if (error) {
-            throw error;
-          }
-
-          return { name: bucket.name, status: 'created' };
-        } catch (error) {
-          return { name: bucket.name, status: 'error', error: error.message };
-        }
-      })
-    );
-
+  // Get the authorization token from the request headers
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader) {
     return new Response(
-      JSON.stringify({ buckets: results }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200 
-      }
+      JSON.stringify({ error: 'No authorization header provided' }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
     );
+  }
+
+  try {
+    // Create a Supabase client with the service role key for admin privileges
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Check if bucket exists
+    const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+    
+    if (listError) {
+      throw new Error(`Error listing buckets: ${listError.message}`);
+    }
+
+    // Check if the blog-images bucket already exists
+    const bucketName = 'blog-images';
+    const bucketExists = buckets.some(bucket => bucket.name === bucketName);
+    
+    if (!bucketExists) {
+      // Create the blog-images bucket
+      const { data, error } = await supabase.storage.createBucket(bucketName, {
+        public: true
+      });
+      
+      if (error) {
+        throw new Error(`Error creating bucket: ${error.message}`);
+      }
+      
+      // Create a policy to make objects publicly accessible
+      const { error: policyError } = await supabase
+        .storage
+        .from(bucketName)
+        .createSignedUrl('dummy.txt', 60);
+      
+      if (policyError) {
+        console.error(`Warning: Could not create policy: ${policyError.message}`);
+      }
+      
+      return new Response(
+        JSON.stringify({ message: `Created bucket: ${bucketName}`, data }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    } else {
+      return new Response(
+        JSON.stringify({ message: `Bucket ${bucketName} already exists` }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
   } catch (error) {
     return new Response(
       JSON.stringify({ error: error.message }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
-        status: 500 
-      }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     );
   }
 });

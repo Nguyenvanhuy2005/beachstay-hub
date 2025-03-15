@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import MainLayout from '@/components/layout/MainLayout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -32,7 +32,7 @@ const BlogPostPage = () => {
           .select('*')
           .eq('slug', slug)
           .eq('published', true)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error('Error fetching blog post:', error);
@@ -98,6 +98,7 @@ const BlogPostPage = () => {
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
     return new Intl.DateTimeFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
       year: 'numeric',
@@ -108,7 +109,8 @@ const BlogPostPage = () => {
 
   const getReadingTime = (content) => {
     // Average reading speed: 200 words per minute
-    const wordCount = content?.split(/\s+/).length || 0;
+    if (!content) return language === 'vi' ? '1 phút đọc' : '1 min read';
+    const wordCount = content.split(/\s+/).length || 0;
     const readingTimeMinutes = Math.max(1, Math.ceil(wordCount / 200));
     
     return language === 'vi' 
@@ -299,7 +301,7 @@ const BlogPostPage = () => {
         <div className="relative z-20 container mx-auto px-4 h-full flex items-center">
           <div className="max-w-3xl text-white">
             <div className="flex flex-wrap gap-2 mb-4">
-              {post.tags && post.tags.slice(0, language === 'vi' ? 3 : 6).map((tag, index) => (
+              {post.tags && post.tags.map((tag, index) => (
                 <Badge key={index} className="bg-beach-600/80">
                   {tag}
                 </Badge>
@@ -315,7 +317,7 @@ const BlogPostPage = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                <span>{formatDate(post.published_at)}</span>
+                <span>{formatDate(post.published_at || post.created_at)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
@@ -416,12 +418,12 @@ const BlogPostPage = () => {
           <div className="mt-12 pt-8 border-t border-gray-200">
             <div className="flex items-center">
               <div className="w-12 h-12 bg-beach-200 rounded-full flex items-center justify-center text-beach-600 font-bold text-xl">
-                {post.author.charAt(0)}
+                {post.author ? post.author.charAt(0) : 'A'}
               </div>
               <div className="ml-4">
                 <p className="font-medium">{post.author}</p>
                 <p className="text-sm text-gray-500">
-                  {language === 'vi' ? 'Đăng ngày' : 'Posted on'} {formatDate(post.published_at)}
+                  {language === 'vi' ? 'Đăng ngày' : 'Posted on'} {formatDate(post.published_at || post.created_at)}
                 </p>
               </div>
             </div>
@@ -452,7 +454,7 @@ const BlogPostPage = () => {
                       {language === 'vi' ? relatedPost.title : relatedPost.title_en}
                     </h4>
                     <p className="text-sm text-gray-500 mt-1">
-                      {formatDate(relatedPost.published_at)}
+                      {formatDate(relatedPost.published_at || relatedPost.created_at)}
                     </p>
                   </Link>
                 ))}

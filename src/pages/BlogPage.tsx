@@ -6,10 +6,12 @@ import MainLayout from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Calendar, Clock, Search, Loader2 } from 'lucide-react';
+import { ArrowRight, Calendar, Search, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { motion } from 'framer-motion';
+import { Helmet } from 'react-helmet';
+import { toast } from 'sonner';
 
 const containerVariants = {
   hidden: {},
@@ -41,6 +43,7 @@ const BlogPage = () => {
     const fetchBlogPosts = async () => {
       try {
         setLoading(true);
+        console.log('Fetching blog posts...');
         const { data, error } = await supabase
           .from('blog_posts')
           .select('*')
@@ -49,52 +52,12 @@ const BlogPage = () => {
 
         if (error) {
           console.error('Error fetching blog posts:', error);
+          toast.error(language === 'vi' ? 'Không thể tải bài viết' : 'Could not load blog posts');
           return;
         }
 
-        if (data && data.length > 0) {
-          setPosts(data);
-        } else {
-          // Fallback to hardcoded data if no data in the database
-          setPosts([
-            {
-              id: '1',
-              title: 'Top 5 Hoạt Động Không Thể Bỏ Lỡ Tại Vũng Tàu',
-              title_en: 'Top 5 Activities You Can\'t Miss in Vung Tau',
-              slug: 'top-5-hoat-dong-tai-vung-tau',
-              excerpt: 'Khám phá những hoạt động thú vị nhất tại Vũng Tàu, từ tắm biển đến khám phá ẩm thực địa phương.',
-              excerpt_en: 'Discover the most exciting activities in Vung Tau, from swimming to exploring local cuisine.',
-              featured_image: '/lovable-uploads/447ed5f1-0675-492c-8437-bb1fdf09ab86.png',
-              author: 'Tuấn Anh',
-              published_at: '2023-08-15',
-              tags: ['du lịch', 'biển', 'hoạt động', 'travel', 'beach', 'activities'],
-            },
-            {
-              id: '2',
-              title: 'Trải Nghiệm Ẩm Thực Tại Annam Village',
-              title_en: 'Culinary Experience at Annam Village',
-              slug: 'trai-nghiem-am-thuc-tai-annam-village',
-              excerpt: 'Khám phá những món ăn đặc sắc và cocktail sáng tạo tại nhà hàng và quầy bar của Annam Village.',
-              excerpt_en: 'Discover the signature dishes and creative cocktails at Annam Village\'s restaurant and bar.',
-              featured_image: '/lovable-uploads/cdfb47b1-e949-44cc-85b1-de98fba2961e.png',
-              author: 'Minh Hằng',
-              published_at: '2023-09-20',
-              tags: ['ẩm thực', 'nhà hàng', 'đồ uống', 'cuisine', 'restaurant', 'drinks'],
-            },
-            {
-              id: '3',
-              title: 'Cẩm Nang Du Lịch Vũng Tàu Mùa Hè',
-              title_en: 'Vung Tau Summer Travel Guide',
-              slug: 'cam-nang-du-lich-vung-tau-mua-he',
-              excerpt: 'Hướng dẫn chi tiết về du lịch Vũng Tàu vào mùa hè, bao gồm các địa điểm tham quan và lưu ý quan trọng.',
-              excerpt_en: 'Detailed guide to Vung Tau travel in summer, including attractions and important notes.',
-              featured_image: '/lovable-uploads/595dc250-29ec-4d1d-873b-d34aecdba712.png',
-              author: 'Thanh Tâm',
-              published_at: '2023-07-05',
-              tags: ['du lịch', 'mùa hè', 'cẩm nang', 'travel', 'summer', 'guide'],
-            },
-          ]);
-        }
+        console.log('Blog posts fetched:', data?.length || 0);
+        setPosts(data || []);
       } catch (error) {
         console.error('Unexpected error:', error);
       } finally {
@@ -103,7 +66,7 @@ const BlogPage = () => {
     };
 
     fetchBlogPosts();
-  }, []);
+  }, [language]);
 
   const getTitle = (post) => {
     return language === 'vi' ? post.title : post.title_en;
@@ -114,6 +77,7 @@ const BlogPage = () => {
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
     return new Intl.DateTimeFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
       year: 'numeric',
@@ -123,8 +87,10 @@ const BlogPage = () => {
   };
 
   const filteredPosts = posts.filter(post => {
-    const title = getTitle(post).toLowerCase();
-    const excerpt = getExcerpt(post).toLowerCase();
+    if (!searchQuery.trim()) return true;
+    
+    const title = getTitle(post)?.toLowerCase() || '';
+    const excerpt = getExcerpt(post)?.toLowerCase() || '';
     const query = searchQuery.toLowerCase();
     
     return title.includes(query) || excerpt.includes(query);
@@ -132,6 +98,16 @@ const BlogPage = () => {
 
   return (
     <MainLayout>
+      <Helmet>
+        <title>{language === 'vi' ? 'Blog & Tin Tức | Annam Village' : 'Blog & News | Annam Village'}</title>
+        <meta 
+          name="description" 
+          content={language === 'vi' 
+            ? 'Cập nhật thông tin mới nhất về Annam Village, các sự kiện, cẩm nang du lịch và nhiều nội dung thú vị khác.' 
+            : 'Get the latest updates about Annam Village, events, travel guides and more interesting content.'}
+        />
+      </Helmet>
+      
       {/* Hero Section */}
       <div className="relative bg-beach-700 text-white">
         <div className="absolute inset-0 overflow-hidden">
@@ -178,11 +154,19 @@ const BlogPage = () => {
           </div>
         ) : filteredPosts.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-gray-500 text-lg">
-              {language === 'vi' 
-                ? 'Không tìm thấy bài viết nào phù hợp với tìm kiếm của bạn.'
-                : 'No articles found matching your search.'}
-            </p>
+            {searchQuery ? (
+              <p className="text-gray-500 text-lg">
+                {language === 'vi' 
+                  ? 'Không tìm thấy bài viết nào phù hợp với tìm kiếm của bạn.'
+                  : 'No articles found matching your search.'}
+              </p>
+            ) : (
+              <p className="text-gray-500 text-lg">
+                {language === 'vi' 
+                  ? 'Chưa có bài viết nào. Hãy thêm bài viết đầu tiên trong phần quản lý nội dung.'
+                  : 'No articles yet. Please add the first article in the content management section.'}
+              </p>
+            )}
           </div>
         ) : (
           <motion.div 
@@ -196,27 +180,27 @@ const BlogPage = () => {
                 <Card className="h-full flex flex-col hover:shadow-lg transition-shadow">
                   <div className="aspect-video overflow-hidden">
                     <img 
-                      src={post.featured_image} 
+                      src={post.featured_image || '/placeholder.svg'} 
                       alt={getTitle(post)}
-                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                     />
                   </div>
                   <CardHeader>
                     <div className="flex flex-wrap gap-2 mb-2">
                       {post.tags && post.tags.slice(0, 3).map((tag, index) => (
                         <Badge key={index} variant="outline" className="bg-beach-50 text-beach-700 border-beach-200">
-                          {language === 'vi' ? tag : post.tags[index + 3]}
+                          {tag}
                         </Badge>
                       ))}
                     </div>
                     <CardTitle className="font-serif">{getTitle(post)}</CardTitle>
                     <CardDescription className="flex items-center gap-2 text-sm text-gray-500">
                       <Calendar className="h-4 w-4" />
-                      <span>{formatDate(post.published_at)}</span>
+                      <span>{formatDate(post.published_at || post.created_at)}</span>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="flex-grow">
-                    <p className="text-gray-700">{getExcerpt(post)}</p>
+                    <p className="text-gray-700 line-clamp-3">{getExcerpt(post)}</p>
                   </CardContent>
                   <CardFooter>
                     <Button asChild variant="outline" className="w-full border-beach-500 text-beach-700 hover:bg-beach-50">
