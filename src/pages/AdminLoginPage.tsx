@@ -25,21 +25,28 @@ const AdminLoginPage = () => {
         // Check if already authenticated
         const { data } = await supabase.auth.getSession();
         if (data.session?.user?.email) {
+          console.log('User is already authenticated:', data.session.user.email);
           const adminCheck = await isAdmin(data.session.user.email);
           if (adminCheck) {
             // Already authenticated as admin, redirect to admin dashboard
+            console.log('User is confirmed admin, redirecting to dashboard');
             navigate('/admin/dashboard');
             return;
           } else {
             // Logged in but not as admin, log out
+            console.log('User is authenticated but not admin, logging out');
             await supabase.auth.signOut();
           }
         }
         
         // Initialize admin account
         setIsCreatingAdmin(true);
-        await createAdminAccount();
+        const success = await createAdminAccount();
         setIsCreatingAdmin(false);
+        
+        if (success) {
+          toast.success('Tài khoản admin đã được khởi tạo');
+        }
       } catch (error) {
         console.error('Error during AdminLoginPage initialization:', error);
         setIsCreatingAdmin(false);
@@ -56,6 +63,11 @@ const AdminLoginPage = () => {
     
     try {
       console.log(`Attempting to log in with: ${email}`);
+      
+      // Clear any previous session first
+      await supabase.auth.signOut();
+      
+      // Attempt to sign in
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -67,16 +79,18 @@ const AdminLoginPage = () => {
       }
       
       if (data.user) {
-        console.log('Login successful:', data.user);
+        console.log('Login successful for:', data.user.email);
         
-        // Check if user is in admin_users table
+        // Check if user is an admin
         const adminCheck = await isAdmin(data.user.email || '');
+        console.log('Admin check result:', adminCheck);
         
         if (adminCheck) {
           toast.success('Đăng nhập thành công');
           navigate('/admin/dashboard');
         } else {
           // User authenticated but not authorized
+          console.log('User is not authorized as admin');
           await supabase.auth.signOut();
           toast.error('Tài khoản không có quyền quản trị');
         }
@@ -97,6 +111,12 @@ const AdminLoginPage = () => {
       // Log out first
       await supabase.auth.signOut();
       
+      // Delete existing user (this won't work for the client, but we can try)
+      const { error: deleteError } = await supabase.auth.admin.deleteUser('admin@annamvillage.vn');
+      if (deleteError) {
+        console.log('Could not delete user (expected):', deleteError);
+      }
+      
       // Try to sign up with admin credentials
       const { data, error } = await supabase.auth.signUp({
         email: 'admin@annamvillage.vn',
@@ -105,13 +125,22 @@ const AdminLoginPage = () => {
       
       if (error) {
         if (error.message.includes('already registered')) {
-          toast.info('Tài khoản admin đã tồn tại, thử đăng nhập lại');
+          // If already registered, let's try to ensure the record exists
+          const { error: upsertError } = await supabase
+            .from('admin_users')
+            .upsert([{ email: 'admin@annamvillage.vn', is_active: true }], { onConflict: 'email' });
+          
+          if (upsertError) {
+            console.error('Error updating admin record:', upsertError);
+            toast.error('Lỗi khi cập nhật bản ghi admin');
+          } else {
+            toast.success('Bản ghi admin đã được cập nhật, vui lòng đăng nhập lại');
+          }
         } else {
-          throw error;
+          console.error('Error resetting admin:', error);
+          toast.error('Lỗi khi khởi tạo lại tài khoản admin: ' + error.message);
         }
-      }
-      
-      if (data.user) {
+      } else if (data?.user) {
         // Create admin record in admin_users table
         const { error: insertError } = await supabase
           .from('admin_users')

@@ -13,24 +13,29 @@ export const createAdminAccount = async () => {
   const adminPassword = 'admin';
   
   try {
-    // First try signing in to see if account exists
+    console.log('Starting admin account setup process...');
+    
+    // First try signing in to see if account exists and credentials are valid
     console.log('Attempting to sign in with admin credentials...');
     const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
       email: adminEmail,
       password: adminPassword,
     });
     
-    // If sign in succeeds, the account exists
+    // If sign in succeeds, the account exists and credentials are valid
     if (signInData?.user) {
       console.log('Admin auth account exists and credentials are valid');
       
-      // Try to ensure the admin record exists in admin_users table (without checking first to avoid RLS issues)
-      const { error: insertError } = await supabase
+      // Ensure the admin record exists in admin_users table
+      const { error: upsertError } = await supabase
         .from('admin_users')
-        .upsert([{ email: adminEmail, is_active: true }], { onConflict: 'email' });
+        .upsert([{ email: adminEmail, is_active: true }], { 
+          onConflict: 'email',
+          ignoreDuplicates: false 
+        });
       
-      if (insertError) {
-        console.error('Error ensuring admin record:', insertError);
+      if (upsertError) {
+        console.error('Error ensuring admin record:', upsertError);
       } else {
         console.log('Admin record ensured in admin_users table');
       }
@@ -38,38 +43,41 @@ export const createAdminAccount = async () => {
       return true;
     }
     
-    // If sign in fails with invalid credentials, create the account
-    if (signInError && signInError.message.includes('Invalid login credentials')) {
-      console.log('Admin account does not exist, creating it...');
-      
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: adminEmail,
-        password: adminPassword,
-      });
-      
-      if (signUpError) {
-        console.error('Error creating admin auth account:', signUpError);
+    // If we couldn't sign in, we need to create the account
+    console.log('Admin account sign-in failed, attempting to create account...');
+    
+    // Try to sign up with admin credentials
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: adminEmail,
+      password: adminPassword,
+    });
+    
+    if (signUpError) {
+      // If the error is that the user already exists but with wrong password
+      if (signUpError.message.includes('already registered')) {
+        console.log('Admin account exists but password may be wrong, trying to reset password...');
         return false;
       }
       
-      if (signUpData?.user) {
-        console.log('Admin auth account created successfully!');
-        
-        // Create admin record in admin_users table
-        const { error: insertError } = await supabase
-          .from('admin_users')
-          .insert([{ email: adminEmail, is_active: true }]);
-        
-        if (insertError) {
-          console.error('Error creating admin record:', insertError);
-        } else {
-          console.log('Admin record created in admin_users table');
-        }
-        
-        return true;
+      console.error('Error creating admin auth account:', signUpError);
+      return false;
+    }
+    
+    if (signUpData?.user) {
+      console.log('Admin auth account created successfully!');
+      
+      // Create admin record in admin_users table
+      const { error: insertError } = await supabase
+        .from('admin_users')
+        .upsert([{ email: adminEmail, is_active: true }], { onConflict: 'email' });
+      
+      if (insertError) {
+        console.error('Error creating admin record:', insertError);
+      } else {
+        console.log('Admin record created in admin_users table');
       }
-    } else if (signInError) {
-      console.error('Unexpected sign in error:', signInError);
+      
+      return true;
     }
     
     return false;
@@ -79,17 +87,15 @@ export const createAdminAccount = async () => {
   }
 };
 
-// Helper function to validate admin status - simplified to avoid RLS issues
+// Helper function to validate admin status using the RPC function
 export const isAdmin = async (email: string) => {
-  if (email === 'admin@annamvillage.vn') {
-    console.log('Default admin detected, approving');
-    return true;
-  }
-  
-  // For non-default admins, check the table
   try {
-    // Use a direct SQL query via RPC to bypass RLS
-    const { data, error } = await supabase.rpc('check_is_admin', { email_param: email });
+    console.log('Checking admin status for:', email);
+    
+    // Use the RPC function we created in the SQL migration
+    const { data, error } = await supabase.rpc('check_is_admin', { 
+      email_param: email 
+    });
     
     if (error) {
       console.error('Error checking admin status via RPC:', error);
