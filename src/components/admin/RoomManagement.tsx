@@ -3,7 +3,7 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, CheckCircle, XCircle, Image } from 'lucide-react';
+import { Plus, Pencil, Trash2, CheckCircle, XCircle, Image, RefreshCw } from 'lucide-react';
 import AddRoomModal from './AddRoomModal';
 import EditRoomModal from './EditRoomModal';
 import { 
@@ -52,7 +52,7 @@ const RoomManagement = () => {
       setRooms(data || []);
     } catch (error) {
       console.error('Error fetching rooms:', error);
-      toast.error('Không thể tải dữ liệu phòng');
+      toast.error('Không thể tải dữ liệu phòng: ' + (error as any).message);
     } finally {
       setIsLoading(false);
     }
@@ -65,6 +65,21 @@ const RoomManagement = () => {
 
   const handleDeleteRoom = async (id: string) => {
     try {
+      const { data: existingRoom, error: checkError } = await supabase
+        .from('room_types')
+        .select('id')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (checkError) {
+        throw checkError;
+      }
+
+      if (!existingRoom) {
+        toast.error('Không tìm thấy phòng để xóa');
+        return;
+      }
+
       const { error } = await supabase
         .from('room_types')
         .delete()
@@ -76,7 +91,7 @@ const RoomManagement = () => {
       fetchRooms();
     } catch (error) {
       console.error('Error deleting room:', error);
-      toast.error('Không thể xóa phòng');
+      toast.error('Không thể xóa phòng: ' + (error as any).message);
     } finally {
       setRoomToDelete(null);
     }
@@ -95,7 +110,7 @@ const RoomManagement = () => {
       fetchRooms();
     } catch (error) {
       console.error('Error updating room:', error);
-      toast.error('Không thể cập nhật trạng thái phòng');
+      toast.error('Không thể cập nhật trạng thái phòng: ' + (error as any).message);
     }
   };
 

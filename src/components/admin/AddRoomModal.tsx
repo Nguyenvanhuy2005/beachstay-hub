@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -118,29 +119,42 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
       const mainImageUrl = mainImageData.publicUrl;
       console.log('Main image URL:', mainImageUrl);
       
-      const galleryUrls: string[] = [mainImageUrl];
+      const galleryUrls: string[] = [];
       
+      // Thêm ảnh chính vào galleryUrls chỉ nếu ảnh đã được tải lên thành công
+      if (mainImageUrl) {
+        galleryUrls.push(mainImageUrl);
+      }
+      
+      // Tải lên các ảnh bổ sung
       for (let i = 0; i < galleryImages.length; i++) {
-        const file = galleryImages[i];
-        const filePath = `room_types/${Date.now()}_gallery_${i}_${file.name.replace(/\s+/g, '_')}`;
-        
-        const { error: galleryUploadError } = await supabase.storage
-          .from('images')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false
-          });
+        try {
+          const file = galleryImages[i];
+          const filePath = `room_types/${Date.now()}_gallery_${i}_${file.name.replace(/\s+/g, '_')}`;
           
-        if (galleryUploadError) {
-          console.error(`Error uploading gallery image ${i}:`, galleryUploadError);
-          continue;
+          const { error: galleryUploadError, data: galleryUploadData } = await supabase.storage
+            .from('images')
+            .upload(filePath, file, {
+              cacheControl: '3600',
+              upsert: false
+            });
+            
+          if (galleryUploadError) {
+            console.error(`Error uploading gallery image ${i}:`, galleryUploadError);
+            continue;
+          }
+          
+          const { data: galleryImageData } = supabase.storage
+            .from('images')
+            .getPublicUrl(filePath);
+            
+          if (galleryImageData?.publicUrl) {
+            galleryUrls.push(galleryImageData.publicUrl);
+          }
+        } catch (galleryError) {
+          console.error(`Error processing gallery image ${i}:`, galleryError);
+          // Tiếp tục với ảnh khác nếu có lỗi với ảnh hiện tại
         }
-        
-        const { data: galleryImageData } = supabase.storage
-          .from('images')
-          .getPublicUrl(filePath);
-          
-        galleryUrls.push(galleryImageData.publicUrl);
       }
 
       const amenitiesData = selectedAmenities.map(id => {
@@ -158,7 +172,7 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
         gallery_images: galleryUrls
       });
 
-      const { error: insertError } = await supabase
+      const { error: insertError, data: insertedRoom } = await supabase
         .from('room_types')
         .insert({
           name,
@@ -172,12 +186,15 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
           image_url: mainImageUrl,
           gallery_images: galleryUrls,
           amenities: amenitiesData
-        });
+        })
+        .select('*')
+        .single();
 
       if (insertError) {
         throw insertError;
       }
 
+      console.log('Room added successfully:', insertedRoom);
       toast.success('Đã thêm phòng thành công');
       onRoomAdded();
       onOpenChange(false);
