@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { supabase, getPublicUrl } from '@/lib/supabase';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -183,6 +182,7 @@ const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }) => {
     setIsSubmitting(true);
     
     try {
+      console.log('Checking if slug exists...');
       // Check if slug already exists
       const { data: existingPost, error: checkError } = await supabase
         .from('blog_posts')
@@ -191,6 +191,7 @@ const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }) => {
         .maybeSingle();
       
       if (checkError) {
+        console.error('Error checking existing slug:', checkError);
         throw checkError;
       }
       
@@ -199,6 +200,15 @@ const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }) => {
         setIsSubmitting(false);
         return;
       }
+      
+      console.log('Creating blog post with data:', {
+        title,
+        slug,
+        content: content.substring(0, 50) + '...',
+        author,
+        tags,
+        published
+      });
       
       // Simple structured data
       const structuredData = {
@@ -243,14 +253,18 @@ const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }) => {
         structured_data: structuredData
       };
       
+      console.log('Sending insert request to blog_posts table');
       const { data, error } = await supabase
         .from('blog_posts')
         .insert(newPost)
         .select();
       
       if (error) {
+        console.error('Error inserting blog post:', error);
         throw error;
       }
+      
+      console.log('Blog post created successfully:', data);
       
       // Send notification email to admin if blog post was created
       try {
@@ -279,7 +293,7 @@ const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }) => {
       
     } catch (error) {
       console.error('Error creating blog post:', error);
-      toast.error('Không thể tạo bài viết');
+      toast.error(`Không thể tạo bài viết: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -528,7 +542,7 @@ const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }) => {
                   id="metaDescription" 
                   value={metaDescription} 
                   onChange={(e) => setMetaDescription(e.target.value)} 
-                  placeholder={excerpt || "Mô tả ngắn hiển thị trên kết quả tìm ki���m"}
+                  placeholder={excerpt || "Mô tả ngắn hiển thị trên kết quả tìm kiếm"}
                   rows={3}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
