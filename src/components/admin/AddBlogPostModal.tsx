@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { supabase, getPublicUrl } from '@/lib/supabase';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -120,6 +121,7 @@ const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }) => {
     
     try {
       setUploadingImage(true);
+      console.log('Starting image upload process...');
       
       // Check file size
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
@@ -135,25 +137,29 @@ const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }) => {
       
       // Generate a unique path for the image
       const timestamp = new Date().getTime();
-      const fileName = `${timestamp}-${file.name}`;
-      const filePath = `${fileName}`;
+      const fileName = `${timestamp}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
       
-      // Upload to Supabase Storage
+      console.log('Uploading image with filename:', fileName);
+      
+      // Upload to Supabase Storage with direct path (not nested)
       const { data, error } = await supabase.storage
         .from('blog-images')
-        .upload(filePath, file, {
+        .upload(fileName, file, {
           cacheControl: '3600',
           upsert: false
         });
       
       if (error) {
         console.error('Error uploading image:', error);
-        toast.error('Không thể tải lên hình ảnh');
+        toast.error(`Không thể tải lên hình ảnh: ${error.message}`);
         return;
       }
       
+      console.log('Upload successful:', data);
+      
       // Get public URL of the uploaded image
-      const publicUrl = getPublicUrl('blog-images', filePath);
+      const publicUrl = getPublicUrl('blog-images', fileName);
+      console.log('Public URL:', publicUrl);
       
       setFeaturedImage(file);
       setFeaturedImageUrl(publicUrl);
@@ -162,7 +168,7 @@ const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }) => {
       
     } catch (error) {
       console.error('Unexpected error uploading image:', error);
-      toast.error('Không thể tải lên hình ảnh');
+      toast.error(`Không thể tải lên hình ảnh: ${error.message}`);
     } finally {
       setUploadingImage(false);
     }

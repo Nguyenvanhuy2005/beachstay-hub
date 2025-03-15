@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -27,32 +26,7 @@ const ContentManagement = () => {
 
   useEffect(() => {
     fetchContent();
-    ensureStorageBucketExists();
   }, []);
-
-  const ensureStorageBucketExists = async () => {
-    try {
-      // Check if blog-images bucket exists
-      const { data: buckets, error } = await supabase.storage.listBuckets();
-      
-      if (error) throw error;
-      
-      const blogImagesBucketExists = buckets.some(bucket => bucket.name === 'blog-images');
-      
-      if (!blogImagesBucketExists) {
-        console.log('Creating blog-images bucket');
-        // Create blog-images bucket
-        const { error: createError } = await supabase.storage.createBucket('blog-images', {
-          public: true
-        });
-        
-        if (createError) throw createError;
-        console.log('Blog images bucket created successfully');
-      }
-    } catch (error) {
-      console.error('Error ensuring storage bucket exists:', error);
-    }
-  };
 
   const fetchContent = async () => {
     setIsLoading(true);
