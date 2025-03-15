@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '@/components/layout/MainLayout';
@@ -53,12 +54,15 @@ const ContactPage = () => {
     console.log(values);
     setSuccess(true);
 
-    toast({
-      title: isEnglish ? "Message Sent" : "Đã Gửi Tin Nhắn",
-      description: isEnglish
-        ? "We will contact you soon!"
-        : "Chúng tôi sẽ liên hệ với bạn sớm!",
-    });
+    // Using the sonner toast correctly
+    toast(
+      isEnglish ? "Message Sent" : "Đã Gửi Tin Nhắn", 
+      {
+        description: isEnglish
+          ? "We will contact you soon!"
+          : "Chúng tôi sẽ liên hệ với bạn sớm!",
+      }
+    );
 
     form.reset();
 
