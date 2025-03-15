@@ -13,67 +13,50 @@ export const createAdminAccount = async () => {
   const adminPassword = 'admin';
   
   try {
-    // First check if the user exists in auth
-    const { data: authUser, error: authError } = await supabase.auth.admin.getUserByEmail(adminEmail);
+    // Try to sign in with the admin credentials to check if account exists
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email: adminEmail,
+      password: adminPassword,
+    });
     
-    // If auth error is not "User not found", it's likely a permission issue
-    if (authError && !authError.message.includes('User not found')) {
-      console.error('Error checking if admin exists:', authError);
-      
-      // Try sign-up method instead
-      console.log('Attempting admin sign-up instead...');
-      const { error: signUpError } = await supabase.auth.signUp({
-        email: adminEmail,
-        password: adminPassword,
-      });
-      
-      if (signUpError) {
-        console.error('Error creating admin account:', signUpError);
-        return false;
-      }
-      
-      console.log('Admin account created successfully via sign-up');
+    // If sign in succeeds, the admin account already exists
+    if (signInData?.user) {
+      console.log('Admin account already exists and is valid');
       return true;
     }
     
-    // If user doesn't exist, create it
-    if (!authUser) {
-      const { error } = await supabase.auth.signUp({
-        email: adminEmail,
-        password: adminPassword,
-      });
-      
-      if (error) {
-        console.error('Error creating admin account:', error);
-        return false;
-      }
-      
-      console.log('Admin account created successfully');
-      return true;
-    } else {
-      console.log('Admin account already exists');
-      return true;
+    // If error is not "Invalid login credentials", it might be a different issue
+    if (signInError && !signInError.message.includes('Invalid login credentials')) {
+      console.error('Error checking if admin exists:', signInError);
     }
-  } catch (error) {
-    console.error('Unexpected error creating admin account:', error);
     
-    // Fallback: try regular sign-up
-    try {
-      const { error: signUpError } = await supabase.auth.signUp({
-        email: adminEmail,
-        password: adminPassword,
-      });
-      
-      if (signUpError) {
-        console.error('Fallback signup also failed:', signUpError);
+    // Attempt to create the admin account
+    console.log('Admin account does not exist or password is incorrect. Creating account...');
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: adminEmail,
+      password: adminPassword,
+    });
+    
+    if (signUpError) {
+      // If sign up fails because the user already exists but with different password
+      if (signUpError.message.includes('already registered')) {
+        console.log('Admin email already registered but with different password');
+        // In a real app, you might want to handle this differently
         return false;
       }
       
-      console.log('Admin account created successfully via fallback');
-      return true;
-    } catch (fallbackError) {
-      console.error('Fallback also failed with unexpected error:', fallbackError);
+      console.error('Error creating admin account:', signUpError);
       return false;
     }
+    
+    if (signUpData?.user) {
+      console.log('Admin account created successfully');
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('Unexpected error creating admin account:', error);
+    return false;
   }
 };
