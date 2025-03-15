@@ -1,6 +1,5 @@
-
 import React, { useState, useRef } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, getPublicUrl } from '@/lib/supabase';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -137,7 +136,7 @@ const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }) => {
       // Generate a unique path for the image
       const timestamp = new Date().getTime();
       const fileName = `${timestamp}-${file.name}`;
-      const filePath = `blog-images/${fileName}`;
+      const filePath = `${fileName}`;
       
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
@@ -154,12 +153,10 @@ const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }) => {
       }
       
       // Get public URL of the uploaded image
-      const { data: urlData } = supabase.storage
-        .from('blog-images')
-        .getPublicUrl(filePath);
+      const publicUrl = getPublicUrl('blog-images', filePath);
       
       setFeaturedImage(file);
-      setFeaturedImageUrl(urlData.publicUrl);
+      setFeaturedImageUrl(publicUrl);
       
       toast.success('Đã tải lên hình ảnh thành công');
       
@@ -356,7 +353,7 @@ const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }) => {
                     onChange={setContent}
                     modules={quillModules}
                     formats={quillFormats}
-                    placeholder="Nhập nội dung bài viết..."
+                    placeholder="Nhập nội dung b��i viết..."
                     className="h-56"
                   />
                 </div>
@@ -525,7 +522,7 @@ const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }) => {
                   id="metaDescription" 
                   value={metaDescription} 
                   onChange={(e) => setMetaDescription(e.target.value)} 
-                  placeholder={excerpt || "Mô tả ngắn hiển thị trên kết quả tìm kiếm"}
+                  placeholder={excerpt || "Mô tả ngắn hiển thị trên kết quả tìm ki���m"}
                   rows={3}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
