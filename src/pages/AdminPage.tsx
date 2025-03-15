@@ -1,18 +1,17 @@
 
 import React, { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
 import MainLayout from '@/components/layout/MainLayout';
 import AdminDashboard from '@/components/admin/AdminDashboard';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 const AdminPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState('admin@annamvillage.vn');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -81,7 +80,7 @@ const AdminPage = () => {
                         type="email" 
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="admin@example.com"
+                        placeholder="admin@annamvillage.vn"
                         required
                       />
                     </div>
@@ -94,6 +93,9 @@ const AdminPage = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                       />
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      Tài khoản mặc định: admin@annamvillage.vn / admin
                     </div>
                     <Button 
                       type="submit" 
