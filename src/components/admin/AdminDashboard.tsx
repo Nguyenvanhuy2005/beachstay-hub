@@ -5,6 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import RoomManagement from './RoomManagement';
+import ContentManagement from './ContentManagement';
 
 const AdminDashboard = () => {
   const [bookings, setBookings] = useState<any[]>([]);
@@ -156,15 +158,11 @@ const AdminDashboard = () => {
             </TabsContent>
             
             <TabsContent value="rooms" className="space-y-4">
-              <div className="text-center py-4">
-                <p>Tính năng quản lý phòng sẽ được phát triển trong tương lai</p>
-              </div>
+              <RoomManagement />
             </TabsContent>
             
             <TabsContent value="content" className="space-y-4">
-              <div className="text-center py-4">
-                <p>Tính năng quản lý nội dung sẽ được phát triển trong tương lai</p>
-              </div>
+              <ContentManagement />
             </TabsContent>
           </Tabs>
         </CardContent>
