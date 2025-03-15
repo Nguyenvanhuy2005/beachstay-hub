@@ -21,9 +21,6 @@ const AdminLoginPage = () => {
     const init = async () => {
       try {
         console.log('Initializing AdminLoginPage component...');
-        setIsCreatingAdmin(true);
-        await createAdminAccount();
-        setIsCreatingAdmin(false);
         
         // Check if already authenticated
         const { data } = await supabase.auth.getSession();
@@ -32,8 +29,17 @@ const AdminLoginPage = () => {
           if (adminCheck) {
             // Already authenticated as admin, redirect to admin dashboard
             navigate('/admin/dashboard');
+            return;
+          } else {
+            // Logged in but not as admin, log out
+            await supabase.auth.signOut();
           }
         }
+        
+        // Initialize admin account
+        setIsCreatingAdmin(true);
+        await createAdminAccount();
+        setIsCreatingAdmin(false);
       } catch (error) {
         console.error('Error during AdminLoginPage initialization:', error);
         setIsCreatingAdmin(false);
@@ -78,13 +84,6 @@ const AdminLoginPage = () => {
     } catch (error: any) {
       console.error('Error logging in:', error);
       toast.error('Đăng nhập thất bại: ' + (error.message || 'Vui lòng kiểm tra email và mật khẩu'));
-      
-      // If login fails, try creating the admin account again
-      toast.info('Đang thử tạo lại tài khoản admin...');
-      const created = await createAdminAccount();
-      if (created) {
-        toast.info('Tài khoản admin đã được tạo, vui lòng thử đăng nhập lại');
-      }
     } finally {
       setIsLoading(false);
     }
@@ -95,25 +94,35 @@ const AdminLoginPage = () => {
     toast.info('Đang khởi tạo lại tài khoản admin...');
     
     try {
-      // First ensure the admin exists in the admin_users table
-      const { error: adminError } = await supabase
-        .from('admin_users')
-        .upsert([{ email: 'admin@annamvillage.vn', is_active: true }]);
-      
-      if (adminError) {
-        throw adminError;
-      }
-      
-      // Then try to create/reset the auth account
+      // Log out first
       await supabase.auth.signOut();
       
-      // Create a new admin account
-      const success = await createAdminAccount();
+      // Try to sign up with admin credentials
+      const { data, error } = await supabase.auth.signUp({
+        email: 'admin@annamvillage.vn',
+        password: 'admin',
+      });
       
-      if (success) {
-        toast.success('Tài khoản admin đã được khởi tạo lại');
-      } else {
-        toast.error('Không thể khởi tạo lại tài khoản admin');
+      if (error) {
+        if (error.message.includes('already registered')) {
+          toast.info('Tài khoản admin đã tồn tại, thử đăng nhập lại');
+        } else {
+          throw error;
+        }
+      }
+      
+      if (data.user) {
+        // Create admin record in admin_users table
+        const { error: insertError } = await supabase
+          .from('admin_users')
+          .upsert([{ email: 'admin@annamvillage.vn', is_active: true }], { onConflict: 'email' });
+        
+        if (insertError) {
+          console.error('Error creating admin record:', insertError);
+          toast.error('Lỗi khi tạo bản ghi admin trong cơ sở dữ liệu');
+        } else {
+          toast.success('Tài khoản admin đã được khởi tạo lại');
+        }
       }
     } catch (error: any) {
       console.error('Error resetting admin:', error);
