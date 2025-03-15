@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import MainLayout from '@/components/layout/MainLayout';
@@ -42,7 +41,6 @@ const ContactPage = () => {
         description: language === 'vi' 
           ? 'Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất.'
           : 'We will contact you as soon as possible.',
-        variant: 'default',
       });
       
       setFormData({
@@ -285,7 +283,7 @@ const ContactPage = () => {
             viewport={{ once: true }}
           >
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3926.964630266936!2d107.0809146!3d10.346161!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31756fd4554f0cf5%3A0xd3f960b48d3ba98d!2zVHLhuqduIFBow7osIFBoxrDhu51uZyAxLCBWxaluZyBUw6B1LCBCw6AgUuG7i2EgLSBWxaluZyBUw6B1LCBWaeG7h3QgTmFt!5e0!3m2!1svi!2s!4v1696346631979!5m2!1svi!2s"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3926.964630266936!2d107.0809146!3d10.346161!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31756fd4554f0cf5%3A0xd3f960b48d3ba98d!2zVHLhuqduIFBow7osIFBoxrDhu51uZyAxLCBWxaluZyBUw6B1LCBCw6AgUuG7h3QgTmFt!5e0!3m2!1svi!2s!4v1696346631979!5m2!1svi!2s"
               width="100%"
               height="100%"
               style={{ border: 0 }}
