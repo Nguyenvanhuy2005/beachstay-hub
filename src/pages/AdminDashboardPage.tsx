@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Settings, User, ShieldCheck, Bell } from 'lucide-react';
+import { LogOut, Settings, User, ShieldCheck, Bell, Home } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Link } from 'react-router-dom';
 
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
@@ -27,14 +28,21 @@ const AdminDashboardPage = () => {
 
   return (
     <MainLayout>
-      <div className="bg-beach-50 min-h-screen py-6">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center mb-6">
+      <div className="bg-beach-50 min-h-screen">
+        {/* Admin header */}
+        <header className="bg-white border-b border-gray-200 shadow-sm py-3">
+          <div className="container mx-auto px-4 flex justify-between items-center">
             <div className="flex items-center">
-              <ShieldCheck className="h-7 w-7 mr-2 text-beach-700" />
-              <h1 className="text-2xl font-bold text-beach-900">Trang Quản Trị Annam Village</h1>
+              <ShieldCheck className="h-6 w-6 mr-2 text-beach-700" />
+              <h1 className="text-xl font-bold text-beach-900">Annam Village Admin</h1>
             </div>
-            <div className="flex items-center space-x-2">
+            
+            <div className="flex items-center gap-4">
+              <Link to="/" className="text-beach-700 hover:text-beach-900 flex items-center gap-1">
+                <Home size={18} />
+                <span className="hidden sm:inline">Trang chủ</span>
+              </Link>
+              
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full">
@@ -100,7 +108,9 @@ const AdminDashboardPage = () => {
               </DropdownMenu>
             </div>
           </div>
-          
+        </header>
+        
+        <div className="container mx-auto px-4 py-6">
           <AdminDashboard />
         </div>
       </div>
