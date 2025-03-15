@@ -16,10 +16,23 @@ export interface BookingFormData {
 
 export const createBooking = async (bookingData: BookingFormData) => {
   try {
+    // Transform the booking data to match Supabase schema
+    const supabaseBookingData = {
+      full_name: bookingData.fullName,
+      email: bookingData.email,
+      phone: bookingData.phone,
+      check_in: bookingData.checkIn,
+      check_out: bookingData.checkOut,
+      room_type_id: bookingData.roomType,
+      adults: bookingData.adults,
+      children: bookingData.children,
+      special_requests: bookingData.specialRequests
+    };
+
     // Gửi dữ liệu đặt phòng lên Supabase
     const { data, error } = await supabase
       .from('bookings')
-      .insert([bookingData])
+      .insert(supabaseBookingData)
       .select();
 
     if (error) {
@@ -89,7 +102,15 @@ export const checkRoomAvailability = async (roomTypeId: string, checkIn: string,
       return { available: false, error };
     }
 
-    return { available: data.available, remainingRooms: data.remaining_rooms };
+    // Fix: access the first element of the array returned by the RPC
+    if (data && data.length > 0) {
+      return { 
+        available: data[0].available, 
+        remainingRooms: data[0].remaining_rooms 
+      };
+    }
+
+    return { available: false, error: 'No data returned from availability check' };
   } catch (error) {
     console.error('Unexpected error:', error);
     return { available: false, error };
