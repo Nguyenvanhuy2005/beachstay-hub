@@ -9,6 +9,13 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import BlogPage from "./pages/BlogPage";
 import BlogPostPage from "./pages/BlogPostPage";
+import AboutPage from "./pages/AboutPage";
+import RoomTypesPage from "./pages/RoomTypesPage";
+import RoomDetailPage from "./pages/RoomDetailPage";
+import AmenitiesPage from "./pages/AmenitiesPage";
+import ServicesPage from "./pages/ServicesPage";
+import ContactPage from "./pages/ContactPage";
+import BookingPage from "./pages/BookingPage";
 
 // Tạo QueryClient cho React Query
 const queryClient = new QueryClient({
@@ -29,13 +36,13 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/ve-chung-toi" element={<Index />} />
-            <Route path="/loai-phong" element={<Index />} />
-            <Route path="/loai-phong/:id" element={<Index />} />
-            <Route path="/tien-ich" element={<Index />} />
-            <Route path="/dich-vu" element={<Index />} />
-            <Route path="/lien-he" element={<Index />} />
-            <Route path="/dat-phong" element={<Index />} />
+            <Route path="/ve-chung-toi" element={<AboutPage />} />
+            <Route path="/loai-phong" element={<RoomTypesPage />} />
+            <Route path="/loai-phong/:id" element={<RoomDetailPage />} />
+            <Route path="/tien-ich" element={<AmenitiesPage />} />
+            <Route path="/dich-vu" element={<ServicesPage />} />
+            <Route path="/lien-he" element={<ContactPage />} />
+            <Route path="/dat-phong" element={<BookingPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="*" element={<NotFound />} />

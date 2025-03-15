@@ -1,11 +1,10 @@
-
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import MainLayout from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Utensils, Car, Plane, Hearts, MusicNote, Gift, Ship } from 'lucide-react';
+import { Calendar, Utensils, Car, Plane, Heart, Music, Gift, Ship } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const ServicesPage = () => {
@@ -45,14 +44,14 @@ const ServicesPage = () => {
         : 'Explore Vung Tau and surrounding areas with custom-designed tours, with professional guides.',
     },
     {
-      icon: <Hearts className="h-10 w-10 text-beach-600" />,
+      icon: <Heart className="h-10 w-10 text-beach-600" />,
       title: language === 'vi' ? 'Dịch Vụ Spa & Làm Đẹp' : 'Spa & Beauty Services',
       description: language === 'vi' 
         ? 'Thư giãn và làm mới bản thân với các liệu pháp spa và dịch vụ làm đẹp cao cấp.'
         : 'Relax and rejuvenate with premium spa therapies and beauty services.',
     },
     {
-      icon: <MusicNote className="h-10 w-10 text-beach-600" />,
+      icon: <Music className="h-10 w-10 text-beach-600" />,
       title: language === 'vi' ? 'Giải Trí' : 'Entertainment',
       description: language === 'vi' 
         ? 'Tận hưởng các buổi biểu diễn âm nhạc sống, đêm nhạc Jazz và các hoạt động giải trí hàng đêm.'
