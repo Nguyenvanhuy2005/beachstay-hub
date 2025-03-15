@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { X } from 'lucide-react';
+import { Loader2, Upload, X } from 'lucide-react';
+import { Switch } from "@/components/ui/switch";
 
 interface AddRoomModalProps {
   open: boolean;
@@ -16,7 +16,7 @@ interface AddRoomModalProps {
   onRoomAdded: () => void;
 }
 
-const AddRoomModal = ({ open, onOpenChange, onRoomAdded }: AddRoomModalProps) => {
+const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomAdded }) => {
   const [name, setName] = useState('');
   const [nameEn, setNameEn] = useState('');
   const [description, setDescription] = useState('');
@@ -24,102 +24,45 @@ const AddRoomModal = ({ open, onOpenChange, onRoomAdded }: AddRoomModalProps) =>
   const [capacity, setCapacity] = useState('');
   const [capacityEn, setCapacityEn] = useState('');
   const [price, setPrice] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
-  const [galleryImages, setGalleryImages] = useState<string[]>([]);
-  const [newGalleryImage, setNewGalleryImage] = useState('');
   const [isPopular, setIsPopular] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Main image handling
+  const [mainImage, setMainImage] = useState<File | null>(null);
+  const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
+  
+  // Gallery images handling
+  const [galleryImages, setGalleryImages] = useState<File[]>([]);
+  const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      // Validate inputs
-      if (!name || !nameEn || !description || !descriptionEn || !capacity || !capacityEn || !price || !imageUrl) {
-        toast.error('Vui lòng điền đầy đủ thông tin');
-        setIsSubmitting(false);
-        return;
-      }
-
-      if (galleryImages.length === 0) {
-        toast.error('Vui lòng thêm ít nhất một hình ảnh cho thư viện');
-        setIsSubmitting(false);
-        return;
-      }
-
-      const priceNum = parseFloat(price);
-      if (isNaN(priceNum) || priceNum <= 0) {
-        toast.error('Giá phòng không hợp lệ');
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Create room amenities array (default amenities)
-      const amenities = [
-        { name: 'Wifi', icon: 'wifi' },
-        { name: 'TV', icon: 'tv' },
-        { name: 'Điều hòa', icon: 'wind' },
-        { name: 'Minibar', icon: 'wine' }
-      ];
-
-      // Include the main image in the gallery if not already present
-      const allGalleryImages = [imageUrl, ...galleryImages.filter(img => img !== imageUrl)];
-
-      // Insert new room into database
-      const { data, error } = await supabase
-        .from('room_types')
-        .insert([
-          {
-            name,
-            name_en: nameEn,
-            description,
-            description_en: descriptionEn,
-            capacity,
-            capacity_en: capacityEn,
-            price: priceNum,
-            image_url: imageUrl,
-            gallery_images: allGalleryImages,
-            is_popular: isPopular,
-            amenities
-          }
-        ]);
-
-      if (error) {
-        throw error;
-      }
-
-      toast.success('Đã thêm phòng mới thành công');
-      onRoomAdded();
-      resetForm();
-      onOpenChange(false);
-    } catch (error) {
-      console.error('Error adding room:', error);
-      toast.error('Không thể thêm phòng: ' + (error as Error).message);
-    } finally {
-      setIsSubmitting(false);
+  const handleMainImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setMainImage(file);
+      setMainImagePreview(URL.createObjectURL(file));
     }
   };
 
-  const addGalleryImage = () => {
-    if (!newGalleryImage.trim()) {
-      toast.error('Vui lòng nhập URL hình ảnh');
-      return;
+  const handleGalleryImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files);
+      
+      // Create previews for the new files
+      const newPreviews = newFiles.map(file => URL.createObjectURL(file));
+      
+      // Update state with new files and previews
+      setGalleryImages(prev => [...prev, ...newFiles]);
+      setGalleryPreviews(prev => [...prev, ...newPreviews]);
     }
-    
-    if (galleryImages.includes(newGalleryImage)) {
-      toast.error('Hình ảnh này đã tồn tại trong thư viện');
-      return;
-    }
-    
-    setGalleryImages([...galleryImages, newGalleryImage]);
-    setNewGalleryImage('');
   };
 
   const removeGalleryImage = (index: number) => {
-    const updatedImages = [...galleryImages];
-    updatedImages.splice(index, 1);
-    setGalleryImages(updatedImages);
+    // Remove the preview URL
+    URL.revokeObjectURL(galleryPreviews[index]);
+    
+    // Remove the image and preview from state
+    setGalleryImages(prev => prev.filter((_, i) => i !== index));
+    setGalleryPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   const resetForm = () => {
@@ -130,10 +73,103 @@ const AddRoomModal = ({ open, onOpenChange, onRoomAdded }: AddRoomModalProps) =>
     setCapacity('');
     setCapacityEn('');
     setPrice('');
-    setImageUrl('');
-    setGalleryImages([]);
-    setNewGalleryImage('');
     setIsPopular(false);
+    
+    // Clear main image
+    if (mainImagePreview) {
+      URL.revokeObjectURL(mainImagePreview);
+    }
+    setMainImage(null);
+    setMainImagePreview(null);
+    
+    // Clear gallery images
+    galleryPreviews.forEach(url => URL.revokeObjectURL(url));
+    setGalleryImages([]);
+    setGalleryPreviews([]);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!name || !description || !capacity || !price || !mainImage) {
+      toast.error('Vui lòng điền đầy đủ thông tin và chọn ảnh chính');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Upload main image first
+      const mainImagePath = `room_types/${Date.now()}_main_${mainImage.name.replace(/\s+/g, '_')}`;
+      const { error: uploadError } = await supabase.storage
+        .from('images')
+        .upload(mainImagePath, mainImage);
+
+      if (uploadError) {
+        throw new Error(`Error uploading main image: ${uploadError.message}`);
+      }
+
+      // Get the public URL for the main image
+      const { data: mainImageData } = supabase.storage
+        .from('images')
+        .getPublicUrl(mainImagePath);
+
+      const mainImageUrl = mainImageData.publicUrl;
+      
+      // Upload gallery images
+      const galleryUrls: string[] = [mainImageUrl]; // Include main image in gallery by default
+      
+      for (let i = 0; i < galleryImages.length; i++) {
+        const file = galleryImages[i];
+        const filePath = `room_types/${Date.now()}_gallery_${i}_${file.name.replace(/\s+/g, '_')}`;
+        
+        const { error: galleryUploadError } = await supabase.storage
+          .from('images')
+          .upload(filePath, file);
+          
+        if (galleryUploadError) {
+          console.error(`Error uploading gallery image ${i}:`, galleryUploadError);
+          continue; // Skip this image but continue with others
+        }
+        
+        const { data: galleryImageData } = supabase.storage
+          .from('images')
+          .getPublicUrl(filePath);
+          
+        galleryUrls.push(galleryImageData.publicUrl);
+      }
+
+      // Create room with all images
+      const { error: insertError } = await supabase
+        .from('room_types')
+        .insert({
+          name,
+          name_en: nameEn || name,
+          description,
+          description_en: descriptionEn || description,
+          capacity,
+          capacity_en: capacityEn || capacity,
+          price: Number(price),
+          is_popular: isPopular,
+          image_url: mainImageUrl,
+          gallery_images: galleryUrls,
+          amenities: ['wifi', 'ac', 'tv', 'breakfast']
+        });
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      toast.success('Đã thêm phòng thành công');
+      onRoomAdded();
+      onOpenChange(false);
+      resetForm();
+    } catch (error) {
+      console.error('Error adding room:', error);
+      toast.error('Không thể thêm phòng: ' + (error as any).message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -142,163 +178,188 @@ const AddRoomModal = ({ open, onOpenChange, onRoomAdded }: AddRoomModalProps) =>
         <DialogHeader>
           <DialogTitle>Thêm Phòng Mới</DialogTitle>
         </DialogHeader>
+        
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Tên phòng (Tiếng Việt)</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+              <Label htmlFor="name">Tên phòng (VI)</Label>
+              <Input 
+                id="name" 
+                value={name} 
+                onChange={e => setName(e.target.value)}
                 placeholder="Phòng Deluxe"
-                required
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="nameEn">Tên phòng (Tiếng Anh)</Label>
-              <Input
-                id="nameEn"
-                value={nameEn}
-                onChange={(e) => setNameEn(e.target.value)}
-                placeholder="Deluxe Room"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="description">Mô tả (Tiếng Việt)</Label>
-              <Textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Mô tả phòng..."
-                rows={3}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="descriptionEn">Mô tả (Tiếng Anh)</Label>
-              <Textarea
-                id="descriptionEn"
-                value={descriptionEn}
-                onChange={(e) => setDescriptionEn(e.target.value)}
-                placeholder="Room description..."
-                rows={3}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="capacity">Sức chứa (Tiếng Việt)</Label>
-              <Input
-                id="capacity"
-                value={capacity}
-                onChange={(e) => setCapacity(e.target.value)}
-                placeholder="2 người lớn, 1 trẻ em"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="capacityEn">Sức chứa (Tiếng Anh)</Label>
-              <Input
-                id="capacityEn"
-                value={capacityEn}
-                onChange={(e) => setCapacityEn(e.target.value)}
-                placeholder="2 adults, 1 child"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="price">Giá phòng (VND)</Label>
-              <Input
-                id="price"
-                type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="1200000"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="imageUrl">URL Hình ảnh chính</Label>
-              <Input
-                id="imageUrl"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="https://example.com/image.jpg"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Thư viện hình ảnh</Label>
-            <div className="flex items-center space-x-2">
-              <Input
-                value={newGalleryImage}
-                onChange={(e) => setNewGalleryImage(e.target.value)}
-                placeholder="Nhập URL hình ảnh cho thư viện"
-                className="flex-1"
-              />
-              <Button 
-                type="button" 
-                onClick={addGalleryImage}
-                variant="outline"
-              >
-                Thêm
-              </Button>
             </div>
             
-            {galleryImages.length > 0 && (
-              <div className="mt-3 border rounded-md p-3">
-                <p className="text-sm text-muted-foreground mb-2">Đã thêm {galleryImages.length} hình ảnh:</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {galleryImages.map((image, index) => (
-                    <div key={index} className="flex items-center justify-between bg-muted p-2 rounded text-sm">
-                      <div className="flex items-center space-x-2">
-                        <div className="h-10 w-10 rounded overflow-hidden">
-                          <img src={image} alt="Gallery preview" className="h-full w-full object-cover" />
-                        </div>
-                        <span className="truncate max-w-[120px]">{image.split('/').pop()}</span>
-                      </div>
-                      <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-6 w-6 rounded-full"
-                        onClick={() => removeGalleryImage(index)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
+            <div className="space-y-2">
+              <Label htmlFor="name_en">Tên phòng (EN)</Label>
+              <Input 
+                id="name_en" 
+                value={nameEn} 
+                onChange={e => setNameEn(e.target.value)}
+                placeholder="Deluxe Room"
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="description">Mô tả (VI)</Label>
+              <Textarea 
+                id="description" 
+                value={description} 
+                onChange={e => setDescription(e.target.value)}
+                placeholder="Mô tả chi tiết về phòng..."
+                rows={4}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="description_en">Mô tả (EN)</Label>
+              <Textarea 
+                id="description_en" 
+                value={descriptionEn} 
+                onChange={e => setDescriptionEn(e.target.value)}
+                placeholder="Detailed room description..."
+                rows={4}
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="capacity">Sức chứa (VI)</Label>
+              <Input 
+                id="capacity" 
+                value={capacity} 
+                onChange={e => setCapacity(e.target.value)}
+                placeholder="2 người lớn, 1 trẻ em"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="capacity_en">Sức chứa (EN)</Label>
+              <Input 
+                id="capacity_en" 
+                value={capacityEn} 
+                onChange={e => setCapacityEn(e.target.value)}
+                placeholder="2 adults, 1 child"
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="price">Giá phòng (VND)</Label>
+              <Input 
+                id="price" 
+                type="number" 
+                value={price} 
+                onChange={e => setPrice(e.target.value)}
+                placeholder="1500000"
+              />
+            </div>
+            
+            <div className="flex items-center space-x-2 pt-8">
+              <Switch 
+                checked={isPopular} 
+                onCheckedChange={setIsPopular} 
+                id="is-popular" 
+              />
+              <Label htmlFor="is-popular">Đánh dấu là phòng nổi bật</Label>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="main-image">Ảnh chính (bắt buộc)</Label>
+            <div className="flex items-center space-x-4">
+              <Input 
+                id="main-image" 
+                type="file" 
+                accept="image/*" 
+                onChange={handleMainImageChange}
+                className="w-2/3"
+              />
+              
+              {mainImagePreview && (
+                <div className="relative h-20 w-20 overflow-hidden rounded-md border">
+                  <img 
+                    src={mainImagePreview} 
+                    alt="Main preview" 
+                    className="h-full w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    className="absolute top-0 right-0 bg-black/50 p-1 rounded-bl"
+                    onClick={() => {
+                      URL.revokeObjectURL(mainImagePreview);
+                      setMainImage(null);
+                      setMainImagePreview(null);
+                    }}
+                  >
+                    <X className="h-4 w-4 text-white" />
+                  </button>
                 </div>
+              )}
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="gallery-images">Ảnh bổ sung (tùy chọn)</Label>
+            <Input 
+              id="gallery-images" 
+              type="file" 
+              accept="image/*" 
+              multiple
+              onChange={handleGalleryImagesChange}
+            />
+            
+            {galleryPreviews.length > 0 && (
+              <div className="grid grid-cols-5 gap-2 mt-2">
+                {galleryPreviews.map((preview, index) => (
+                  <div key={index} className="relative h-20 w-20 overflow-hidden rounded-md border">
+                    <img 
+                      src={preview} 
+                      alt={`Gallery ${index}`} 
+                      className="h-full w-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      className="absolute top-0 right-0 bg-black/50 p-1 rounded-bl"
+                      onClick={() => removeGalleryImage(index)}
+                    >
+                      <X className="h-4 w-4 text-white" />
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
           </div>
-
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="isPopular"
-              checked={isPopular}
-              onCheckedChange={setIsPopular}
-            />
-            <Label htmlFor="isPopular">Đánh dấu là phòng nổi bật</Label>
-          </div>
-
+          
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => {
+                resetForm();
+                onOpenChange(false);
+              }}
+              disabled={isSubmitting}
+            >
               Hủy
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Đang xử lý...' : 'Thêm phòng'}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang xử lý...
+                </>
+              ) : (
+                <>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Thêm phòng
+                </>
+              )}
             </Button>
           </DialogFooter>
         </form>
