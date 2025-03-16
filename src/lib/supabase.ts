@@ -56,3 +56,24 @@ export const checkRoomAvailability = async (roomTypeId: string, checkIn: string,
     return { available: false, error, remainingRooms: 0 };
   }
 };
+
+// Helper function to get all booked dates for a room type
+export const getBookedDatesForRoomType = async (roomTypeId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('check_in, check_out, status')
+      .eq('room_type_id', roomTypeId)
+      .neq('status', 'cancelled');
+
+    if (error) {
+      console.error('Error fetching booked dates:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Unexpected error in getBookedDatesForRoomType:', error);
+    return [];
+  }
+};

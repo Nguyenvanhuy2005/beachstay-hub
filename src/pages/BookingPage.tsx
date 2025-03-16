@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format, addDays, isAfter, isBefore, parse } from 'date-fns';
+import { format, addDays, isAfter, isBefore, parse, eachDayOfInterval } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -34,9 +35,10 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BookingFormData, createBooking, getRoomTypes } from '@/api/bookingApi';
-import { checkRoomAvailability } from '@/lib/supabase';
+import { BookingFormData, createBooking } from '@/api/bookingApi';
+import { checkRoomAvailability, getBookedDatesForRoomType } from '@/lib/supabase';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { getRoomTypes } from '@/api/bookingApi';
 
 const bookingFormSchema = z.object({
   fullName: z.string().min(3, { message: 'Họ tên phải có ít nhất 3 ký tự' }),
@@ -69,6 +71,9 @@ const BookingPage = () => {
     remainingRooms: 0 
   });
   
+  // State to track booked dates
+  const [bookedDates, setBookedDates] = useState<Date[]>([]);
+  
   const form = useForm({
     resolver: zodResolver(bookingFormSchema),
     defaultValues: {
@@ -94,6 +99,38 @@ const BookingPage = () => {
 
     fetchRoomTypes();
   }, []);
+
+  // Fetch booked dates when room type changes
+  useEffect(() => {
+    const fetchBookedDates = async () => {
+      const roomType = form.watch('roomType');
+      if (!roomType) return;
+
+      try {
+        const bookedDateRanges = await getBookedDatesForRoomType(roomType);
+        console.log('Booked date ranges:', bookedDateRanges);
+        
+        // Convert date ranges to array of individual dates
+        const allBookedDates: Date[] = [];
+        
+        bookedDateRanges.forEach(booking => {
+          const startDate = new Date(booking.check_in);
+          const endDate = new Date(booking.check_out);
+          
+          // Get all dates in this range
+          const datesInRange = eachDayOfInterval({ start: startDate, end: endDate });
+          allBookedDates.push(...datesInRange);
+        });
+        
+        setBookedDates(allBookedDates);
+        console.log('All booked dates:', allBookedDates);
+      } catch (error) {
+        console.error('Error fetching booked dates:', error);
+      }
+    };
+    
+    fetchBookedDates();
+  }, [form.watch('roomType')]);
 
   useEffect(() => {
     const checkAvailability = async () => {
@@ -148,10 +185,42 @@ const BookingPage = () => {
     }
   };
 
-  const disablePastDates = (date: Date) => {
+  // Function to check if a date is booked
+  const isDateBooked = (date: Date) => {
+    return bookedDates.some(bookedDate => 
+      date.getFullYear() === bookedDate.getFullYear() &&
+      date.getMonth() === bookedDate.getMonth() &&
+      date.getDate() === bookedDate.getDate()
+    );
+  };
+
+  // Function to disable dates in the calendar
+  const disableDates = (date: Date) => {
+    // Disable past dates
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    return isBefore(date, today);
+    
+    if (isBefore(date, today)) {
+      return true;
+    }
+    
+    // Disable booked dates
+    return isDateBooked(date);
+  };
+
+  // Function to disable dates in the checkout calendar
+  const disableCheckoutDates = (date: Date) => {
+    // Disable dates before check-in
+    const checkInDate = form.getValues('checkIn');
+    if (checkInDate) {
+      const parsedCheckInDate = parse(checkInDate, 'yyyy-MM-dd', new Date());
+      if (isBefore(date, parsedCheckInDate)) {
+        return true;
+      }
+    }
+    
+    // Also disable past dates and booked dates
+    return disableDates(date);
   };
 
   return (
@@ -312,8 +381,18 @@ const BookingPage = () => {
                               <Calendar
                                 mode="single"
                                 selected={field.value ? parse(field.value, 'yyyy-MM-dd', new Date()) : undefined}
-                                onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
-                                disabled={disablePastDates}
+                                onSelect={(date) => {
+                                  field.onChange(date ? format(date, 'yyyy-MM-dd') : '');
+                                  // Clear checkout date if it's before new checkin
+                                  const checkOut = form.getValues('checkOut');
+                                  if (checkOut && date) {
+                                    const checkOutDate = parse(checkOut, 'yyyy-MM-dd', new Date());
+                                    if (isBefore(checkOutDate, date)) {
+                                      form.setValue('checkOut', format(addDays(date, 1), 'yyyy-MM-dd'));
+                                    }
+                                  }
+                                }}
+                                disabled={disableDates}
                                 initialFocus
                               />
                             </PopoverContent>
@@ -352,12 +431,7 @@ const BookingPage = () => {
                                 mode="single"
                                 selected={field.value ? parse(field.value, 'yyyy-MM-dd', new Date()) : undefined}
                                 onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
-                                disabled={(date) => {
-                                  const checkInDate = form.getValues('checkIn');
-                                  return checkInDate 
-                                    ? isBefore(date, parse(checkInDate, 'yyyy-MM-dd', new Date())) 
-                                    : disablePastDates(date);
-                                }}
+                                disabled={disableCheckoutDates}
                                 initialFocus
                               />
                             </PopoverContent>
