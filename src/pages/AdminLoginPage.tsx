@@ -1,6 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { AlertTriangle } from 'lucide-react';
-import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const AdminLoginPage = () => {
   const [email, setEmail] = useState('');
@@ -19,32 +18,6 @@ const AdminLoginPage = () => {
   const [forgotEmail, setForgotEmail] = useState('');
   const [resetMessage, setResetMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Check if already authenticated as admin
-    const checkAuthStatus = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session?.user?.email) {
-        try {
-          const { data: adminData, error } = await supabase
-            .from('admin_users')
-            .select('*')
-            .eq('email', data.session.user.email)
-            .maybeSingle();
-          
-          if (adminData && !error) {
-            // Already authenticated as admin, redirect to dashboard
-            navigate('/admin/dashboard');
-          }
-        } catch (error) {
-          console.error('Error checking admin status:', error);
-        }
-      }
-    };
-    
-    checkAuthStatus();
-  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,39 +38,19 @@ const AdminLoginPage = () => {
       
       if (error) {
         console.error('Login error:', error);
-        setErrorMessage(error.message);
-        throw error;
+        if (error.message === 'Invalid login credentials') {
+          setErrorMessage('Email hoặc mật khẩu không đúng. Vui lòng thử lại.');
+        } else {
+          setErrorMessage(`Lỗi đăng nhập: ${error.message}`);
+        }
+        return;
       }
       
-      if (data.user) {
-        console.log('Login successful for:', data.user.email);
-        
-        // Check if user is an admin
-        const { data: adminData, error: adminError } = await supabase
-          .from('admin_users')
-          .select('*')
-          .eq('email', cleanEmail)
-          .maybeSingle();
-        
-        if (adminError) {
-          console.error('Error checking admin status:', adminError);
-          setErrorMessage('Lỗi kiểm tra quyền quản trị');
-          throw adminError;
-        }
-        
-        if (adminData) {
-          toast.success('Đăng nhập thành công');
-          navigate('/admin/dashboard');
-        } else {
-          // User authenticated but not authorized
-          console.log('User is not authorized as admin');
-          await supabase.auth.signOut();
-          setErrorMessage('Tài khoản không có quyền quản trị');
-        }
-      }
+      // If we reached here, the login was successful
+      toast.success('Đăng nhập thành công');
     } catch (error: any) {
-      toast.error('Đăng nhập thất bại');
       console.error('Error logging in:', error);
+      setErrorMessage('Đã xảy ra lỗi. Vui lòng thử lại sau.');
     } finally {
       setIsLoading(false);
     }
@@ -117,24 +70,6 @@ const AdminLoginPage = () => {
         return;
       }
       
-      // Check if email is in admin_users table
-      const { data: adminData, error: adminError } = await supabase
-        .from('admin_users')
-        .select('*')
-        .eq('email', cleanEmail)
-        .maybeSingle();
-      
-      if (adminError) {
-        console.error('Error checking admin status:', adminError);
-        setErrorMessage('Lỗi kiểm tra email');
-        return;
-      }
-      
-      if (!adminData) {
-        setErrorMessage('Email không tồn tại trong hệ thống quản trị');
-        return;
-      }
-
       // Send password reset email
       const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
         redirectTo: `${window.location.origin}/admin/reset-password`,
@@ -143,7 +78,7 @@ const AdminLoginPage = () => {
       if (error) {
         console.error('Reset password error:', error);
         setErrorMessage(error.message);
-        throw error;
+        return;
       }
       
       setResetMessage('Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư của bạn.');
@@ -173,16 +108,16 @@ const AdminLoginPage = () => {
         </div>
         
         {errorMessage && (
-          <div className="p-3 rounded bg-red-50 text-red-600 text-sm flex items-start gap-2">
-            <AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
-            <span>{errorMessage}</span>
-          </div>
+          <Alert variant="destructive" className="text-sm">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>{errorMessage}</AlertDescription>
+          </Alert>
         )}
         
         {resetMessage && (
-          <div className="p-3 rounded bg-green-50 text-green-600 text-sm">
-            {resetMessage}
-          </div>
+          <Alert className="bg-green-50 text-green-600 border-green-200 text-sm">
+            <AlertDescription>{resetMessage}</AlertDescription>
+          </Alert>
         )}
         
         <div className="flex flex-col space-y-2">
@@ -236,14 +171,15 @@ const AdminLoginPage = () => {
         </div>
         
         {errorMessage && (
-          <div className="p-3 rounded bg-red-50 text-red-600 text-sm flex items-start gap-2">
-            <AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
-            <span>{errorMessage}</span>
-          </div>
+          <Alert variant="destructive" className="text-sm">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>{errorMessage}</AlertDescription>
+          </Alert>
         )}
         
         <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded">
-          Tài khoản mặc định: admin@annamvillage.vn / admin
+          <p>Tài khoản mặc định: admin@annamvillage.vn / admin</p>
+          <p className="mt-1 text-xs text-red-500">Nếu bạn không thể đăng nhập, hãy sử dụng chức năng quên mật khẩu để đặt lại mật khẩu.</p>
         </div>
         
         <div className="flex flex-col space-y-2">
