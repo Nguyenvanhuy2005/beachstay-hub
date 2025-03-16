@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -41,7 +42,7 @@ const AdminDashboard = () => {
         console.log('User email:', userEmail);
         
         if (userEmail) {
-          // For testing purposes, we'll accept the default admin email directly
+          // Chấp nhận email mặc định (admin@annamvillage.vn) làm quản trị viên
           if (userEmail === 'admin@annamvillage.vn') {
             console.log('Default admin email detected');
             setIsAdmin(true);
@@ -49,6 +50,7 @@ const AdminDashboard = () => {
             return;
           }
           
+          // Kiểm tra nếu email tồn tại trong bảng admin_users
           const { data: adminData, error } = await supabase
             .from('admin_users')
             .select('*')

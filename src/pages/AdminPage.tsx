@@ -11,13 +11,28 @@ const AdminPage = () => {
 
   React.useEffect(() => {
     const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setIsAuthenticated(!!data.session?.user);
+      try {
+        console.log('Checking session...');
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Session check error:', error);
+          setIsAuthenticated(false);
+          return;
+        }
+        
+        console.log('Session data:', data);
+        setIsAuthenticated(!!data.session?.user);
+      } catch (error) {
+        console.error('Unexpected error during session check:', error);
+        setIsAuthenticated(false);
+      }
     };
     
     checkSession();
     
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event, session);
       setIsAuthenticated(!!session?.user);
     });
     
