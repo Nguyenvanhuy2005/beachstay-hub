@@ -1,6 +1,19 @@
 
 // Kết nối với MySQL API thay vì Supabase
-import { mysqlDb, uploadFile, getPublicUrl } from './mysql-db';
+import { 
+  mysqlDb, 
+  uploadFile, 
+  getPublicUrl, 
+  checkRoomAvailability, 
+  getBookingsWithRoomInfo, 
+  getBookedDatesForRoomType,
+  DatabaseAdapter
+} from './mysql-db';
+
+// Bổ sung interface cho rpc
+interface RpcFunction {
+  (functionName: string, params: any): Promise<{ data: any | null, error: Error | null }>;
+}
 
 // Giả lập đối tượng supabase cho khả năng tương thích ngược
 export const supabase = {
@@ -8,26 +21,44 @@ export const supabase = {
     select: (columns = '*') => ({
       eq: (column: string, value: any) => ({
         single: () => mysqlDb.select(tableName, { columns, eq: [column, value], limit: 1 }),
+        maybeSingle: () => mysqlDb.select(tableName, { columns, eq: [column, value], limit: 1 }),
         limit: (limit: number) => ({
           order: (column: string, { ascending = true } = {}) => 
             mysqlDb.select(tableName, { columns, eq: [column, value], limit, order: { column, ascending } }),
+          data: null,
+          error: null
         }),
         order: (column: string, { ascending = true } = {}) => 
           mysqlDb.select(tableName, { columns, eq: [column, value], order: { column, ascending } }),
+        in: (column: string, values: any[]) => ({
+          limit: (limit: number) => 
+            Promise.resolve({ data: [], error: new Error('Not implemented') }),
+        }),
       }),
       neq: (column: string, value: any) => ({
-        // Không hỗ trợ neq trực tiếp, cần cài đặt API riêng
         single: () => Promise.resolve({ data: null, error: new Error('Not implemented') }),
+        maybeSingle: () => Promise.resolve({ data: null, error: new Error('Not implemented') }),
       }),
       order: (column: string, { ascending = true } = {}) => ({
         limit: (limit: number) => 
           mysqlDb.select(tableName, { columns, order: { column, ascending }, limit }),
+        data: null,
+        error: null
       }),
-      limit: (limit: number) => 
-        mysqlDb.select(tableName, { columns, limit }),
+      limit: (limit: number) => ({
+        ...mysqlDb.select(tableName, { columns, limit }),
+        data: null,
+        error: null
+      }),
+      in: (column: string, values: any[]) => ({
+        limit: (limit: number) => 
+          Promise.resolve({ data: [], error: new Error('Not implemented') }),
+      }),
     }),
     insert: (data: any) => ({
       select: () => mysqlDb.insert(tableName, data),
+      data: null,
+      error: null
     }),
     update: (data: any) => ({
       eq: (column: string, value: any) => 
@@ -37,6 +68,10 @@ export const supabase = {
         const [column, value] = Object.entries(criteria)[0];
         return mysqlDb.update(tableName, data, { column, value });
       },
+      neq: (column: string, value: any) => 
+        Promise.resolve({ data: null, error: new Error('Not implemented') }),
+      data: null,
+      error: null
     }),
     delete: () => ({
       eq: (column: string, value: any) => 
@@ -46,6 +81,10 @@ export const supabase = {
         const [column, value] = Object.entries(criteria)[0];
         return mysqlDb.delete(tableName, { column, value });
       },
+      neq: (column: string, value: any) => 
+        Promise.resolve({ data: null, error: new Error('Not implemented') }),
+      data: null,
+      error: null
     }),
   }),
   storage: {
@@ -59,10 +98,48 @@ export const supabase = {
       },
     }),
   },
+  auth: DatabaseAdapter.auth,
+  rpc: ((functionName: string, params: any) => mysqlDb.rpc(functionName, params)) as RpcFunction,
+  functions: {
+    invoke: (functionName: string, options?: { body?: any }) => {
+      return new Promise((resolve) => {
+        // Giả lập các chức năng edge function
+        console.log(`Invoke function ${functionName} with data:`, options?.body);
+        
+        if (functionName === 'send-booking-notification') {
+          // Giả lập gửi email
+          setTimeout(() => {
+            resolve({
+              data: { success: true, message: 'Email sent successfully' },
+              error: null
+            });
+          }, 500);
+        } else if (functionName === 'create-image-bucket') {
+          // Giả lập tạo bucket
+          setTimeout(() => {
+            resolve({
+              data: { success: true },
+              error: null
+            });
+          }, 300);
+        } else {
+          resolve({
+            data: null,
+            error: { message: 'Function not implemented', statusCode: 501 }
+          });
+        }
+      });
+    }
+  }
 };
 
 // Export các hàm trợ giúp
-export { getPublicUrl };
+export { 
+  getPublicUrl, 
+  checkRoomAvailability, 
+  getBookingsWithRoomInfo,
+  getBookedDatesForRoomType
+};
 
 // Hàm đồng bộ hình ảnh thư viện
 export const syncGalleryImages = async (images: any[]) => {
