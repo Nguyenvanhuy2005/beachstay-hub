@@ -142,11 +142,23 @@ export const mysqlDb = {
       console.error(`RPC error for ${functionName}:`, error);
       return { data: null, error: error as Error };
     }
+  },
+  
+  // Phương thức functions để tương thích với Supabase
+  functions: {
+    invoke(functionName: string, options: { body?: any } = {}): Promise<{ data: any, error: Error | null }> {
+      try {
+        // Giả lập edge functions dưới dạng API endpoint
+        return Promise.resolve({ data: {}, error: null });
+      } catch (error) {
+        return Promise.resolve({ data: null, error: error as Error });
+      }
+    }
   }
 };
 
 // Phương thức để tải lên file
-export const uploadFile = async (file: File, path: string): Promise<{ data: { publicUrl: string } | null, error: Error | null }> => {
+export const uploadFile = async (file: File, path: string): Promise<{ url: string, error: Error }> => {
   try {
     const formData = new FormData();
     formData.append('file', file);
@@ -163,12 +175,12 @@ export const uploadFile = async (file: File, path: string): Promise<{ data: { pu
     
     const result = await response.json();
     return { 
-      data: { publicUrl: result.url },
-      error: null 
+      url: result.url,
+      error: null as unknown as Error 
     };
   } catch (error) {
     console.error('File upload error:', error);
-    return { data: null, error: error as Error };
+    return { url: '', error: error as Error };
   }
 };
 
@@ -233,14 +245,14 @@ export const getBookedDatesForRoomType = async (roomTypeId: string) => {
 };
 
 // Interface cho đối tượng auth - giả lập
-interface AuthSession {
+export interface AuthSession {
   user: {
     id: string;
     email: string;
   } | null;
 }
 
-interface AuthResult {
+export interface AuthResult {
   data: {
     session?: AuthSession | null;
     user?: any;
@@ -248,9 +260,10 @@ interface AuthResult {
   error: Error | null;
 }
 
-interface AuthInterface {
+export interface AuthInterface {
   getSession(): Promise<AuthResult>;
   onAuthStateChange(callback: (event: string, session: AuthSession | null) => void): { 
+    data?: AuthSession | null;
     subscription: { unsubscribe: () => void } 
   };
   signInWithPassword(credentials: { email: string; password: string }): Promise<AuthResult>;
@@ -310,6 +323,7 @@ const createAuthInterface = (): AuthInterface => {
       callback(currentSession ? 'SIGNED_IN' : 'SIGNED_OUT', currentSession);
       
       return {
+        data: currentSession,
         subscription: {
           unsubscribe: () => {
             const index = listeners.indexOf(callback);

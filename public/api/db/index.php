@@ -1,12 +1,11 @@
-
 <?php
 header('Content-Type: application/json');
 
 // Cấu hình kết nối MySQL
 $db_host = 'localhost';
-$db_name = 'tên_database_của_bạn';
-$db_user = 'người_dùng_database_của_bạn';
-$db_pass = 'mật_khẩu_của_bạn';
+$db_name = 'annamvillage';
+$db_user = 'Annamvillage';
+$db_pass = 'Annamvillage@';
 
 // Xử lý CORS
 header('Access-Control-Allow-Origin: *');

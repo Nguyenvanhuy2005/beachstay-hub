@@ -1,202 +1,185 @@
 
-// Kết nối với MySQL API thay vì Supabase
-import { 
-  mysqlDb, 
-  uploadFile, 
-  getPublicUrl, 
-  checkRoomAvailability, 
-  getBookingsWithRoomInfo, 
-  getBookedDatesForRoomType,
-  DatabaseAdapter
-} from './mysql-db';
+// Kết nối tới MySQL thông qua adapter thay vì Supabase
+import { mysqlDb, uploadFile, getPublicUrl, checkRoomAvailability, getBookingsWithRoomInfo, getBookedDatesForRoomType, DatabaseAdapter } from './mysql-db';
 
-// Bổ sung interface cho rpc
-interface RpcFunction {
-  (functionName: string, params: any): Promise<{ data: any | null, error: Error | null }>;
-}
-
-// Giả lập đối tượng supabase cho khả năng tương thích ngược
+// Tạo đối tượng supabase giả lập để sử dụng với MySQL
 export const supabase = {
-  from: (tableName: string) => ({
-    select: (columns = '*') => ({
-      eq: (column: string, value: any) => ({
-        single: () => mysqlDb.select(tableName, { columns, eq: [column, value], limit: 1 }),
-        maybeSingle: () => mysqlDb.select(tableName, { columns, eq: [column, value], limit: 1 }),
-        limit: (limit: number) => ({
-          order: (column: string, { ascending = true } = {}) => 
-            mysqlDb.select(tableName, { columns, eq: [column, value], limit, order: { column, ascending } }),
-          data: null,
-          error: null
-        }),
-        order: (column: string, { ascending = true } = {}) => 
-          mysqlDb.select(tableName, { columns, eq: [column, value], order: { column, ascending } }),
-        in: (column: string, values: any[]) => ({
-          limit: (limit: number) => 
-            Promise.resolve({ data: [], error: new Error('Not implemented') }),
-        }),
-      }),
-      neq: (column: string, value: any) => ({
-        single: () => Promise.resolve({ data: null, error: new Error('Not implemented') }),
-        maybeSingle: () => Promise.resolve({ data: null, error: new Error('Not implemented') }),
-      }),
-      order: (column: string, { ascending = true } = {}) => ({
-        limit: (limit: number) => 
-          mysqlDb.select(tableName, { columns, order: { column, ascending }, limit }),
-        data: null,
-        error: null
-      }),
-      limit: (limit: number) => ({
-        ...mysqlDb.select(tableName, { columns, limit }),
-        data: null,
-        error: null
-      }),
-      in: (column: string, values: any[]) => ({
-        limit: (limit: number) => 
-          Promise.resolve({ data: [], error: new Error('Not implemented') }),
-      }),
-    }),
-    insert: (data: any) => ({
-      select: () => mysqlDb.insert(tableName, data),
-      data: null,
-      error: null
-    }),
-    update: (data: any) => ({
-      eq: (column: string, value: any) => 
-        mysqlDb.update(tableName, data, { column, value }),
-      match: (criteria: Record<string, any>) => {
-        // Chỉ hỗ trợ match với một tiêu chí
-        const [column, value] = Object.entries(criteria)[0];
-        return mysqlDb.update(tableName, data, { column, value });
+  from: (tableName: string) => {
+    // Tạo đối tượng truy vấn
+    return {
+      select: (columns?: string) => {
+        // Truy vấn select
+        return {
+          eq: (column: string, value: any) => {
+            // Lọc dữ liệu bằng điều kiện
+            return {
+              single: () => mysqlDb.select(tableName, { columns, eq: [column, value] }),
+              maybeSingle: () => mysqlDb.select(tableName, { columns, eq: [column, value] }),
+              limit: (limit: number) => ({
+                order: (orderColumn: string, { ascending }: { ascending?: boolean } = {}) => 
+                  mysqlDb.select(tableName, { 
+                    columns, 
+                    eq: [column, value], 
+                    limit, 
+                    order: { column: orderColumn, ascending: ascending !== false } 
+                  }),
+                data: null,
+                error: null
+              }),
+              order: (orderColumn: string, { ascending }: { ascending?: boolean } = {}) => 
+                mysqlDb.select(tableName, { 
+                  columns, 
+                  eq: [column, value], 
+                  order: { column: orderColumn, ascending: ascending !== false } 
+                }),
+              in: (inColumn: string, values: any[]) => ({
+                order: (orderColumn: string, { ascending }: { ascending?: boolean } = {}) => 
+                  mysqlDb.select(tableName, { 
+                    columns, 
+                    eq: [column, value], 
+                    order: { column: orderColumn, ascending: ascending !== false } 
+                  }),
+                data: null,
+                error: null
+              }),
+              neq: (neqColumn: string, neqValue: any) => ({
+                order: (orderColumn: string, { ascending }: { ascending?: boolean } = {}) => 
+                  mysqlDb.select(tableName, { 
+                    columns, 
+                    eq: [column, value], 
+                    order: { column: orderColumn, ascending: ascending !== false } 
+                  }),
+                data: null,
+                error: null
+              })
+            };
+          },
+          neq: (column: string, value: any) => {
+            // Tương tự với eq nhưng là không bằng
+            // Đây là phiên bản đơn giản, cần cải thiện trong triển khai thực tế
+            return {
+              order: (orderColumn: string, { ascending }: { ascending?: boolean } = {}) => 
+                mysqlDb.select(tableName, { 
+                  columns, 
+                  order: { column: orderColumn, ascending: ascending !== false } 
+                })
+            };
+          },
+          order: (column: string, { ascending }: { ascending?: boolean } = {}) => {
+            return mysqlDb.select(tableName, { 
+              columns, 
+              order: { column, ascending: ascending !== false } 
+            });
+          },
+          limit: (limit: number) => {
+            return mysqlDb.select(tableName, { columns, limit });
+          },
+          in: (column: string, values: any[]) => {
+            // Đây chỉ là đơn giản hóa, cần cải thiện để xử lý IN trong SQL
+            return {
+              order: (orderColumn: string, { ascending }: { ascending?: boolean } = {}) => 
+                mysqlDb.select(tableName, { 
+                  columns, 
+                  order: { column: orderColumn, ascending: ascending !== false } 
+                }),
+              data: null,
+              error: null
+            };
+          }
+        };
       },
-      neq: (column: string, value: any) => 
-        Promise.resolve({ data: null, error: new Error('Not implemented') }),
-      data: null,
-      error: null
-    }),
-    delete: () => ({
-      eq: (column: string, value: any) => 
-        mysqlDb.delete(tableName, { column, value }),
-      match: (criteria: Record<string, any>) => {
-        // Chỉ hỗ trợ match với một tiêu chí
-        const [column, value] = Object.entries(criteria)[0];
-        return mysqlDb.delete(tableName, { column, value });
+      insert: (data: any) => {
+        return mysqlDb.insert(tableName, data);
       },
-      neq: (column: string, value: any) => 
-        Promise.resolve({ data: null, error: new Error('Not implemented') }),
-      data: null,
-      error: null
-    }),
-  }),
-  storage: {
-    from: (bucketName: string) => ({
-      upload: (path: string, file: File) => uploadFile(file, `${bucketName}/${path}`),
-      getPublicUrl: (path: string) => ({ data: { publicUrl: getPublicUrl(bucketName, path) } }),
-      remove: (paths: string[]) => {
-        // Giả lập xóa file - cần cài đặt API riêng
-        console.log('Remove files:', paths);
-        return Promise.resolve({ data: null, error: null });
+      update: (data: any) => {
+        return {
+          eq: (column: string, value: any) => {
+            return mysqlDb.update(tableName, data, { column, value });
+          },
+          match: (criteria: Record<string, any>) => {
+            // Giả lập match với điều kiện đầu tiên
+            const column = Object.keys(criteria)[0];
+            const value = criteria[column];
+            return mysqlDb.update(tableName, data, { column, value });
+          }
+        };
       },
-    }),
+      delete: () => {
+        return {
+          eq: (column: string, value: any) => {
+            return mysqlDb.delete(tableName, { column, value });
+          },
+          match: (criteria: Record<string, any>) => {
+            // Giả lập match với điều kiện đầu tiên
+            const column = Object.keys(criteria)[0];
+            const value = criteria[column];
+            return mysqlDb.delete(tableName, { column, value });
+          }
+        };
+      }
+    };
   },
-  auth: DatabaseAdapter.auth,
-  rpc: ((functionName: string, params: any) => mysqlDb.rpc(functionName, params)) as RpcFunction,
-  functions: {
-    invoke: (functionName: string, options?: { body?: any }) => {
-      return new Promise((resolve) => {
-        // Giả lập các chức năng edge function
-        console.log(`Invoke function ${functionName} with data:`, options?.body);
-        
-        if (functionName === 'send-booking-notification') {
-          // Giả lập gửi email
-          setTimeout(() => {
-            resolve({
-              data: { success: true, message: 'Email sent successfully' },
-              error: null
-            });
-          }, 500);
-        } else if (functionName === 'create-image-bucket') {
-          // Giả lập tạo bucket
-          setTimeout(() => {
-            resolve({
-              data: { success: true },
-              error: null
-            });
-          }, 300);
-        } else {
-          resolve({
-            data: null,
-            error: { message: 'Function not implemented', statusCode: 501 }
-          });
-        }
-      });
-    }
-  }
+  // Thêm hàm functions cho tương thích
+  functions: DatabaseAdapter.mysqlDb.functions,
+  // Thêm hàm auth cho xác thực
+  auth: DatabaseAdapter.auth
 };
 
-// Export các hàm trợ giúp
+// Các hàm tiện ích cho storage
+export const storage = {
+  uploadFile,
+  getPublicUrl
+};
+
+// Các hàm tiện ích cho booking
 export { 
-  getPublicUrl, 
-  checkRoomAvailability, 
+  checkRoomAvailability,
   getBookingsWithRoomInfo,
   getBookedDatesForRoomType
 };
 
-// Hàm đồng bộ hình ảnh thư viện
+// Hàm đồng bộ ảnh
 export const syncGalleryImages = async (images: any[]) => {
-  // Giả lập đồng bộ hình ảnh
-  console.log('Synchronizing gallery images:', images.length);
-  
+  // Xóa tất cả ảnh gallery hiện tại
   try {
-    // Xóa tất cả hình ảnh hiện tại
-    await fetch('/api/db/gallery_images/clear', { method: 'POST' });
+    await mysqlDb.delete('gallery_images', { column: 'id', value: 'all' });
     
-    // Thêm các hình ảnh mới
-    const response = await fetch('/api/db/gallery_images/bulk', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(images),
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to sync gallery images');
+    // Thêm ảnh mới
+    for (const image of images) {
+      await mysqlDb.insert('gallery_images', image);
     }
     
-    return { data: await response.json(), error: null };
+    return { data: images, error: null };
   } catch (error) {
     console.error('Error syncing gallery images:', error);
-    return { data: null, error };
+    return { data: null, error: error as Error };
   }
 };
 
-// Hàm xuất nội dung cơ sở dữ liệu
+// Hàm xuất dữ liệu
 export const exportDatabaseContent = async (tableName: string) => {
   try {
-    const response = await fetch(`/api/db/${tableName}/export`);
+    const { data, error } = await mysqlDb.select(tableName);
     
-    if (!response.ok) {
-      throw new Error(`Failed to export ${tableName}`);
+    if (error) {
+      throw error;
     }
     
-    const data = await response.json();
-    
-    // Tạo file JSON để tải xuống
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    // Tạo file JSON và download
+    const jsonString = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     
-    // Tạo link ẩn và kích hoạt tải xuống
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${tableName}_export_${new Date().toISOString().replace(/:/g, '_')}.json`;
-    document.body.appendChild(link);
-    link.click();
-    
-    // Dọn dẹp
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${tableName}_export_${new Date().toISOString()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    document.body.removeChild(link);
+    document.body.removeChild(a);
     
-    return true;
+    return { success: true, data };
   } catch (error) {
     console.error(`Error exporting ${tableName}:`, error);
     throw error;

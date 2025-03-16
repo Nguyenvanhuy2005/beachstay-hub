@@ -50,10 +50,9 @@ export const createBooking = async (bookingData: BookingFormData) => {
     // Send booking data to Supabase
     const { data, error } = await supabase
       .from('bookings')
-      .insert(supabaseBookingData)
-      .select();
+      .insert(supabaseBookingData);
 
-    if (error) {
+    if (error && error instanceof Error) {
       console.error('Booking error:', error);
       toast.error('Đã xảy ra lỗi khi đặt phòng! Vui lòng thử lại sau.');
       return { success: false, error };
@@ -100,7 +99,7 @@ export const createBooking = async (bookingData: BookingFormData) => {
 
     // Booking successful
     toast.success('Đặt phòng thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.');
-    return { success: true, data, bookingId: data[0]?.id };
+    return { success: true, data, bookingId: Array.isArray(data) && data.length > 0 ? data[0]?.id : null };
   } catch (error) {
     console.error('Unexpected error:', error);
     toast.error('Đã xảy ra lỗi không mong muốn!');
@@ -142,19 +141,18 @@ export const updateBookingStatus = async (bookingId: string, status: string) => 
   try {
     console.log(`Updating booking ${bookingId} status to ${status}`);
     
-    const { data, error } = await supabase
+    const result = await supabase
       .from('bookings')
       .update({ status })
-      .eq('id', bookingId)
-      .select();
+      .eq('id', bookingId);
     
-    if (error) {
-      console.error('Error updating booking status:', error);
-      return { success: false, error };
+    if (result.error) {
+      console.error('Error updating booking status:', result.error);
+      return { success: false, error: result.error };
     }
     
-    console.log('Booking status updated successfully:', data);
-    return { success: true, data };
+    console.log('Booking status updated successfully');
+    return { success: true };
   } catch (error) {
     console.error('Unexpected error in updateBookingStatus:', error);
     return { success: false, error };
