@@ -9,7 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { Loader2, CheckCircle, XCircle, Clock, RefreshCw } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Booking {
   id: string;
@@ -38,85 +38,115 @@ const BookingsManagement = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [roomTypes, setRoomTypes] = useState<{[key: string]: string}>({});
 
+  // Trực tiếp gọi API Supabase để lấy dữ liệu đặt phòng
   const fetchBookings = async () => {
     setLoading(true);
+    
     try {
-      console.log('Fetching bookings with filter:', statusFilter);
+      console.log('[BookingsManagement] Đang tải dữ liệu đặt phòng với bộ lọc:', statusFilter);
       
-      // Construct the query
+      // Xây dựng truy vấn cơ bản
       let query = supabase
         .from('bookings')
         .select('*')
         .order('created_at', { ascending: false });
       
-      // Apply status filter if not "all"
+      // Áp dụng bộ lọc nếu không phải "all"
       if (statusFilter !== 'all') {
         query = query.eq('status', statusFilter);
       }
       
-      // Execute query
+      // Thực thi truy vấn
       const { data, error } = await query;
       
       if (error) {
-        console.error('Error fetching bookings:', error);
+        console.error('[BookingsManagement] Lỗi khi tải dữ liệu đặt phòng:', error);
         toast.error(language === 'vi' ? 'Không thể tải dữ liệu đặt phòng' : 'Could not load booking data');
         return;
       }
       
-      console.log('Bookings retrieved from Supabase:', data);
-      console.log('Number of bookings found:', data?.length || 0);
+      console.log('[BookingsManagement] Kết quả từ Supabase:', data);
+      console.log('[BookingsManagement] Số lượng đặt phòng:', data?.length || 0);
       
       if (data && data.length > 0) {
-        setBookings(data);
+        // Tải loại phòng để hiển thị tên phòng
+        const enhancedBookings = await Promise.all(data.map(async (booking) => {
+          let roomName = roomTypes[booking.room_type_id] || '';
+          
+          if (!roomName && booking.room_type_id) {
+            try {
+              const { data: roomData } = await supabase
+                .from('room_types')
+                .select('name')
+                .eq('id', booking.room_type_id)
+                .single();
+              
+              if (roomData) {
+                roomName = roomData.name;
+              }
+            } catch (err) {
+              console.error('[BookingsManagement] Lỗi khi tải thông tin phòng:', err);
+            }
+          }
+          
+          return {
+            ...booking,
+            room_name: roomName
+          };
+        }));
+        
+        setBookings(enhancedBookings);
       } else {
-        console.log('No bookings found');
+        console.log('[BookingsManagement] Không tìm thấy đặt phòng nào');
         setBookings([]);
       }
     } catch (error) {
-      console.error('Unexpected error when fetching bookings:', error);
+      console.error('[BookingsManagement] Lỗi ngoại lệ khi tải dữ liệu đặt phòng:', error);
       toast.error(language === 'vi' ? 'Không thể tải dữ liệu đặt phòng' : 'Could not load booking data');
     } finally {
       setLoading(false);
     }
   };
 
+  // Lấy thông tin loại phòng
   const fetchRoomTypes = async () => {
     try {
-      console.log('Fetching room types...');
+      console.log('[BookingsManagement] Đang tải dữ liệu loại phòng...');
       
       const { data, error } = await supabase
         .from('room_types')
         .select('id, name');
       
       if (error) {
-        console.error('Error fetching room types:', error);
+        console.error('[BookingsManagement] Lỗi khi tải loại phòng:', error);
         return;
       }
       
-      console.log('Room types data from Supabase:', data);
+      console.log('[BookingsManagement] Dữ liệu loại phòng từ Supabase:', data);
       
-      // Create a map of room type IDs to room type names
+      // Tạo map các loại phòng để dễ truy cập
       const roomTypeMap: {[key: string]: string} = {};
       data?.forEach((room: RoomType) => {
         roomTypeMap[room.id] = room.name;
       });
       
-      console.log('Created room type map:', roomTypeMap);
+      console.log('[BookingsManagement] Map loại phòng đã tạo:', roomTypeMap);
       setRoomTypes(roomTypeMap);
     } catch (error) {
-      console.error('Unexpected error when fetching room types:', error);
+      console.error('[BookingsManagement] Lỗi ngoại lệ khi tải loại phòng:', error);
     }
   };
 
-  // Effect to fetch data on component mount and when filter changes
+  // Tải dữ liệu khi component được mount và khi bộ lọc thay đổi
   useEffect(() => {
-    fetchBookings();
     fetchRoomTypes();
+    fetchBookings();
   }, [statusFilter]);
 
+  // Cập nhật trạng thái đặt phòng
   const handleStatusChange = async (bookingId: string, newStatus: string) => {
     try {
-      console.log(`Updating booking ${bookingId} status to ${newStatus}`);
+      console.log(`[BookingsManagement] Đang cập nhật trạng thái đặt phòng ${bookingId} thành ${newStatus}`);
       
       const { data, error } = await supabase
         .from('bookings')
@@ -125,7 +155,7 @@ const BookingsManagement = () => {
         .select();
       
       if (error) {
-        console.error('Error updating booking status:', error);
+        console.error('[BookingsManagement] Lỗi khi cập nhật trạng thái:', error);
         toast.error(
           language === 'vi' 
             ? 'Không thể cập nhật trạng thái đặt phòng' 
@@ -134,7 +164,7 @@ const BookingsManagement = () => {
         return;
       }
       
-      console.log('Update status result:', data);
+      console.log('[BookingsManagement] Kết quả cập nhật trạng thái:', data);
       
       toast.success(
         language === 'vi' 
@@ -142,7 +172,7 @@ const BookingsManagement = () => {
           : `Booking status updated to "${newStatus}"`
       );
       
-      // Update the bookings state
+      // Cập nhật state bookings
       setBookings(prev => 
         prev.map(booking => 
           booking.id === bookingId 
@@ -151,7 +181,7 @@ const BookingsManagement = () => {
         )
       );
     } catch (error) {
-      console.error('Unexpected error when updating status:', error);
+      console.error('[BookingsManagement] Lỗi ngoại lệ khi cập nhật trạng thái:', error);
       toast.error(
         language === 'vi' 
           ? 'Không thể cập nhật trạng thái đặt phòng' 
@@ -160,7 +190,7 @@ const BookingsManagement = () => {
     }
   };
 
-  // Display status badge
+  // Hiển thị badge trạng thái
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'confirmed':
@@ -251,7 +281,7 @@ const BookingsManagement = () => {
                       <div className="text-sm text-muted-foreground">{booking.phone}</div>
                     </TableCell>
                     <TableCell>
-                      {roomTypes[booking.room_type_id] || (language === 'vi' ? 'Không xác định' : 'Unknown')}
+                      {booking.room_name || roomTypes[booking.room_type_id] || (language === 'vi' ? 'Không xác định' : 'Unknown')}
                     </TableCell>
                     <TableCell>
                       <div>{format(new Date(booking.check_in), 'dd/MM/yyyy')}</div>

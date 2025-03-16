@@ -8,7 +8,6 @@ interface BookingSummaryProps {
   selectedRoom: any;
   checkIn: string;
   checkOut: string;
-  totalPrice: number | null;
   availabilityStatus: {
     checked: boolean;
     available: boolean;
@@ -20,7 +19,6 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
   selectedRoom, 
   checkIn, 
   checkOut, 
-  totalPrice, 
   availabilityStatus 
 }) => {
   const { language } = useLanguage();
@@ -41,12 +39,6 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
     const end = parse(checkOut, 'yyyy-MM-dd', new Date());
     return differenceInDays(end, start);
   }, [checkIn, checkOut]);
-
-  // Format price to display in millions (M)
-  const formatPriceInMillions = (price: number): string => {
-    const inMillions = price / 1000000;
-    return `${inMillions.toFixed(1)}M`;
-  };
 
   return (
     <>
@@ -78,28 +70,23 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
         </Alert>
       )}
 
-      {totalPrice !== null && (
-        <Alert className="bg-beach-50 border-beach-200">
-          <AlertTitle className="text-beach-800 font-medium">
-            {language === 'vi' ? 'Tổng giá đặt phòng' : 'Total booking price'}
-          </AlertTitle>
-          <AlertDescription className="text-beach-700">
-            <div className="flex justify-between items-center">
-              <div>
-                <span className="font-semibold">
-                  {language === 'vi' ? selectedRoom.name : selectedRoom.name_en}
-                </span>
-                <span className="block text-sm">
-                  {numberOfNights} {language === 'vi' ? 'đêm' : 'night(s)'} ({formatDisplayDate(checkIn)} - {formatDisplayDate(checkOut)})
-                </span>
-              </div>
-              <div className="text-xl font-bold">
-                {formatPriceInMillions(totalPrice)}
-              </div>
+      <Alert className="bg-beach-50 border-beach-200">
+        <AlertTitle className="text-beach-800 font-medium">
+          {language === 'vi' ? 'Thông tin đặt phòng' : 'Booking information'}
+        </AlertTitle>
+        <AlertDescription className="text-beach-700">
+          <div className="flex justify-between items-center">
+            <div>
+              <span className="font-semibold">
+                {language === 'vi' ? selectedRoom.name : selectedRoom.name_en}
+              </span>
+              <span className="block text-sm">
+                {numberOfNights} {language === 'vi' ? 'đêm' : 'night(s)'} ({formatDisplayDate(checkIn)} - {formatDisplayDate(checkOut)})
+              </span>
             </div>
-          </AlertDescription>
-        </Alert>
-      )}
+          </div>
+        </AlertDescription>
+      </Alert>
     </>
   );
 };

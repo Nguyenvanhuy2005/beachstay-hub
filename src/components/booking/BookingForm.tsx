@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,10 +27,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import DateRangePicker from '@/components/booking/DateRangePicker';
 import BookingSummary from '@/components/booking/BookingSummary';
-import { BookingFormData, createBooking } from '@/api/bookingApi';
-import { checkRoomAvailability, getBookedDatesForRoomType, getRoomPriceForDate } from '@/lib/supabase';
+import { BookingFormData } from '@/api/bookingApi';
+import { supabase } from '@/lib/supabase';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { isDateInBookedRange } from '@/lib/dateUtils';
+import { Loader2 } from 'lucide-react';
 
 const bookingFormSchema = z.object({
   fullName: z.string().min(3, { message: 'Họ tên phải có ít nhất 3 ký tự' }),
@@ -64,7 +66,6 @@ const BookingForm: React.FC<BookingFormProps> = ({ roomTypes, isLoading }) => {
   const [selectedRoom, setSelectedRoom] = useState<any>(null);
   const [bookedDates, setBookedDates] = useState<Date[]>([]);
   const [bookedDateRanges, setBookedDateRanges] = useState<{start: Date, end: Date}[]>([]);
-  const [totalPrice, setTotalPrice] = useState<number | null>(null);
   const [availabilityStatus, setAvailabilityStatus] = useState({ 
     checked: false, 
     available: true, 
@@ -109,11 +110,21 @@ const BookingForm: React.FC<BookingFormProps> = ({ roomTypes, isLoading }) => {
       if (!roomType) return;
 
       try {
-        console.log('Fetching booked dates for room type:', roomType);
-        const bookedDateRanges = await getBookedDatesForRoomType(roomType);
-        console.log('Booked date ranges:', bookedDateRanges);
+        console.log('[BookingForm] Đang tải ngày đã đặt cho loại phòng:', roomType);
+        const { data: bookedData, error } = await supabase
+          .from('bookings')
+          .select('check_in, check_out, status')
+          .eq('room_type_id', roomType)
+          .neq('status', 'cancelled');
         
-        const dateRanges = bookedDateRanges.map(booking => ({
+        if (error) {
+          console.error('[BookingForm] Lỗi khi tải ngày đã đặt:', error);
+          return;
+        }
+        
+        console.log('[BookingForm] Kết quả truy vấn ngày đã đặt:', bookedData);
+        
+        const dateRanges = bookedData.map(booking => ({
           start: new Date(booking.check_in),
           end: new Date(booking.check_out)
         }));
@@ -121,7 +132,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ roomTypes, isLoading }) => {
         
         const allBookedDates: Date[] = [];
         
-        bookedDateRanges.forEach(booking => {
+        bookedData.forEach(booking => {
           const startDate = new Date(booking.check_in);
           const endDate = new Date(booking.check_out);
           
@@ -130,64 +141,15 @@ const BookingForm: React.FC<BookingFormProps> = ({ roomTypes, isLoading }) => {
         });
         
         setBookedDates(allBookedDates);
-        console.log('All booked dates:', allBookedDates.length);
+        console.log('[BookingForm] Tổng số ngày đã đặt:', allBookedDates.length);
       } catch (error) {
-        console.error('Error fetching booked dates:', error);
+        console.error('[BookingForm] Lỗi ngoại lệ khi tải ngày đã đặt:', error);
         toast.error('Không thể tải dữ liệu ngày đã đặt. Vui lòng thử lại sau.');
       }
     };
     
     fetchBookedDates();
   }, [form.watch('roomType')]);
-
-  useEffect(() => {
-    const calculateTotalPrice = async () => {
-      const roomType = form.watch('roomType');
-      const checkIn = form.watch('checkIn');
-      const checkOut = form.watch('checkOut');
-      
-      if (!roomType || !checkIn || !checkOut || !selectedRoom) {
-        setTotalPrice(null);
-        return;
-      }
-      
-      try {
-        const checkInDate = parse(checkIn, 'yyyy-MM-dd', new Date());
-        const checkOutDate = parse(checkOut, 'yyyy-MM-dd', new Date());
-        
-        if (!isAfter(checkOutDate, checkInDate)) {
-          setTotalPrice(null);
-          return;
-        }
-        
-        const nights = differenceInDays(checkOutDate, checkInDate);
-        
-        if (nights <= 0) {
-          setTotalPrice(null);
-          return;
-        }
-        
-        const dates = eachDayOfInterval({ 
-          start: checkInDate, 
-          end: new Date(checkOutDate.getTime() - 1) 
-        });
-        
-        let sum = 0;
-        
-        for (const date of dates) {
-          const price = await getRoomPriceForDate(roomType, format(date, 'yyyy-MM-dd'));
-          sum += price || selectedRoom.price;
-        }
-        
-        setTotalPrice(sum);
-      } catch (error) {
-        console.error('Error calculating total price:', error);
-        setTotalPrice(null);
-      }
-    };
-    
-    calculateTotalPrice();
-  }, [form.watch('roomType'), form.watch('checkIn'), form.watch('checkOut'), selectedRoom]);
 
   useEffect(() => {
     const checkAvailability = async () => {
@@ -197,20 +159,36 @@ const BookingForm: React.FC<BookingFormProps> = ({ roomTypes, isLoading }) => {
       
       if (roomType && checkIn && checkOut) {
         try {
-          const result = await checkRoomAvailability(roomType, checkIn, checkOut);
-          setAvailabilityStatus({ 
-            checked: true, 
-            available: result.available,
-            remainingRooms: result.remainingRooms || 0
+          console.log(`[BookingForm] Kiểm tra tình trạng phòng ${roomType} từ ${checkIn} đến ${checkOut}`);
+          
+          const { data, error } = await supabase.rpc('check_room_availability', {
+            p_room_type_id: roomType,
+            p_check_in: checkIn,
+            p_check_out: checkOut
           });
           
-          if (!result.available) {
-            toast.warning('Phòng đã hết chỗ cho ngày bạn chọn! Vui lòng chọn ngày khác hoặc loại phòng khác.');
-          } else if (result.remainingRooms <= 2) {
-            toast.warning(`Chỉ còn ${result.remainingRooms} phòng cho ngày bạn chọn!`);
+          if (error) {
+            console.error('[BookingForm] Lỗi khi kiểm tra tình trạng phòng:', error);
+            return;
+          }
+          
+          console.log('[BookingForm] Kết quả kiểm tra tình trạng phòng:', data);
+          
+          if (data && data.length > 0) {
+            setAvailabilityStatus({ 
+              checked: true, 
+              available: data[0].available,
+              remainingRooms: data[0].remaining_rooms || 0
+            });
+            
+            if (!data[0].available) {
+              toast.warning('Phòng đã hết chỗ cho ngày bạn chọn! Vui lòng chọn ngày khác hoặc loại phòng khác.');
+            } else if (data[0].remaining_rooms <= 2) {
+              toast.warning(`Chỉ còn ${data[0].remaining_rooms} phòng cho ngày bạn chọn!`);
+            }
           }
         } catch (error) {
-          console.error('Error checking availability:', error);
+          console.error('[BookingForm] Lỗi ngoại lệ khi kiểm tra tình trạng phòng:', error);
         }
       }
     };
@@ -246,17 +224,53 @@ const BookingForm: React.FC<BookingFormProps> = ({ roomTypes, isLoading }) => {
     }
     
     setIsSubmitting(true);
+    
     try {
-      const result = await createBooking(data);
+      console.log('[BookingForm] Đang tạo đặt phòng với dữ liệu:', data);
       
-      if (result.success) {
-        form.reset();
-        setTimeout(() => {
-          navigate('/booking-success', { 
-            state: { bookingId: result.bookingId, bookingDetails: data } 
-          });
-        }, 1500);
+      // Chuyển đổi dữ liệu đặt phòng sang cấu trúc Supabase
+      const bookingData = {
+        full_name: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        check_in: data.checkIn,
+        check_out: data.checkOut,
+        room_type_id: data.roomType,
+        adults: data.adults,
+        children: data.children,
+        special_requests: data.specialRequests,
+        status: 'pending'
+      };
+      
+      console.log('[BookingForm] Dữ liệu Supabase:', bookingData);
+      
+      // Gửi dữ liệu đặt phòng đến Supabase
+      const { data: newBooking, error } = await supabase
+        .from('bookings')
+        .insert(bookingData)
+        .select();
+      
+      if (error) {
+        console.error('[BookingForm] Lỗi khi đặt phòng:', error);
+        toast.error('Đã xảy ra lỗi khi đặt phòng! Vui lòng thử lại sau.');
+        return;
       }
+      
+      console.log('[BookingForm] Đặt phòng thành công:', newBooking);
+      
+      // Đặt phòng thành công
+      toast.success('Đặt phòng thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.');
+      form.reset();
+      
+      // Chuyển hướng đến trang thành công
+      setTimeout(() => {
+        navigate('/booking-success', { 
+          state: { bookingId: newBooking[0]?.id, bookingDetails: data } 
+        });
+      }, 1500);
+    } catch (error) {
+      console.error('[BookingForm] Lỗi ngoại lệ:', error);
+      toast.error('Đã xảy ra lỗi không mong muốn!');
     } finally {
       setIsSubmitting(false);
     }
@@ -269,7 +283,6 @@ const BookingForm: React.FC<BookingFormProps> = ({ roomTypes, isLoading }) => {
           selectedRoom={selectedRoom}
           checkIn={form.watch('checkIn')}
           checkOut={form.watch('checkOut')}
-          totalPrice={totalPrice}
           availabilityStatus={availabilityStatus}
         />
 
@@ -456,10 +469,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ roomTypes, isLoading }) => {
           >
             {isSubmitting ? (
               <span className="flex items-center">
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
+                <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
                 {language === 'vi' ? 'Đang xử lý...' : 'Processing...'}
               </span>
             ) : (
