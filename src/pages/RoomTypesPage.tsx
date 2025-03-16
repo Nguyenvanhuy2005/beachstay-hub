@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -67,7 +66,6 @@ const RoomTypesPage = () => {
       setSearching(true);
       setSearchFilters(filters);
       
-      // If no search filters, show all rooms
       if (!filters.checkIn || !filters.checkOut) {
         setFilteredRoomTypes(roomTypes);
         return;
@@ -81,7 +79,6 @@ const RoomTypesPage = () => {
       
       const availableRooms = [];
       
-      // Check availability for each room type
       for (const room of roomTypes) {
         const { available, remainingRooms } = await checkRoomAvailability(
           room.id,
@@ -148,7 +145,7 @@ const RoomTypesPage = () => {
 
   const isWeekend = () => {
     const day = new Date().getDay();
-    return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
+    return day === 0 || day === 6;
   };
 
   const getDisplayPrice = (room) => {
@@ -160,12 +157,11 @@ const RoomTypesPage = () => {
 
   return (
     <MainLayout>
-      {/* Hero Section */}
       <div className="relative bg-beach-700 text-white">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-beach-900/80 to-beach-800/90 z-10"></div>
           <img 
-            src="/lovable-uploads/4f6b5954-4f23-421b-b0cd-beee0b9c8bc3.png"
+            src="/lovable-uploads/24bfb323-5715-4a74-9d5a-83e88159595a.png"
             alt="Room Types" 
             className="w-full h-full object-cover"
           />
@@ -173,7 +169,7 @@ const RoomTypesPage = () => {
         
         <div className="relative z-20 container mx-auto px-4 py-20 md:py-32">
           <motion.h1 
-            className="font-serif text-4xl md:text-5xl font-bold mb-4"
+            className="font-display text-4xl md:text-5xl font-bold mb-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -193,14 +189,12 @@ const RoomTypesPage = () => {
         </div>
       </div>
       
-      {/* Search Filter Section */}
       <div className="bg-beach-50 py-6">
         <div className="container mx-auto px-4 -mt-16 relative z-30">
           <RoomSearchFilter onSearch={searchAvailableRooms} isLoading={searching} />
         </div>
       </div>
       
-      {/* Room Types Section */}
       <section className="py-12 md:py-16 bg-beach-50">
         <div className="container mx-auto px-4">
           {searchFilters && (
@@ -316,7 +310,6 @@ const RoomTypesPage = () => {
         </div>
       </section>
       
-      {/* CTA Section */}
       <section className="py-16 md:py-24 bg-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="font-serif text-3xl font-bold mb-6 text-beach-900">
