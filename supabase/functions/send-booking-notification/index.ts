@@ -31,7 +31,7 @@ async function sendEmail(emailData: EmailData) {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Annam Village <notification@annamvillage.vn>",
+        from: "onboarding@resend.dev", // Use Resend's default email address instead of custom domain
         to: [emailData.to],
         subject: emailData.subject,
         html: emailData.html,

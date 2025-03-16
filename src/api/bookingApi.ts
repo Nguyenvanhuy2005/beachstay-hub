@@ -1,4 +1,3 @@
-
 import { supabase, checkRoomAvailability } from '@/lib/supabase';
 import { toast } from 'sonner';
 
@@ -79,7 +78,15 @@ export const createBooking = async (bookingData: BookingFormData) => {
       if (emailResponse.error) {
         console.error('Email notification error:', emailResponse.error);
         console.error('Email error details:', JSON.stringify(emailResponse));
-        toast.error('Đặt phòng thành công nhưng không thể gửi email xác nhận. Chúng tôi sẽ liên hệ với bạn sớm.');
+        
+        // Check for domain verification error in the response
+        const responseData = emailResponse.data as any;
+        if (responseData?.message?.includes('domain is not verified')) {
+          console.error('Domain verification error:', responseData.message);
+          toast.error('Đặt phòng thành công! Tuy nhiên, hệ thống email đang gặp vấn đề về xác thực tên miền. Chúng tôi sẽ liên hệ với bạn sớm nhất.');
+        } else {
+          toast.error('Đặt phòng thành công nhưng không thể gửi email xác nhận. Chúng tôi sẽ liên hệ với bạn sớm.');
+        }
       } else {
         console.log('Email notification response:', emailResponse.data);
         console.log('Email notification sent successfully');
