@@ -24,18 +24,18 @@ const BookingPage = () => {
 
   return (
     <MainLayout>
-      <div className="container mx-auto py-10">
+      <div className="container mx-auto py-10 px-4">
         <h1 className="text-3xl font-bold text-center mb-8">
           {language === 'vi' ? 'Đặt phòng' : 'Book a Room'}
         </h1>
         
         <div className="max-w-3xl mx-auto">
-          <Card>
+          <Card className="w-full">
             <CardHeader>
-              <CardTitle>
+              <CardTitle className="text-center">
                 {language === 'vi' ? 'Thông tin đặt phòng chi tiết' : 'Booking Information'}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-center">
                 {language === 'vi' 
                   ? 'Vui lòng điền đầy đủ thông tin để đặt phòng' 
                   : 'Please fill in all information to book a room'

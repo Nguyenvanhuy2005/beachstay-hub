@@ -100,7 +100,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
           </Button>
         </FormControl>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
+      <PopoverContent className="w-auto p-0 mx-auto" align="center">
         {roomTypeId && selectedRoom ? (
           <div className="p-2">
             <h3 className="font-medium text-center mb-2">

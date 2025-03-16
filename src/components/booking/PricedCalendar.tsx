@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { format, isSameDay } from 'date-fns';
 import { supabase } from '@/lib/supabase';
 import { DayContentProps } from 'react-day-picker';
 import { DateRange } from 'react-day-picker';
+import { formatPriceInMillions } from '@/lib/dateUtils';
 
 interface PricedCalendarProps {
   roomTypeId: string;
@@ -74,12 +76,6 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
     
     // Only apply weekend price on Saturdays (day 6)
     return date.getDay() === 6 ? weekendPrice : regularPrice;
-  };
-  
-  // Format price for display in millions (M)
-  const formatPriceInMillions = (price: number): string => {
-    const inMillions = price / 1000000;
-    return `${inMillions.toFixed(1)}M`;
   };
   
   // Custom render for each day in the calendar
