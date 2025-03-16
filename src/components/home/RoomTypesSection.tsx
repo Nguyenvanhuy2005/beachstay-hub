@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { isWeekend, format } from "date-fns";
+import { format } from "date-fns";
 
 const iconMap: Record<string, React.ReactNode> = {
   wifi: <Wifi size={14} />,
@@ -57,6 +57,7 @@ const RoomTypesSection = () => {
   const [customPrices, setCustomPrices] = useState<Record<string, number>>({});
   const today = new Date();
   const todayStr = format(today, 'yyyy-MM-dd');
+  const isSaturday = today.getDay() === 6; // 6 is Saturday
 
   useEffect(() => {
     const fetchRoomTypes = async () => {
@@ -136,8 +137,8 @@ const RoomTypesSection = () => {
       return customPrices[room.id];
     }
     
-    // Otherwise use weekend price for weekends or regular price
-    return isWeekend(today) ? (room.weekend_price || room.price) : room.price;
+    // Otherwise use weekend price for Saturdays only, or regular price
+    return isSaturday ? (room.weekend_price || room.price) : room.price;
   };
 
   const formatPrice = (price) => {
@@ -273,9 +274,9 @@ const RoomTypesSection = () => {
                         {formatPrice(getRoomPrice(room))}đ
                       </span>
                       <span className="text-gray-500 text-sm"> / {language === 'vi' ? 'đêm' : 'night'}</span>
-                      {isWeekend(today) && !customPrices[room.id] && (
+                      {isSaturday && !customPrices[room.id] && (
                         <span className="text-orange-500 text-xs block mt-1">
-                          {language === 'vi' ? 'Giá cuối tuần' : 'Weekend price'}
+                          {language === 'vi' ? 'Giá cuối tuần (Thứ 7)' : 'Weekend price (Saturday)'}
                         </span>
                       )}
                       {customPrices[room.id] && (

@@ -70,7 +70,8 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
       return customPrice.price;
     }
     
-    return isWeekend(date) ? weekendPrice : regularPrice;
+    // Only apply weekend price on Saturdays (day 6)
+    return date.getDay() === 6 ? weekendPrice : regularPrice;
   };
   
   // Format price for display
@@ -90,12 +91,19 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
     const formattedPrice = formatPrice(price);
     const isCustomPrice = customPrices.some(item => item.date === format(date, 'yyyy-MM-dd'));
     const isSelectedDate = selected && isSameDay(date, selected);
+    const isSaturday = date.getDay() === 6;
     
     return (
       <div className={`flex flex-col items-center ${isSelectedDate ? 'text-white' : ''}`}>
         <div>{date.getDate()}</div>
         {showPrices && (
-          <div className={`text-[9px] mt-1 ${isCustomPrice ? 'font-bold' : ''} ${isSelectedDate ? 'text-white' : 'text-gray-600'}`}>
+          <div 
+            className={`text-[9px] mt-1 
+              ${isCustomPrice ? 'font-bold' : ''} 
+              ${isSelectedDate ? 'text-white' : 'text-gray-600'}
+              ${isSaturday && !isCustomPrice ? 'text-orange-600' : ''}`
+            }
+          >
             {formattedPrice}
           </div>
         )}
@@ -112,7 +120,7 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
         onSelect={onSelect}
         disabled={disabled}
         components={{
-          Day: renderDay
+          DayContent: renderDay
         }}
         className={className}
         fromMonth={fromMonth}
@@ -135,7 +143,7 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
         }}
         disabled={disabled}
         components={{
-          Day: renderDay
+          DayContent: renderDay
         }}
         className={className}
         fromMonth={fromMonth}
@@ -157,7 +165,7 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
         }}
         disabled={disabled}
         components={{
-          Day: renderDay
+          DayContent: renderDay
         }}
         className={className}
         fromMonth={fromMonth}

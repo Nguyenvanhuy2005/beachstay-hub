@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { format, isSameDay, isWeekend } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 import { CalendarIcon, Trash2, Save, Loader2 } from 'lucide-react';
 
 interface DatePriceManagementProps {
@@ -71,8 +71,9 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
     if (existingCustomPrice) {
       setCustomPrice(existingCustomPrice.price.toString());
     } else {
-      // Default to weekend price if it's a weekend, otherwise regular price
-      const defaultPrice = isWeekend(selectedDate) ? weekendPrice : regularPrice;
+      // Default to weekend price if it's a Saturday (day 6), otherwise regular price
+      const isSaturday = selectedDate.getDay() === 6;
+      const defaultPrice = isSaturday ? weekendPrice : regularPrice;
       setCustomPrice(defaultPrice.toString());
     }
   }, [selectedDate, customPrices, regularPrice, weekendPrice]);
@@ -170,7 +171,8 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
         );
         
         // Reset the price input to the default for this date
-        const defaultPrice = isWeekend(selectedDate) ? weekendPrice : regularPrice;
+        const isSaturday = selectedDate.getDay() === 6;
+        const defaultPrice = isSaturday ? weekendPrice : regularPrice;
         setCustomPrice(defaultPrice.toString());
         
         toast.success('Đã xóa giá tùy chỉnh');
@@ -195,7 +197,7 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
   const getPriceType = (date: Date) => {
     if (hasCustomPrice(date)) {
       return 'Giá tùy chỉnh';
-    } else if (isWeekend(date)) {
+    } else if (date.getDay() === 6) {  // 6 = Saturday
       return 'Giá cuối tuần';
     } else {
       return 'Giá ngày thường';
@@ -246,8 +248,8 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
                   'Chưa chọn ngày'
                 ) : hasCustomPrice(selectedDate) ? (
                   <span className="text-blue-600 font-medium">Giá tùy chỉnh</span>
-                ) : isWeekend(selectedDate) ? (
-                  <span className="text-orange-600">Giá cuối tuần</span>
+                ) : selectedDate.getDay() === 6 ? (
+                  <span className="text-orange-600">Giá cuối tuần (Thứ 7)</span>
                 ) : (
                   <span className="text-gray-600">Giá ngày thường</span>
                 )}
@@ -266,8 +268,8 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
                 className="w-full"
               />
               <p className="text-sm text-muted-foreground">
-                Giá mặc định: {isWeekend(selectedDate || new Date()) 
-                  ? `${new Intl.NumberFormat('vi-VN').format(weekendPrice)} đ (cuối tuần)` 
+                Giá mặc định: {selectedDate && selectedDate.getDay() === 6
+                  ? `${new Intl.NumberFormat('vi-VN').format(weekendPrice)} đ (cuối tuần - Thứ 7)` 
                   : `${new Intl.NumberFormat('vi-VN').format(regularPrice)} đ (ngày thường)`}
               </p>
             </div>

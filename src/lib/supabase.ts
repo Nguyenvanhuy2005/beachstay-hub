@@ -1,4 +1,3 @@
-
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 // Use client from integrations to ensure consistency
@@ -132,12 +131,11 @@ export const getRoomPriceForDate = async (roomTypeId: string, date: string) => {
       return null;
     }
     
-    // Check if the date is a weekend
+    // Check if the date is a Saturday (day 6)
     const dateObj = new Date(date);
-    const day = dateObj.getDay();
-    const isWeekend = day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
+    const isSaturday = dateObj.getDay() === 6;
     
-    return isWeekend && room.weekend_price ? room.weekend_price : room.price;
+    return isSaturday && room.weekend_price ? room.weekend_price : room.price;
   } catch (error) {
     console.error('Unexpected error in getRoomPriceForDate:', error);
     return null;
