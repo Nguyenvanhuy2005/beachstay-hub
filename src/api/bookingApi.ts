@@ -1,5 +1,5 @@
 
-import { supabase, checkRoomAvailability, getBookingsWithRoomInfo } from '@/lib/supabase';
+import { supabase, checkRoomAvailability } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 export interface BookingFormData {
@@ -50,9 +50,10 @@ export const createBooking = async (bookingData: BookingFormData) => {
     // Send booking data to Supabase
     const { data, error } = await supabase
       .from('bookings')
-      .insert(supabaseBookingData);
+      .insert(supabaseBookingData)
+      .select();
 
-    if (error && error instanceof Error) {
+    if (error) {
       console.error('Booking error:', error);
       toast.error('Đã xảy ra lỗi khi đặt phòng! Vui lòng thử lại sau.');
       return { success: false, error };
@@ -99,7 +100,7 @@ export const createBooking = async (bookingData: BookingFormData) => {
 
     // Booking successful
     toast.success('Đặt phòng thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.');
-    return { success: true, data, bookingId: Array.isArray(data) && data.length > 0 ? data[0]?.id : null };
+    return { success: true, data, bookingId: data[0]?.id };
   } catch (error) {
     console.error('Unexpected error:', error);
     toast.error('Đã xảy ra lỗi không mong muốn!');
@@ -130,7 +131,26 @@ export const getRoomTypes = async () => {
 
 export const getBookingsByStatus = async (status?: string) => {
   try {
-    return await getBookingsWithRoomInfo(status);
+    console.log('Fetching bookings with status filter:', status || 'all');
+    
+    let query = supabase
+      .from('bookings')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (status) {
+      query = query.eq('status', status);
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Error fetching bookings:', error);
+      return [];
+    }
+    
+    console.log('Bookings fetched:', data?.length || 0);
+    return data || [];
   } catch (error) {
     console.error('Unexpected error in getBookingsByStatus:', error);
     return [];
@@ -141,44 +161,21 @@ export const updateBookingStatus = async (bookingId: string, status: string) => 
   try {
     console.log(`Updating booking ${bookingId} status to ${status}`);
     
-    const result = await supabase
+    const { data, error } = await supabase
       .from('bookings')
       .update({ status })
-      .eq('id', bookingId);
+      .eq('id', bookingId)
+      .select();
     
-    if (result.error) {
-      console.error('Error updating booking status:', result.error);
-      return { success: false, error: result.error };
+    if (error) {
+      console.error('Error updating booking status:', error);
+      return { success: false, error };
     }
     
-    console.log('Booking status updated successfully');
-    return { success: true };
+    console.log('Booking status updated successfully:', data);
+    return { success: true, data };
   } catch (error) {
     console.error('Unexpected error in updateBookingStatus:', error);
-    return { success: false, error };
-  }
-};
-
-export const exportBookingData = async () => {
-  try {
-    const bookings = await getBookingsWithRoomInfo();
-    
-    // Convert bookings to a JSON string
-    const jsonString = JSON.stringify(bookings, null, 2);
-    
-    // Create and download the file
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `bookings_export_${new Date().toISOString()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    
-    return { success: true, count: bookings.length };
-  } catch (error) {
-    console.error('Error exporting booking data:', error);
     return { success: false, error };
   }
 };

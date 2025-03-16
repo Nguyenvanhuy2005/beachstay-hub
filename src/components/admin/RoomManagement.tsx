@@ -4,10 +4,9 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, CheckCircle, XCircle, Image, RefreshCw, Loader2, Database } from 'lucide-react';
+import { Plus, Pencil, Trash2, CheckCircle, XCircle, Image, RefreshCw, Loader2 } from 'lucide-react';
 import AddRoomModal from './AddRoomModal';
 import EditRoomModal from './EditRoomModal';
-import DataSyncHelper from './DataSyncHelper';
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -32,7 +31,6 @@ const RoomManagement = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [currentRoomId, setCurrentRoomId] = useState<string | null>(null);
   const [roomToDelete, setRoomToDelete] = useState<string | null>(null);
-  const [syncModalOpen, setSyncModalOpen] = useState(false);
 
   useEffect(() => {
     fetchRooms();
@@ -126,9 +124,6 @@ const RoomManagement = () => {
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-medium">Quản Lý Phòng</h3>
         <div className="flex space-x-2">
-          <Button onClick={() => setSyncModalOpen(true)} variant="outline" size="sm">
-            <Database className="mr-1 h-4 w-4" /> Đồng bộ dữ liệu
-          </Button>
           <Button onClick={fetchRooms} variant="outline" size="sm">
             <RefreshCw className="mr-1 h-4 w-4" /> Làm mới
           </Button>
@@ -260,11 +255,6 @@ const RoomManagement = () => {
         onOpenChange={setEditModalOpen}
         onRoomUpdated={fetchRooms}
         roomId={currentRoomId}
-      />
-
-      <DataSyncHelper 
-        open={syncModalOpen}
-        onOpenChange={setSyncModalOpen}
       />
 
       <AlertDialog open={!!roomToDelete} onOpenChange={(open) => !open && setRoomToDelete(null)}>

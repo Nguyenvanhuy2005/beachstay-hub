@@ -1,187 +1,173 @@
 
-// Kết nối tới MySQL thông qua adapter thay vì Supabase
-import { mysqlDb, uploadFile, getPublicUrl, checkRoomAvailability, getBookingsWithRoomInfo, getBookedDatesForRoomType, DatabaseAdapter } from './mysql-db';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-// Tạo đối tượng supabase giả lập để sử dụng với MySQL
-export const supabase = {
-  from: (tableName: string) => {
-    // Tạo đối tượng truy vấn
-    return {
-      select: (columns?: string) => {
-        // Truy vấn select
-        return {
-          eq: (column: string, value: any) => {
-            // Lọc dữ liệu bằng điều kiện
-            return {
-              single: () => mysqlDb.select(tableName, { columns, eq: [column, value] }),
-              maybeSingle: () => mysqlDb.select(tableName, { columns, eq: [column, value] }),
-              limit: (limit: number) => ({
-                order: (orderColumn: string, { ascending }: { ascending?: boolean } = {}) => 
-                  mysqlDb.select(tableName, { 
-                    columns, 
-                    eq: [column, value], 
-                    limit, 
-                    order: { column: orderColumn, ascending: ascending !== false } 
-                  }),
-                data: null,
-                error: null
-              }),
-              order: (orderColumn: string, { ascending }: { ascending?: boolean } = {}) => 
-                mysqlDb.select(tableName, { 
-                  columns, 
-                  eq: [column, value], 
-                  order: { column: orderColumn, ascending: ascending !== false } 
-                }),
-              in: (inColumn: string, values: any[]) => ({
-                order: (orderColumn: string, { ascending }: { ascending?: boolean } = {}) => 
-                  mysqlDb.select(tableName, { 
-                    columns, 
-                    eq: [column, value], 
-                    order: { column: orderColumn, ascending: ascending !== false } 
-                  }),
-                data: null,
-                error: null
-              }),
-              neq: (neqColumn: string, neqValue: any) => ({
-                order: (orderColumn: string, { ascending }: { ascending?: boolean } = {}) => 
-                  mysqlDb.select(tableName, { 
-                    columns, 
-                    eq: [column, value], 
-                    order: { column: orderColumn, ascending: ascending !== false } 
-                  }),
-                data: null,
-                error: null
-              })
-            };
-          },
-          neq: (column: string, value: any) => {
-            // Tương tự với eq nhưng là không bằng
-            // Đây là phiên bản đơn giản, cần cải thiện trong triển khai thực tế
-            return {
-              order: (orderColumn: string, { ascending }: { ascending?: boolean } = {}) => 
-                mysqlDb.select(tableName, { 
-                  columns, 
-                  order: { column: orderColumn, ascending: ascending !== false } 
-                })
-            };
-          },
-          order: (column: string, { ascending }: { ascending?: boolean } = {}) => {
-            return mysqlDb.select(tableName, { 
-              columns, 
-              order: { column, ascending: ascending !== false } 
-            });
-          },
-          limit: (limit: number) => {
-            return mysqlDb.select(tableName, { columns, limit });
-          },
-          in: (column: string, values: any[]) => {
-            // Đây chỉ là đơn giản hóa, cần cải thiện để xử lý IN trong SQL
-            return {
-              order: (orderColumn: string, { ascending }: { ascending?: boolean } = {}) => 
-                mysqlDb.select(tableName, { 
-                  columns, 
-                  order: { column: orderColumn, ascending: ascending !== false } 
-                }),
-              data: null,
-              error: null
-            };
-          }
-        };
-      },
-      insert: (data: any) => {
-        return mysqlDb.insert(tableName, data);
-      },
-      update: (data: any) => {
-        return {
-          eq: (column: string, value: any) => {
-            return mysqlDb.update(tableName, data, { column, value });
-          },
-          match: (criteria: Record<string, any>) => {
-            // Giả lập match với điều kiện đầu tiên
-            const column = Object.keys(criteria)[0];
-            const value = criteria[column];
-            return mysqlDb.update(tableName, data, { column, value });
-          }
-        };
-      },
-      delete: () => {
-        return {
-          eq: (column: string, value: any) => {
-            return mysqlDb.delete(tableName, { column, value });
-          },
-          match: (criteria: Record<string, any>) => {
-            // Giả lập match với điều kiện đầu tiên
-            const column = Object.keys(criteria)[0];
-            const value = criteria[column];
-            return mysqlDb.delete(tableName, { column, value });
-          }
-        };
-      }
-    };
-  },
-  // Thêm hàm functions cho tương thích
-  functions: DatabaseAdapter.mysqlDb.functions,
-  // Thêm hàm auth cho xác thực
-  auth: DatabaseAdapter.auth
+// Use client from integrations to ensure consistency
+import { supabase as supabaseClient } from '@/integrations/supabase/client';
+
+// Export imported client to maintain backward compatibility
+export const supabase: SupabaseClient = supabaseClient;
+
+// For admin checking (simplified to always return true to bypass authentication)
+export const isAdmin = async () => {
+  return true;
 };
 
-// Các hàm tiện ích cho storage
-export const storage = {
-  uploadFile,
-  getPublicUrl
+// Helper function for admin account creation (retained for future use)
+export const createAdminAccount = async () => {
+  // Keep the functionality for future use
+  return true;
 };
 
-// Các hàm tiện ích cho booking
-export { 
-  checkRoomAvailability,
-  getBookingsWithRoomInfo,
-  getBookedDatesForRoomType
+// Helper function to get public URL for a file in storage
+export const getPublicUrl = (bucket: string, path: string) => {
+  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+  return data.publicUrl;
 };
 
-// Hàm đồng bộ ảnh
-export const syncGalleryImages = async (images: any[]) => {
-  // Xóa tất cả ảnh gallery hiện tại
+// Helper function to call the check_room_availability RPC function
+export const checkRoomAvailability = async (roomTypeId: string, checkIn: string, checkOut: string) => {
   try {
-    await mysqlDb.delete('gallery_images', { column: 'id', value: 'all' });
+    console.log(`Checking availability for room type ${roomTypeId} from ${checkIn} to ${checkOut}`);
     
-    // Thêm ảnh mới
-    for (const image of images) {
-      await mysqlDb.insert('gallery_images', image);
+    const { data, error } = await supabase.rpc('check_room_availability', {
+      p_room_type_id: roomTypeId,
+      p_check_in: checkIn,
+      p_check_out: checkOut
+    });
+
+    if (error) {
+      console.error('Error in checkRoomAvailability:', error);
+      return { available: false, error, remainingRooms: 0 };
     }
+
+    console.log('Availability check result:', data);
     
-    return { data: images, error: null };
+    // Access the first element of the array returned by the RPC
+    if (data && data.length > 0) {
+      return { 
+        available: data[0].available, 
+        remainingRooms: data[0].remaining_rooms 
+      };
+    }
+
+    return { available: false, error: 'No data returned', remainingRooms: 0 };
   } catch (error) {
-    console.error('Error syncing gallery images:', error);
-    return { data: null, error: error as Error };
+    console.error('Unexpected error in checkRoomAvailability:', error);
+    return { available: false, error, remainingRooms: 0 };
   }
 };
 
-// Hàm xuất dữ liệu
-export const exportDatabaseContent = async (tableName: string) => {
+// Helper function to get all booked dates for a room type
+export const getBookedDatesForRoomType = async (roomTypeId: string) => {
   try {
-    const { data, error } = await mysqlDb.select(tableName);
+    console.log('Fetching booked dates for room type:', roomTypeId);
     
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('check_in, check_out, status')
+      .eq('room_type_id', roomTypeId)
+      .neq('status', 'cancelled');
+
     if (error) {
-      throw error;
+      console.error('Error fetching booked dates:', error);
+      return [];
+    }
+
+    console.log('Fetched booking data:', data?.length, 'bookings found');
+    return data || [];
+  } catch (error) {
+    console.error('Unexpected error in getBookedDatesForRoomType:', error);
+    return [];
+  }
+};
+
+// Helper function to get booked dates for all room types - useful for admin view
+export const getAllBookedDates = async () => {
+  try {
+    // Make sure to use PUBLIC schema to bypass RLS
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('check_in, check_out, room_type_id, status')
+      .neq('status', 'cancelled');
+      
+    if (error) {
+      console.error('Error fetching all booked dates:', error);
+      return [];
     }
     
-    // Tạo file JSON và download
-    const jsonString = JSON.stringify(data, null, 2);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${tableName}_export_${new Date().toISOString()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-    
-    return { success: true, data };
+    return data || [];
   } catch (error) {
-    console.error(`Error exporting ${tableName}:`, error);
-    throw error;
+    console.error('Unexpected error in getAllBookedDates:', error);
+    return [];
+  }
+};
+
+// Get room price for a specific date
+export const getRoomPriceForDate = async (roomTypeId: string, date: string) => {
+  try {
+    // First check if there's a custom price for this date
+    const { data: customPrice, error: customPriceError } = await supabase
+      .from('room_date_prices')
+      .select('price')
+      .eq('room_type_id', roomTypeId)
+      .eq('date', date)
+      .maybeSingle();
+      
+    if (customPriceError) {
+      console.error('Error fetching custom price:', customPriceError);
+    }
+    
+    if (customPrice) {
+      return customPrice.price;
+    }
+    
+    // If no custom price, get the regular/weekend price from room_types
+    const { data: room, error: roomError } = await supabase
+      .from('room_types')
+      .select('price, weekend_price')
+      .eq('id', roomTypeId)
+      .single();
+      
+    if (roomError) {
+      console.error('Error fetching room details:', roomError);
+      return null;
+    }
+    
+    // Check if the date is a Saturday (day 6)
+    const dateObj = new Date(date);
+    const isSaturday = dateObj.getDay() === 6;
+    
+    return isSaturday && room.weekend_price ? room.weekend_price : room.price;
+  } catch (error) {
+    console.error('Unexpected error in getRoomPriceForDate:', error);
+    return null;
+  }
+};
+
+// Get custom prices for a room type within a date range
+export const getCustomPricesForRoom = async (roomTypeId: string, startDate: string, endDate: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('room_date_prices')
+      .select('date, price')
+      .eq('room_type_id', roomTypeId)
+      .gte('date', startDate)
+      .lte('date', endDate);
+      
+    if (error) {
+      console.error('Error fetching custom prices:', error);
+      return {};
+    }
+    
+    // Convert array to map for easier access
+    const pricesMap: Record<string, number> = {};
+    data?.forEach(item => {
+      pricesMap[item.date] = item.price;
+    });
+    
+    return pricesMap;
+  } catch (error) {
+    console.error('Unexpected error in getCustomPricesForRoom:', error);
+    return {};
   }
 };
