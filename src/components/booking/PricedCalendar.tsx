@@ -12,7 +12,7 @@ interface PricedCalendarProps {
   weekendPrice: number;
   selected?: Date | DateRange;
   onSelect?: (date: Date | undefined) => void;
-  onRangeSelect?: (range: { from: Date, to: Date } | undefined) => void;
+  onRangeSelect?: (range: DateRange | undefined) => void;
   disabled?: (date: Date) => boolean;
   className?: string;
   mode?: "single" | "range" | "multiple";
@@ -112,10 +112,10 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
     
     return (
       <div className={`flex flex-col items-center ${isSelectedDate ? 'text-white' : ''}`}>
-        <div>{date.getDate()}</div>
+        <div className="text-sm">{date.getDate()}</div>
         {showPrices && (
           <div 
-            className={`text-[9px] mt-1 
+            className={`text-[10px] mt-1 
               ${isCustomPrice ? 'font-bold' : ''} 
               ${isSelectedDate ? 'text-white' : 'text-gray-600'}
               ${isSaturday && !isCustomPrice ? 'text-orange-600' : ''}`
@@ -135,8 +135,8 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
         mode="range"
         selected={selected as DateRange}
         onSelect={(range) => {
-          if (onRangeSelect && range && range.from && range.to) {
-            onRangeSelect({ from: range.from, to: range.to });
+          if (onRangeSelect) {
+            onRangeSelect(range);
           }
         }}
         disabled={disabled}

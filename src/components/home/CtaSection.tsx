@@ -12,6 +12,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import PricedCalendar from "@/components/booking/PricedCalendar";
+import { DateRange } from "react-day-picker";
 
 const benefits = [
   "Giá tốt nhất đảm bảo",
@@ -35,7 +36,7 @@ const CtaSection = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [bookedDates, setBookedDates] = useState<Date[]>([]);
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const [selectedDateRange, setSelectedDateRange] = useState<{ from: Date, to: Date } | undefined>(undefined);
+  const [selectedDateRange, setSelectedDateRange] = useState<DateRange | undefined>(undefined);
   
   useEffect(() => {
     loadRoomTypes();
@@ -164,19 +165,20 @@ const CtaSection = () => {
     return false;
   };
 
-  const handleDateRangeSelect = (range: { from: Date, to: Date } | undefined) => {
-    if (!range) return;
+  const handleDateRangeSelect = (range: DateRange | undefined) => {
+    setSelectedDateRange(range);
     
-    if (range.from) {
+    if (range?.from) {
       setCheckIn(format(range.from, 'yyyy-MM-dd'));
       
       if (range.to) {
         setCheckOut(format(range.to, 'yyyy-MM-dd'));
         setCalendarOpen(false);
       }
+    } else {
+      setCheckIn('');
+      setCheckOut('');
     }
-    
-    setSelectedDateRange(range);
   };
 
   const formatDisplayDate = (dateStr: string) => {
@@ -327,10 +329,10 @@ const CtaSection = () => {
                       )}
                     </button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+                  <PopoverContent className="w-auto p-0 max-w-none" align="start">
                     {roomType ? (
-                      <div className="p-2">
-                        <h3 className="font-medium text-center mb-2">Chọn ngày đặt phòng</h3>
+                      <div className="p-3">
+                        <h3 className="font-medium text-center mb-3">Chọn ngày đặt phòng</h3>
                         <PricedCalendar
                           roomTypeId={roomType}
                           regularPrice={selectedRoom?.price || 0}
@@ -339,7 +341,7 @@ const CtaSection = () => {
                           selected={selectedDateRange}
                           onRangeSelect={handleDateRangeSelect}
                           disabled={disableDates}
-                          className="w-full min-w-[300px] sm:min-w-[500px] pointer-events-auto"
+                          className="w-full min-w-[340px] sm:min-w-[600px] pointer-events-auto"
                           fromMonth={new Date()}
                           showPrices={false}
                         />
