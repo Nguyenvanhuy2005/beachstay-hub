@@ -2,12 +2,13 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 import MainLayout from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const BookingSuccessPage = () => {
   const { language } = useLanguage();
@@ -49,8 +50,8 @@ const BookingSuccessPage = () => {
           </h1>
           <p className="text-gray-600">
             {language === 'vi' 
-              ? 'Cảm ơn bạn đã đặt phòng tại A.N Village. Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất.' 
-              : 'Thank you for booking with A.N Village. We will contact you as soon as possible.'
+              ? 'Cảm ơn bạn đã đặt phòng tại Annam Village. Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất.' 
+              : 'Thank you for booking with Annam Village. We will contact you as soon as possible.'
             }
           </p>
         </div>
@@ -111,14 +112,15 @@ const BookingSuccessPage = () => {
               </div>
             )}
             
-            <div className="rounded-lg bg-green-50 p-4 border border-green-100 mt-4">
-              <p className="text-green-800 text-sm">
+            <Alert className="mt-4 bg-green-50 border border-green-100">
+              <AlertCircle className="h-4 w-4 text-green-600" />
+              <AlertDescription className="text-green-800 text-sm">
                 {language === 'vi' 
-                  ? 'Xác nhận đặt phòng đã được gửi đến email của bạn. Trạng thái đặt phòng hiện tại là "Chờ xác nhận".' 
-                  : 'A booking confirmation has been sent to your email. Your booking status is currently "Pending".'
+                  ? 'Xác nhận đặt phòng đã được gửi đến email của bạn. Trạng thái đặt phòng hiện tại là "Chờ xác nhận". Nếu bạn không nhận được email, vui lòng kiểm tra thư mục spam hoặc liên hệ với chúng tôi.' 
+                  : 'A booking confirmation has been sent to your email. Your booking status is currently "Pending". If you do not receive the email, please check your spam folder or contact us.'
                 }
-              </p>
-            </div>
+              </AlertDescription>
+            </Alert>
           </CardContent>
           
           <CardFooter className="flex flex-col sm:flex-row gap-4 justify-center">

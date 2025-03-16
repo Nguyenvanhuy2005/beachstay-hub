@@ -1,3 +1,4 @@
+
 import { supabase, checkRoomAvailability } from '@/lib/supabase';
 import { toast } from 'sonner';
 
@@ -62,6 +63,7 @@ export const createBooking = async (bookingData: BookingFormData) => {
 
     // Booking successful, send email notification
     try {
+      console.log('Sending email notification for booking...');
       const emailResponse = await supabase.functions.invoke('send-booking-notification', {
         body: { 
           booking: bookingData,
@@ -71,11 +73,14 @@ export const createBooking = async (bookingData: BookingFormData) => {
       
       if (emailResponse.error) {
         console.error('Email notification error:', emailResponse.error);
+        toast.error('Đặt phòng thành công nhưng không thể gửi email xác nhận. Chúng tôi sẽ liên hệ với bạn sớm.');
       } else {
+        console.log('Email notification response:', emailResponse.data);
         console.log('Email notification sent successfully');
       }
     } catch (emailError) {
       console.error('Failed to send email notification:', emailError);
+      toast.error('Đặt phòng thành công nhưng không thể gửi email xác nhận. Chúng tôi sẽ liên hệ với bạn sớm.');
     }
 
     // Booking successful

@@ -20,23 +20,37 @@ async function sendEmail(emailData: EmailData) {
     throw new Error("RESEND_API_KEY is not set");
   }
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${RESEND_API_KEY}`,
-    },
-    body: JSON.stringify({
-      from: "Annam Village <notification@annamvillage.vn>",
-      to: [emailData.to],
-      subject: emailData.subject,
-      html: emailData.html,
-      text: emailData.text,
-    }),
-  });
+  console.log("Sending email to:", emailData.to);
+  console.log("Email subject:", emailData.subject);
 
-  const data = await response.json();
-  return { data, status: response.status };
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: "Annam Village <notification@annamvillage.vn>",
+        to: [emailData.to],
+        subject: emailData.subject,
+        html: emailData.html,
+        text: emailData.text,
+      }),
+    });
+
+    const data = await response.json();
+    console.log("Email API response:", data);
+    
+    if (!response.ok) {
+      throw new Error(`Resend API error: ${response.status} ${JSON.stringify(data)}`);
+    }
+    
+    return { data, status: response.status };
+  } catch (error) {
+    console.error("Error in sendEmail function:", error);
+    throw error;
+  }
 }
 
 serve(async (req) => {
@@ -46,6 +60,8 @@ serve(async (req) => {
   }
 
   try {
+    console.log("Received request to send-booking-notification function");
+    
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
@@ -54,49 +70,104 @@ serve(async (req) => {
       }
     );
 
-    const requestData = await req.json();
+    let requestData;
+    try {
+      requestData = await req.json();
+      console.log("Request data received:", JSON.stringify(requestData));
+    } catch (error) {
+      console.error("Error parsing request JSON:", error);
+      return new Response(JSON.stringify({ error: "Invalid JSON payload" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
     
     // Check which type of notification to send
     if (requestData.booking) {
       // Handle booking notification
       const { booking, adminEmail } = requestData;
+      console.log("Processing booking notification for admin:", adminEmail);
+      console.log("Booking data:", JSON.stringify(booking));
 
       // Format dates
       const checkInDate = new Date(booking.checkIn).toLocaleDateString('vi-VN');
       const checkOutDate = new Date(booking.checkOut).toLocaleDateString('vi-VN');
 
-      // Prepare email content
-      const emailHtml = `
-        <h1>Thông Báo Đặt Phòng Mới</h1>
-        <p>Có một đặt phòng mới tại Annam Village:</p>
-        <hr>
-        <h2>Chi Tiết Đặt Phòng</h2>
-        <ul>
-          <li><strong>Tên khách hàng:</strong> ${booking.fullName}</li>
-          <li><strong>Email:</strong> ${booking.email}</li>
-          <li><strong>Số điện thoại:</strong> ${booking.phone}</li>
-          <li><strong>Ngày đến:</strong> ${checkInDate}</li>
-          <li><strong>Ngày đi:</strong> ${checkOutDate}</li>
-          <li><strong>Loại phòng:</strong> ${booking.roomType}</li>
-          <li><strong>Số người lớn:</strong> ${booking.adults}</li>
-          <li><strong>Số trẻ em:</strong> ${booking.children}</li>
-          ${booking.specialRequests ? `<li><strong>Yêu cầu đặc biệt:</strong> ${booking.specialRequests}</li>` : ''}
-        </ul>
-        <p>Vui lòng xác nhận đặt phòng này càng sớm càng tốt.</p>
-        <p>Xin cảm ơn,<br>Hệ thống Annam Village</p>
-      `;
-
       // Send email to admin
-      const emailResponse = await sendEmail({
-        to: adminEmail,
-        subject: `[Annam Village] Đặt Phòng Mới từ ${booking.fullName}`,
-        html: emailHtml,
-      });
+      try {
+        // Prepare admin email content
+        const adminEmailHtml = `
+          <h1>Thông Báo Đặt Phòng Mới</h1>
+          <p>Có một đặt phòng mới tại Annam Village:</p>
+          <hr>
+          <h2>Chi Tiết Đặt Phòng</h2>
+          <ul>
+            <li><strong>Tên khách hàng:</strong> ${booking.fullName}</li>
+            <li><strong>Email:</strong> ${booking.email}</li>
+            <li><strong>Số điện thoại:</strong> ${booking.phone}</li>
+            <li><strong>Ngày đến:</strong> ${checkInDate}</li>
+            <li><strong>Ngày đi:</strong> ${checkOutDate}</li>
+            <li><strong>Loại phòng:</strong> ${booking.roomType}</li>
+            <li><strong>Số người lớn:</strong> ${booking.adults}</li>
+            <li><strong>Số trẻ em:</strong> ${booking.children}</li>
+            ${booking.specialRequests ? `<li><strong>Yêu cầu đặc biệt:</strong> ${booking.specialRequests}</li>` : ''}
+          </ul>
+          <p>Vui lòng xác nhận đặt phòng này càng sớm càng tốt.</p>
+          <p>Xin cảm ơn,<br>Hệ thống Annam Village</p>
+        `;
 
-      return new Response(JSON.stringify(emailResponse), {
-        status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
+        console.log("Sending admin notification email to:", adminEmail);
+        const adminEmailResponse = await sendEmail({
+          to: adminEmail,
+          subject: `[Annam Village] Đặt Phòng Mới từ ${booking.fullName}`,
+          html: adminEmailHtml,
+        });
+        console.log("Admin email sent successfully");
+
+        // Prepare customer email content
+        const customerEmailHtml = `
+          <h1>Xác Nhận Đặt Phòng - Annam Village</h1>
+          <p>Chào ${booking.fullName},</p>
+          <p>Cảm ơn bạn đã đặt phòng tại Annam Village. Dưới đây là thông tin chi tiết về đặt phòng của bạn:</p>
+          <hr>
+          <h2>Chi Tiết Đặt Phòng</h2>
+          <ul>
+            <li><strong>Tên khách hàng:</strong> ${booking.fullName}</li>
+            <li><strong>Ngày nhận phòng:</strong> ${checkInDate}</li>
+            <li><strong>Ngày trả phòng:</strong> ${checkOutDate}</li>
+            <li><strong>Số người lớn:</strong> ${booking.adults}</li>
+            <li><strong>Số trẻ em:</strong> ${booking.children}</li>
+            ${booking.specialRequests ? `<li><strong>Yêu cầu đặc biệt:</strong> ${booking.specialRequests}</li>` : ''}
+          </ul>
+          <p>Trạng thái đặt phòng: <strong>Chờ xác nhận</strong></p>
+          <p>Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất để xác nhận đặt phòng.</p>
+          <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua email hoặc số điện thoại.</p>
+          <p>Xin cảm ơn,<br>Annam Village</p>
+        `;
+
+        console.log("Sending customer confirmation email to:", booking.email);
+        const customerEmailResponse = await sendEmail({
+          to: booking.email,
+          subject: `Xác Nhận Đặt Phòng - Annam Village`,
+          html: customerEmailHtml,
+        });
+        console.log("Customer email sent successfully");
+
+        return new Response(JSON.stringify({ 
+          success: true, 
+          adminEmail: adminEmailResponse, 
+          customerEmail: customerEmailResponse 
+        }), {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      } catch (emailError) {
+        console.error("Failed to send email notification:", emailError);
+        return new Response(JSON.stringify({ error: emailError.message }), {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      }
     } 
     else if (requestData.blogPost) {
       // Handle blog post notification
@@ -139,7 +210,7 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error("Error sending email:", error);
+    console.error("Error in send-booking-notification function:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { "Content-Type": "application/json", ...corsHeaders },
