@@ -18,6 +18,9 @@ import BookingPage from "./pages/BookingPage";
 import BookingSuccessPage from "./pages/BookingSuccessPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
+import TermsPage from "./pages/TermsPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import CookiePage from "./pages/CookiePage";
 
 // Create QueryClient for React Query
 const queryClient = new QueryClient({
@@ -55,6 +58,11 @@ const App = () => (
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
             <Route path="/admin" element={<AdminDashboardPage />} />
+            <Route path="/dieu-khoan" element={<TermsPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/bao-mat" element={<PrivacyPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/cookie" element={<CookiePage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

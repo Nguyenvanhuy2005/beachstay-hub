@@ -182,3 +182,177 @@
     transform: translateY(0px);
   }
 }
+
+/* New animations */
+.hover-lift {
+  transition: transform 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(32, 156, 238, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(32, 156, 238, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(32, 156, 238, 0);
+  }
+}
+
+.rotate-slow {
+  animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  animation: bubble-rise var(--duration, 8s) ease-in infinite;
+}
+
+@keyframes bubble-rise {
+  0% {
+    transform: translateY(100%) scale(0.3);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  30% {
+    transform: translateY(70%) translateX(var(--drift, 0)) scale(0.6);
+  }
+  70% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-100%) translateX(calc(var(--drift, 0) * 2)) scale(0.3);
+    opacity: 0;
+  }
+}
+
+.parallax-bg {
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.text-glitter {
+  background-image: linear-gradient(90deg, #b3d9ff, #66b3ff, #0080ff, #66b3ff, #b3d9ff);
+  background-size: 200% auto;
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: text-glitter 5s linear infinite;
+}
+
+@keyframes text-glitter {
+  to {
+    background-position: 200% center;
+  }
+}
+
+.beach-water-bg {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #87ceeb, #1e90ff);
+}
+
+.beach-water-bg::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 35%;
+  background: linear-gradient(to bottom, rgba(30, 144, 255, 0), rgba(30, 144, 255, 0.8));
+  animation: wave-effect 8s ease-in-out infinite;
+}
+
+@keyframes wave-effect {
+  0%, 100% {
+    transform: translateY(0) scaleY(1);
+  }
+  50% {
+    transform: translateY(-5px) scaleY(1.05);
+  }
+}
+
+/* Underwater bubbles animation */
+.underwater {
+  position: relative;
+  overflow: hidden;
+}
+
+.bubble-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bubble {
+  position: absolute;
+  bottom: -20px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  animation: bubble-rise var(--duration, 8s) ease-in infinite;
+  opacity: 0;
+}
+
+/* New page transition effects */
+.page-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 400ms, transform 400ms;
+}
+
+.page-exit {
+  opacity: 1;
+}
+
+.page-exit-active {
+  opacity: 0;
+  transition: opacity 300ms;
+}
