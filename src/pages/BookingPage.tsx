@@ -1,10 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format, addDays, isAfter, isBefore, parse, eachDayOfInterval, isSameDay } from 'date-fns';
+import { format, addDays, isAfter, isBefore, parse, eachDayOfInterval, isSameDay, differenceInDays } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -36,7 +36,7 @@ import PricedCalendar from '@/components/booking/PricedCalendar';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { BookingFormData, createBooking } from '@/api/bookingApi';
-import { checkRoomAvailability, getBookedDatesForRoomType } from '@/lib/supabase';
+import { checkRoomAvailability, getBookedDatesForRoomType, getRoomPriceForDate } from '@/lib/supabase';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getRoomTypes } from '@/api/bookingApi';
 
@@ -76,7 +76,8 @@ const BookingPage = () => {
   
   const [selectedRoom, setSelectedRoom] = useState<any>(null);
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const [dateSelectionMode, setDateSelectionMode] = useState<'checkIn' | 'checkOut'>('checkIn');
+  const [selectedDateRange, setSelectedDateRange] = useState<{ from: Date, to: Date } | undefined>(undefined);
+  const [totalPrice, setTotalPrice] = useState<number | null>(null);
   
   const form = useForm({
     resolver: zodResolver(bookingFormSchema),
@@ -150,6 +151,60 @@ const BookingPage = () => {
     
     fetchBookedDates();
   }, [form.watch('roomType')]);
+
+  // Calculate total price when dates and room are selected
+  useEffect(() => {
+    const calculateTotalPrice = async () => {
+      const roomType = form.watch('roomType');
+      const checkIn = form.watch('checkIn');
+      const checkOut = form.watch('checkOut');
+      
+      if (!roomType || !checkIn || !checkOut || !selectedRoom) {
+        setTotalPrice(null);
+        return;
+      }
+      
+      try {
+        const checkInDate = parse(checkIn, 'yyyy-MM-dd', new Date());
+        const checkOutDate = parse(checkOut, 'yyyy-MM-dd', new Date());
+        
+        if (!isAfter(checkOutDate, checkInDate)) {
+          setTotalPrice(null);
+          return;
+        }
+        
+        // Calculate nights
+        const nights = differenceInDays(checkOutDate, checkInDate);
+        
+        if (nights <= 0) {
+          setTotalPrice(null);
+          return;
+        }
+        
+        // Get all dates in the range
+        const dates = eachDayOfInterval({ 
+          start: checkInDate, 
+          end: new Date(checkOutDate.getTime() - 1) // Exclude checkout day
+        });
+        
+        // Calculate price for each night
+        let sum = 0;
+        
+        for (const date of dates) {
+          // Get price for this specific date
+          const price = await getRoomPriceForDate(roomType, format(date, 'yyyy-MM-dd'));
+          sum += price || selectedRoom.price;
+        }
+        
+        setTotalPrice(sum);
+      } catch (error) {
+        console.error('Error calculating total price:', error);
+        setTotalPrice(null);
+      }
+    };
+    
+    calculateTotalPrice();
+  }, [form.watch('roomType'), form.watch('checkIn'), form.watch('checkOut'), selectedRoom]);
 
   useEffect(() => {
     const checkAvailability = async () => {
@@ -229,37 +284,44 @@ const BookingPage = () => {
       return true;
     }
     
-    if (dateSelectionMode === 'checkOut') {
-      const checkInValue = form.getValues('checkIn');
-      if (checkInValue) {
-        const parsedCheckInDate = parse(checkInValue, 'yyyy-MM-dd', new Date());
-        if (isBefore(date, parsedCheckInDate)) {
-          return true;
-        }
-      }
-    }
-    
     return false;
   };
 
-  const handleSelectDate = (date: Date | undefined) => {
-    if (!date) return;
+  const handleDateRangeSelect = (range: { from: Date, to: Date } | undefined) => {
+    if (!range) return;
     
-    if (dateSelectionMode === 'checkIn') {
-      form.setValue('checkIn', format(date, 'yyyy-MM-dd'));
+    if (range.from) {
+      form.setValue('checkIn', format(range.from, 'yyyy-MM-dd'));
       
-      // Auto-select checkout date as next day if it's valid
-      const nextDay = addDays(date, 1);
-      if (!isDateInBookedRange(nextDay)) {
-        form.setValue('checkOut', format(nextDay, 'yyyy-MM-dd'));
+      if (range.to) {
+        form.setValue('checkOut', format(range.to, 'yyyy-MM-dd'));
+        setCalendarOpen(false);
       }
-      
-      setDateSelectionMode('checkOut');
-    } else {
-      form.setValue('checkOut', format(date, 'yyyy-MM-dd'));
-      setCalendarOpen(false);
     }
+    
+    setSelectedDateRange(range);
   };
+
+  // Format date for display
+  const formatDisplayDate = (dateStr: string) => {
+    if (!dateStr) return '';
+    const date = parse(dateStr, 'yyyy-MM-dd', new Date());
+    return format(date, 'dd/MM/yyyy');
+  };
+
+  // Get formatted check-in and check-out dates
+  const checkInDate = form.watch('checkIn');
+  const checkOutDate = form.watch('checkOut');
+  const formattedCheckIn = formatDisplayDate(checkInDate);
+  const formattedCheckOut = formatDisplayDate(checkOutDate);
+  
+  // Calculate number of nights
+  const numberOfNights = useMemo(() => {
+    if (!checkInDate || !checkOutDate) return 0;
+    const start = parse(checkInDate, 'yyyy-MM-dd', new Date());
+    const end = parse(checkOutDate, 'yyyy-MM-dd', new Date());
+    return differenceInDays(end, start);
+  }, [checkInDate, checkOutDate]);
 
   return (
     <MainLayout>
@@ -376,6 +438,10 @@ const BookingPage = () => {
                                 const today = new Date();
                                 form.setValue('checkIn', format(today, 'yyyy-MM-dd'));
                                 form.setValue('checkOut', format(addDays(today, 1), 'yyyy-MM-dd'));
+                                setSelectedDateRange({
+                                  from: today,
+                                  to: addDays(today, 1)
+                                });
                               }
                             }} 
                             value={field.value}
@@ -388,7 +454,7 @@ const BookingPage = () => {
                             <SelectContent>
                               {roomTypes.map((room: any) => (
                                 <SelectItem key={room.id} value={room.id}>
-                                  {language === 'vi' ? room.name : room.name_en} - {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(room.price)}/đêm
+                                  {language === 'vi' ? room.name : room.name_en}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -400,105 +466,66 @@ const BookingPage = () => {
                   </div>
                   
                   <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="checkIn"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>
-                              {language === 'vi' ? 'Ngày nhận phòng' : 'Check-in date'}
-                            </FormLabel>
-                            <FormControl>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                className="w-full justify-start text-left font-normal"
-                                onClick={() => {
-                                  setDateSelectionMode('checkIn');
-                                  setCalendarOpen(true);
-                                }}
-                              >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {field.value ? (
-                                  format(parse(field.value, 'yyyy-MM-dd', new Date()), 'PPP')
-                                ) : (
-                                  <span>{language === 'vi' ? 'Chọn ngày' : 'Pick a date'}</span>
-                                )}
-                              </Button>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="checkOut"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>
-                              {language === 'vi' ? 'Ngày trả phòng' : 'Check-out date'}
-                            </FormLabel>
-                            <FormControl>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                className="w-full justify-start text-left font-normal"
-                                onClick={() => {
-                                  setDateSelectionMode('checkOut');
-                                  setCalendarOpen(true);
-                                }}
-                              >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {field.value ? (
-                                  format(parse(field.value, 'yyyy-MM-dd', new Date()), 'PPP')
-                                ) : (
-                                  <span>{language === 'vi' ? 'Chọn ngày' : 'Pick a date'}</span>
-                                )}
-                              </Button>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    {calendarOpen && selectedRoom && (
-                      <div className="bg-white border rounded-lg p-4 shadow-md w-full max-w-full">
-                        <div className="flex justify-between items-center mb-2">
-                          <h3 className="font-medium">
-                            {dateSelectionMode === 'checkIn' 
-                              ? (language === 'vi' ? 'Chọn ngày nhận phòng' : 'Select check-in date')
-                              : (language === 'vi' ? 'Chọn ngày trả phòng' : 'Select check-out date')
-                            }
-                          </h3>
-                          <Button 
-                            type="button" 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => setCalendarOpen(false)}
-                          >
-                            ✕
-                          </Button>
-                        </div>
-                        <PricedCalendar
-                          roomTypeId={selectedRoom.id}
-                          regularPrice={selectedRoom.price}
-                          weekendPrice={selectedRoom.weekend_price || selectedRoom.price}
-                          mode="single"
-                          selected={dateSelectionMode === 'checkIn' 
-                            ? parse(form.getValues('checkIn'), 'yyyy-MM-dd', new Date())
-                            : parse(form.getValues('checkOut'), 'yyyy-MM-dd', new Date())
-                          }
-                          onSelect={handleSelectDate}
-                          disabled={disableDates}
-                          className="pointer-events-auto w-full max-w-full"
-                          fromMonth={new Date()}
-                          showPrices={true}
-                        />
-                      </div>
-                    )}
+                    <FormItem>
+                      <FormLabel>
+                        {language === 'vi' ? 'Chọn ngày đặt phòng' : 'Select booking dates'}
+                      </FormLabel>
+                      <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="w-full justify-start text-left font-normal"
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {formattedCheckIn && formattedCheckOut ? (
+                                <span>
+                                  {formattedCheckIn} - {formattedCheckOut} 
+                                  <span className="ml-2 text-sm text-gray-500">
+                                    ({numberOfNights} {language === 'vi' ? 'đêm' : 'night(s)'})
+                                  </span>
+                                </span>
+                              ) : (
+                                <span>{language === 'vi' ? 'Chọn ngày' : 'Select dates'}</span>
+                              )}
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          {selectedRoom ? (
+                            <div className="p-2">
+                              <h3 className="font-medium text-center mb-2">
+                                {language === 'vi' ? 'Chọn ngày đặt phòng' : 'Select booking dates'}
+                              </h3>
+                              <PricedCalendar
+                                roomTypeId={selectedRoom.id}
+                                regularPrice={selectedRoom.price}
+                                weekendPrice={selectedRoom.weekend_price || selectedRoom.price}
+                                mode="range"
+                                selected={selectedDateRange}
+                                onRangeSelect={handleDateRangeSelect}
+                                disabled={disableDates}
+                                className="w-full min-w-[300px] sm:min-w-[500px] pointer-events-auto"
+                                fromMonth={new Date()}
+                                showPrices={true}
+                              />
+                            </div>
+                          ) : (
+                            <div className="p-4 text-center">
+                              {language === 'vi' 
+                                ? 'Vui lòng chọn loại phòng trước' 
+                                : 'Please select a room type first'}
+                            </div>
+                          )}
+                        </PopoverContent>
+                      </Popover>
+                      {(form.formState.errors.checkIn || form.formState.errors.checkOut) && (
+                        <FormMessage>
+                          {form.formState.errors.checkIn?.message || form.formState.errors.checkOut?.message}
+                        </FormMessage>
+                      )}
+                    </FormItem>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -569,6 +596,29 @@ const BookingPage = () => {
                       </FormItem>
                     )}
                   />
+                  
+                  {totalPrice !== null && selectedRoom && (
+                    <Alert className="bg-beach-50 border-beach-200">
+                      <AlertTitle className="text-beach-800 font-medium">
+                        {language === 'vi' ? 'Tổng giá đặt phòng' : 'Total booking price'}
+                      </AlertTitle>
+                      <AlertDescription className="text-beach-700">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <span className="font-semibold">
+                              {language === 'vi' ? selectedRoom.name : selectedRoom.name_en}
+                            </span>
+                            <span className="block text-sm">
+                              {numberOfNights} {language === 'vi' ? 'đêm' : 'night(s)'} ({formattedCheckIn} - {formattedCheckOut})
+                            </span>
+                          </div>
+                          <div className="text-xl font-bold">
+                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalPrice)}
+                          </div>
+                        </div>
+                      </AlertDescription>
+                    </Alert>
+                  )}
                   
                   <CardFooter className="flex justify-end px-0 pt-6">
                     <Button 

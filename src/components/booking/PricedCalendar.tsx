@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Calendar } from '@/components/ui/calendar';
-import { format, isSameDay, isWeekend } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 import { supabase } from '@/lib/supabase';
 import { DayContentProps } from 'react-day-picker';
 
@@ -9,8 +9,9 @@ interface PricedCalendarProps {
   roomTypeId: string;
   regularPrice: number;
   weekendPrice: number;
-  selected?: Date;
+  selected?: Date | { from: Date, to: Date };
   onSelect?: (date: Date | undefined) => void;
+  onRangeSelect?: (range: { from: Date, to: Date } | undefined) => void;
   disabled?: (date: Date) => boolean;
   className?: string;
   mode?: "single" | "range" | "multiple";
@@ -30,6 +31,7 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
   weekendPrice,
   selected,
   onSelect,
+  onRangeSelect,
   disabled,
   className,
   mode = "single",
@@ -90,7 +92,19 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
     const price = getPriceForDate(date);
     const formattedPrice = formatPrice(price);
     const isCustomPrice = customPrices.some(item => item.date === format(date, 'yyyy-MM-dd'));
-    const isSelectedDate = selected && isSameDay(date, selected);
+    
+    let isSelectedDate = false;
+    
+    if (selected) {
+      if ('from' in selected && selected.from && selected.to) {
+        // Range mode
+        isSelectedDate = isSameDay(date, selected.from) || isSameDay(date, selected.to);
+      } else if (selected instanceof Date) {
+        // Single date mode
+        isSelectedDate = isSameDay(date, selected);
+      }
+    }
+    
     const isSaturday = date.getDay() === 6;
     
     return (
@@ -111,34 +125,15 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
     );
   };
   
-  // We need to render the calendar with the correct props based on the mode
-  if (mode === "single") {
-    return (
-      <Calendar
-        mode="single"
-        selected={selected}
-        onSelect={onSelect}
-        disabled={disabled}
-        components={{
-          DayContent: renderDay
-        }}
-        className={className}
-        fromMonth={fromMonth}
-        toMonth={toMonth}
-      />
-    );
-  } else if (mode === "range") {
-    // Handle range mode if needed
+  // Conditionally render the calendar based on mode
+  if (mode === "range") {
     return (
       <Calendar
         mode="range"
-        selected={{
-          from: selected,
-          to: selected
-        }}
+        selected={selected as { from: Date, to: Date }}
         onSelect={(range) => {
-          if (onSelect && range?.from) {
-            onSelect(range.from);
+          if (onRangeSelect && range) {
+            onRangeSelect(range);
           }
         }}
         disabled={disabled}
@@ -150,12 +145,27 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
         toMonth={toMonth}
       />
     );
+  } else if (mode === "single") {
+    return (
+      <Calendar
+        mode="single"
+        selected={selected as Date}
+        onSelect={onSelect}
+        disabled={disabled}
+        components={{
+          DayContent: renderDay
+        }}
+        className={className}
+        fromMonth={fromMonth}
+        toMonth={toMonth}
+      />
+    );
   } else {
-    // Handle multiple mode if needed
+    // Multiple mode
     return (
       <Calendar
         mode="multiple"
-        selected={selected ? [selected] : []}
+        selected={selected instanceof Date ? [selected] : []}
         onSelect={(dates) => {
           if (onSelect && dates && dates.length > 0) {
             onSelect(dates[dates.length - 1]);
