@@ -60,6 +60,8 @@ export const checkRoomAvailability = async (roomTypeId: string, checkIn: string,
 // Helper function to get all booked dates for a room type
 export const getBookedDatesForRoomType = async (roomTypeId: string) => {
   try {
+    console.log('Fetching booked dates for room type:', roomTypeId);
+    
     const { data, error } = await supabase
       .from('bookings')
       .select('check_in, check_out, status')
@@ -71,9 +73,30 @@ export const getBookedDatesForRoomType = async (roomTypeId: string) => {
       return [];
     }
 
+    console.log('Fetched booking data:', data?.length, 'bookings found');
     return data || [];
   } catch (error) {
     console.error('Unexpected error in getBookedDatesForRoomType:', error);
+    return [];
+  }
+};
+
+// Helper function to get booked dates for all room types - useful for admin view
+export const getAllBookedDates = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('check_in, check_out, room_type_id, status')
+      .neq('status', 'cancelled');
+      
+    if (error) {
+      console.error('Error fetching all booked dates:', error);
+      return [];
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error('Unexpected error in getAllBookedDates:', error);
     return [];
   }
 };

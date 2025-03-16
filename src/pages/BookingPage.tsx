@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format, addDays, isAfter, isBefore, parse, eachDayOfInterval } from 'date-fns';
+import { format, addDays, isAfter, isBefore, parse, eachDayOfInterval, isSameDay } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -71,8 +70,9 @@ const BookingPage = () => {
     remainingRooms: 0 
   });
   
-  // State to track booked dates
+  // State to track booked dates and date ranges
   const [bookedDates, setBookedDates] = useState<Date[]>([]);
+  const [bookedDateRanges, setBookedDateRanges] = useState<{start: Date, end: Date}[]>([]);
   
   const form = useForm({
     resolver: zodResolver(bookingFormSchema),
@@ -107,8 +107,16 @@ const BookingPage = () => {
       if (!roomType) return;
 
       try {
+        console.log('Fetching booked dates for room type:', roomType);
         const bookedDateRanges = await getBookedDatesForRoomType(roomType);
         console.log('Booked date ranges:', bookedDateRanges);
+        
+        // Save the original date ranges for reference
+        const dateRanges = bookedDateRanges.map(booking => ({
+          start: new Date(booking.check_in),
+          end: new Date(booking.check_out)
+        }));
+        setBookedDateRanges(dateRanges);
         
         // Convert date ranges to array of individual dates
         const allBookedDates: Date[] = [];
@@ -117,15 +125,16 @@ const BookingPage = () => {
           const startDate = new Date(booking.check_in);
           const endDate = new Date(booking.check_out);
           
-          // Get all dates in this range
+          // Get all dates in this range (including check-in and check-out dates)
           const datesInRange = eachDayOfInterval({ start: startDate, end: endDate });
           allBookedDates.push(...datesInRange);
         });
         
         setBookedDates(allBookedDates);
-        console.log('All booked dates:', allBookedDates);
+        console.log('All booked dates:', allBookedDates.length);
       } catch (error) {
         console.error('Error fetching booked dates:', error);
+        toast.error('Không thể tải dữ liệu ngày đã đặt. Vui lòng thử lại sau.');
       }
     };
     
@@ -185,12 +194,19 @@ const BookingPage = () => {
     }
   };
 
-  // Function to check if a date is booked
-  const isDateBooked = (date: Date) => {
-    return bookedDates.some(bookedDate => 
-      date.getFullYear() === bookedDate.getFullYear() &&
-      date.getMonth() === bookedDate.getMonth() &&
-      date.getDate() === bookedDate.getDate()
+  // Function to check if a date falls within any of the booked date ranges
+  const isDateInBookedRange = (date: Date): boolean => {
+    // Check exact date match first for better performance
+    if (bookedDates.some(bookedDate => 
+      isSameDay(date, bookedDate)
+    )) {
+      return true;
+    }
+    
+    // In case the exact date check fails, do a more comprehensive range check
+    return bookedDateRanges.some(range => 
+      (isSameDay(date, range.start) || isAfter(date, range.start)) && 
+      (isSameDay(date, range.end) || isBefore(date, range.end))
     );
   };
 
@@ -204,8 +220,12 @@ const BookingPage = () => {
       return true;
     }
     
-    // Disable booked dates
-    return isDateBooked(date);
+    // Disable booked dates for the selected room type
+    if (form.watch('roomType') && isDateInBookedRange(date)) {
+      return true;
+    }
+    
+    return false;
   };
 
   // Function to disable dates in the checkout calendar
@@ -332,7 +352,15 @@ const BookingPage = () => {
                           </FormLabel>
                           <Select 
                             disabled={isLoading}
-                            onValueChange={field.onChange} 
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              // Reset check-in and check-out when room type changes to prevent conflicts
+                              if (value !== field.value) {
+                                const today = new Date();
+                                form.setValue('checkIn', format(today, 'yyyy-MM-dd'));
+                                form.setValue('checkOut', format(addDays(today, 1), 'yyyy-MM-dd'));
+                              }
+                            }} 
                             value={field.value}
                           >
                             <FormControl>
@@ -383,17 +411,24 @@ const BookingPage = () => {
                                 selected={field.value ? parse(field.value, 'yyyy-MM-dd', new Date()) : undefined}
                                 onSelect={(date) => {
                                   field.onChange(date ? format(date, 'yyyy-MM-dd') : '');
-                                  // Clear checkout date if it's before new checkin
+                                  // Clear checkout date if it's before new checkin or if it falls within a booked range
                                   const checkOut = form.getValues('checkOut');
                                   if (checkOut && date) {
                                     const checkOutDate = parse(checkOut, 'yyyy-MM-dd', new Date());
-                                    if (isBefore(checkOutDate, date)) {
-                                      form.setValue('checkOut', format(addDays(date, 1), 'yyyy-MM-dd'));
+                                    if (isBefore(checkOutDate, date) || isDateInBookedRange(checkOutDate)) {
+                                      // Set checkout to next day, but ensure it's not booked
+                                      let nextDay = addDays(date, 1);
+                                      // Find the next available date if the day after check-in is booked
+                                      while (isDateInBookedRange(nextDay)) {
+                                        nextDay = addDays(nextDay, 1);
+                                      }
+                                      form.setValue('checkOut', format(nextDay, 'yyyy-MM-dd'));
                                     }
                                   }
                                 }}
                                 disabled={disableDates}
                                 initialFocus
+                                fromMonth={new Date()}
                               />
                             </PopoverContent>
                           </Popover>
@@ -433,6 +468,7 @@ const BookingPage = () => {
                                 onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
                                 disabled={disableCheckoutDates}
                                 initialFocus
+                                fromMonth={new Date()}
                               />
                             </PopoverContent>
                           </Popover>

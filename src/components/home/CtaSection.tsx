@@ -1,10 +1,12 @@
+
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { useState, useEffect } from "react";
 import { createBooking, getRoomTypes } from "@/api/bookingApi";
-import { checkRoomAvailability } from "@/lib/supabase";
+import { checkRoomAvailability, getBookedDatesForRoomType } from "@/lib/supabase";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { eachDayOfInterval, isAfter, isBefore, isSameDay } from "date-fns";
 
 const benefits = [
   "Giá tốt nhất đảm bảo",
@@ -26,6 +28,7 @@ const CtaSection = () => {
   const [checking, setChecking] = useState(false);
   const [roomTypes, setRoomTypes] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
+  const [bookedDates, setBookedDates] = useState<Date[]>([]);
   
   useEffect(() => {
     loadRoomTypes();
@@ -40,11 +43,57 @@ const CtaSection = () => {
     if (errorMessage) setErrorMessage('');
   }, [checkIn, checkOut, roomType]);
   
+  // Fetch booked dates when room type changes
+  useEffect(() => {
+    const fetchBookedDates = async () => {
+      if (!roomType) return;
+
+      try {
+        const bookedDateRanges = await getBookedDatesForRoomType(roomType);
+        
+        // Convert date ranges to array of individual dates
+        const allBookedDates: Date[] = [];
+        
+        bookedDateRanges.forEach(booking => {
+          const startDate = new Date(booking.check_in);
+          const endDate = new Date(booking.check_out);
+          
+          // Get all dates in this range
+          const datesInRange = eachDayOfInterval({ start: startDate, end: endDate });
+          allBookedDates.push(...datesInRange);
+        });
+        
+        setBookedDates(allBookedDates);
+      } catch (error) {
+        console.error('Error fetching booked dates:', error);
+      }
+    };
+    
+    fetchBookedDates();
+  }, [roomType]);
+  
+  // Function to check if a date is booked
+  const isDateBooked = (date: string) => {
+    if (!bookedDates.length || !date) return false;
+    
+    const selectedDate = new Date(date);
+    return bookedDates.some(bookedDate => 
+      isSameDay(selectedDate, bookedDate)
+    );
+  };
+  
   const handleQuickBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!fullName || !email || !phone || !checkIn || !checkOut || !roomType) {
       toast.error('Vui lòng điền đầy đủ thông tin bắt buộc');
+      return;
+    }
+    
+    // Check if selected dates are booked
+    if (isDateBooked(checkIn) || isDateBooked(checkOut)) {
+      setErrorMessage('Ngày bạn chọn đã có khách đặt! Vui lòng chọn ngày khác.');
+      toast.error('Ngày bạn chọn đã có khách đặt! Vui lòng chọn ngày khác.');
       return;
     }
     
@@ -95,6 +144,17 @@ const CtaSection = () => {
   
   const handleFullBooking = () => {
     navigate('/dat-phong');
+  };
+
+  // Set min date for check-out based on check-in
+  const getCheckoutMinDate = () => {
+    if (!checkIn) return new Date().toISOString().split('T')[0];
+    
+    // Set to day after check-in
+    const checkInDate = new Date(checkIn);
+    const nextDay = new Date(checkInDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+    return nextDay.toISOString().split('T')[0];
   };
 
   return (
@@ -182,23 +242,38 @@ const CtaSection = () => {
                   <label className="block text-gray-700 mb-1 text-sm font-medium">Ngày đến</label>
                   <input 
                     type="date" 
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-beach-500 focus:border-beach-500 text-gray-900"
+                    className={`w-full px-4 py-3 border rounded-md focus:ring-beach-500 focus:border-beach-500 text-gray-900 ${isDateBooked(checkIn) ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
                     value={checkIn}
-                    onChange={(e) => setCheckIn(e.target.value)}
+                    onChange={(e) => {
+                      setCheckIn(e.target.value);
+                      // If check-out date is before check-in or is booked, reset it
+                      if (checkOut && (new Date(checkOut) <= new Date(e.target.value) || isDateBooked(checkOut))) {
+                        const newCheckIn = new Date(e.target.value);
+                        const nextDay = new Date(newCheckIn);
+                        nextDay.setDate(newCheckIn.getDate() + 1);
+                        setCheckOut(nextDay.toISOString().split('T')[0]);
+                      }
+                    }}
                     required
                     min={new Date().toISOString().split('T')[0]}
                   />
+                  {isDateBooked(checkIn) && (
+                    <p className="mt-1 text-red-500 text-xs">Ngày này đã có khách đặt</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-gray-700 mb-1 text-sm font-medium">Ngày đi</label>
                   <input 
                     type="date" 
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-beach-500 focus:border-beach-500 text-gray-900"
+                    className={`w-full px-4 py-3 border rounded-md focus:ring-beach-500 focus:border-beach-500 text-gray-900 ${isDateBooked(checkOut) ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
                     value={checkOut}
                     onChange={(e) => setCheckOut(e.target.value)}
                     required
-                    min={checkIn || new Date().toISOString().split('T')[0]}
+                    min={getCheckoutMinDate()}
                   />
+                  {isDateBooked(checkOut) && (
+                    <p className="mt-1 text-red-500 text-xs">Ngày này đã có khách đặt</p>
+                  )}
                 </div>
               </div>
               <div>
@@ -206,7 +281,14 @@ const CtaSection = () => {
                 <select 
                   className={`w-full px-4 py-3 border rounded-md focus:ring-beach-500 focus:border-beach-500 text-gray-900 ${errorMessage ? 'border-red-500' : 'border-gray-300'}`}
                   value={roomType}
-                  onChange={(e) => setRoomType(e.target.value)}
+                  onChange={(e) => {
+                    setRoomType(e.target.value);
+                    // Reset dates when room type changes
+                    if (e.target.value !== roomType) {
+                      setCheckIn('');
+                      setCheckOut('');
+                    }
+                  }}
                   required
                 >
                   <option value="">Chọn loại phòng</option>
@@ -223,7 +305,7 @@ const CtaSection = () => {
               <Button 
                 className="w-full bg-beach-600 hover:bg-beach-700 text-white py-3"
                 type="submit"
-                disabled={loading || checking}
+                disabled={loading || checking || isDateBooked(checkIn) || isDateBooked(checkOut)}
               >
                 {loading ? "Đang xử lý..." : checking ? "Đang kiểm tra..." : "Gửi Yêu Cầu"}
               </Button>
