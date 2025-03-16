@@ -38,78 +38,85 @@ const BookingsManagement = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [roomTypes, setRoomTypes] = useState<{[key: string]: string}>({});
 
-  // Lấy danh sách đặt phòng trực tiếp từ Supabase
   const fetchBookings = async () => {
     setLoading(true);
     try {
-      console.log('Đang lấy danh sách đặt phòng với bộ lọc:', statusFilter);
+      console.log('Fetching bookings with filter:', statusFilter);
       
+      // Construct the query
       let query = supabase
         .from('bookings')
         .select('*')
         .order('created_at', { ascending: false });
       
+      // Apply status filter if not "all"
       if (statusFilter !== 'all') {
         query = query.eq('status', statusFilter);
       }
       
+      // Execute query
       const { data, error } = await query;
       
       if (error) {
-        console.error('Lỗi khi truy vấn dữ liệu bookings:', error);
+        console.error('Error fetching bookings:', error);
         toast.error(language === 'vi' ? 'Không thể tải dữ liệu đặt phòng' : 'Could not load booking data');
         return;
       }
       
-      console.log('Dữ liệu bookings từ Supabase:', data);
-      console.log('Số lượng đặt phòng tìm thấy:', data?.length || 0);
+      console.log('Bookings retrieved from Supabase:', data);
+      console.log('Number of bookings found:', data?.length || 0);
       
-      setBookings(data || []);
+      if (data && data.length > 0) {
+        setBookings(data);
+      } else {
+        console.log('No bookings found');
+        setBookings([]);
+      }
     } catch (error) {
-      console.error('Lỗi không mong muốn khi lấy danh sách đặt phòng:', error);
+      console.error('Unexpected error when fetching bookings:', error);
       toast.error(language === 'vi' ? 'Không thể tải dữ liệu đặt phòng' : 'Could not load booking data');
     } finally {
       setLoading(false);
     }
   };
 
-  // Lấy thông tin loại phòng trực tiếp từ Supabase
   const fetchRoomTypes = async () => {
     try {
-      console.log('Đang lấy danh sách loại phòng...');
+      console.log('Fetching room types...');
       
       const { data, error } = await supabase
         .from('room_types')
         .select('id, name');
       
       if (error) {
-        console.error('Lỗi khi truy vấn room_types:', error);
+        console.error('Error fetching room types:', error);
         return;
       }
       
-      console.log('Dữ liệu room_types từ Supabase:', data);
+      console.log('Room types data from Supabase:', data);
       
+      // Create a map of room type IDs to room type names
       const roomTypeMap: {[key: string]: string} = {};
       data?.forEach((room: RoomType) => {
         roomTypeMap[room.id] = room.name;
       });
       
-      console.log('Đã tạo map loại phòng:', roomTypeMap);
+      console.log('Created room type map:', roomTypeMap);
       setRoomTypes(roomTypeMap);
     } catch (error) {
-      console.error('Lỗi không mong muốn khi lấy thông tin loại phòng:', error);
+      console.error('Unexpected error when fetching room types:', error);
     }
   };
 
+  // Effect to fetch data on component mount and when filter changes
   useEffect(() => {
     fetchBookings();
     fetchRoomTypes();
   }, [statusFilter]);
 
-  // Cập nhật trạng thái đặt phòng trực tiếp với Supabase
   const handleStatusChange = async (bookingId: string, newStatus: string) => {
     try {
-      console.log(`Đang cập nhật trạng thái đặt phòng ${bookingId} thành ${newStatus}`);
+      console.log(`Updating booking ${bookingId} status to ${newStatus}`);
       
       const { data, error } = await supabase
         .from('bookings')
@@ -118,7 +125,7 @@ const BookingsManagement = () => {
         .select();
       
       if (error) {
-        console.error('Lỗi khi cập nhật trạng thái đặt phòng:', error);
+        console.error('Error updating booking status:', error);
         toast.error(
           language === 'vi' 
             ? 'Không thể cập nhật trạng thái đặt phòng' 
@@ -127,7 +134,7 @@ const BookingsManagement = () => {
         return;
       }
       
-      console.log('Kết quả cập nhật trạng thái:', data);
+      console.log('Update status result:', data);
       
       toast.success(
         language === 'vi' 
@@ -135,7 +142,7 @@ const BookingsManagement = () => {
           : `Booking status updated to "${newStatus}"`
       );
       
-      // Cập nhật danh sách đặt phòng
+      // Update the bookings state
       setBookings(prev => 
         prev.map(booking => 
           booking.id === bookingId 
@@ -144,7 +151,7 @@ const BookingsManagement = () => {
         )
       );
     } catch (error) {
-      console.error('Lỗi không mong muốn khi cập nhật trạng thái:', error);
+      console.error('Unexpected error when updating status:', error);
       toast.error(
         language === 'vi' 
           ? 'Không thể cập nhật trạng thái đặt phòng' 
@@ -153,7 +160,7 @@ const BookingsManagement = () => {
     }
   };
 
-  // Hiển thị badge trạng thái
+  // Display status badge
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'confirmed':
@@ -165,11 +172,6 @@ const BookingsManagement = () => {
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
-  };
-
-  // Chọn trạng thái để lọc
-  const handleFilterChange = (value: string) => {
-    setStatusFilter(value);
   };
 
   return (
@@ -189,7 +191,7 @@ const BookingsManagement = () => {
           <div className="flex items-center space-x-2">
             <Select 
               value={statusFilter}
-              onValueChange={handleFilterChange}
+              onValueChange={setStatusFilter}
             >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder={language === 'vi' ? "Lọc theo trạng thái" : "Filter by status"} />
@@ -205,7 +207,7 @@ const BookingsManagement = () => {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => fetchBookings()}
+              onClick={fetchBookings}
               disabled={loading}
             >
               {loading ? (
