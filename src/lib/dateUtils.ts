@@ -1,5 +1,4 @@
-
-import { isSameDay, isAfter, isBefore, eachDayOfInterval, format, addDays } from 'date-fns';
+import { isSameDay, isAfter, isBefore, eachDayOfInterval, format, addDays, parse } from 'date-fns';
 
 export const isDateInBookedRange = (
   date: Date, 
