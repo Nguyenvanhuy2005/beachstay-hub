@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import RoomManagement from './RoomManagement';
 import ContentManagement from './ContentManagement';
 import { HotelIcon, BookOpenTextIcon, CalendarRangeIcon, LayoutDashboardIcon } from 'lucide-react';
+import { getBookingsByStatus, updateBookingStatus } from '@/api/bookingApi';
 
 const AdminDashboard = () => {
   const [bookings, setBookings] = useState<any[]>([]);
@@ -67,17 +68,28 @@ const AdminDashboard = () => {
     setIsLoading(true);
     try {
       console.log('Fetching bookings...');
-      const { data, error } = await supabase
-        .from('bookings')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        throw error;
-      }
-
-      console.log('Bookings fetched:', data?.length || 0);
-      setBookings(data || []);
+      const bookingsData = await getBookingsByStatus();
+      console.log('Bookings fetched:', bookingsData?.length || 0);
+      
+      // Fetch room type details for each booking
+      const enhancedBookings = await Promise.all(bookingsData.map(async (booking) => {
+        if (booking.room_type_id) {
+          const { data: roomTypeData } = await supabase
+            .from('room_types')
+            .select('name, name_en')
+            .eq('id', booking.room_type_id)
+            .single();
+          
+          return {
+            ...booking,
+            room_type_name: roomTypeData?.name || 'Unknown',
+            room_type_name_en: roomTypeData?.name_en || 'Unknown'
+          };
+        }
+        return booking;
+      }));
+      
+      setBookings(enhancedBookings || []);
     } catch (error) {
       console.error('Error fetching bookings:', error);
       toast.error('Không thể tải dữ liệu đặt phòng');
@@ -86,21 +98,18 @@ const AdminDashboard = () => {
     }
   };
 
-  const updateBookingStatus = async (id: string, status: string) => {
+  const handleUpdateBookingStatus = async (id: string, status: string) => {
     try {
       console.log(`Updating booking ${id} to status: ${status}`);
-      const { error } = await supabase
-        .from('bookings')
-        .update({ status })
-        .eq('id', id);
-
-      if (error) {
-        throw error;
+      const result = await updateBookingStatus(id, status);
+      
+      if (result.success) {
+        toast.success(`Đã cập nhật trạng thái đặt phòng thành "${status}"`);
+        fetchBookings();
+        fetchStats();
+      } else {
+        throw new Error('Failed to update booking status');
       }
-
-      toast.success(`Đã cập nhật trạng thái đặt phòng thành "${status}"`);
-      fetchBookings();
-      fetchStats();
     } catch (error) {
       console.error('Error updating booking:', error);
       toast.error('Không thể cập nhật trạng thái đặt phòng');
@@ -235,14 +244,14 @@ const AdminDashboard = () => {
                           </td>
                           <td className="p-3 border">{formatDate(booking.check_in)}</td>
                           <td className="p-3 border">{formatDate(booking.check_out)}</td>
-                          <td className="p-3 border">{booking.room_type}</td>
+                          <td className="p-3 border">{booking.room_type_name || 'Unknown'}</td>
                           <td className="p-3 border">{renderBookingStatus(booking.status)}</td>
                           <td className="p-3 border">
                             <div className="flex space-x-2">
                               <Button 
                                 size="sm" 
                                 variant="outline"
-                                onClick={() => updateBookingStatus(booking.id, 'confirmed')}
+                                onClick={() => handleUpdateBookingStatus(booking.id, 'confirmed')}
                                 disabled={booking.status === 'confirmed'}
                               >
                                 Xác nhận
@@ -250,7 +259,7 @@ const AdminDashboard = () => {
                               <Button 
                                 size="sm" 
                                 variant="outline"
-                                onClick={() => updateBookingStatus(booking.id, 'cancelled')}
+                                onClick={() => handleUpdateBookingStatus(booking.id, 'cancelled')}
                                 disabled={booking.status === 'cancelled'}
                                 className="text-red-500"
                               >

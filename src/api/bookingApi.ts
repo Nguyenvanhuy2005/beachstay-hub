@@ -16,6 +16,8 @@ export interface BookingFormData {
 
 export const createBooking = async (bookingData: BookingFormData) => {
   try {
+    console.log('Creating booking with data:', bookingData);
+    
     // Transform the booking data to match Supabase schema
     const supabaseBookingData = {
       full_name: bookingData.fullName,
@@ -26,27 +28,32 @@ export const createBooking = async (bookingData: BookingFormData) => {
       room_type_id: bookingData.roomType,
       adults: bookingData.adults,
       children: bookingData.children,
-      special_requests: bookingData.specialRequests
+      special_requests: bookingData.specialRequests,
+      status: 'pending' // Default status is 'pending'
     };
 
-    // Gửi dữ liệu đặt phòng lên Supabase
+    console.log('Transformed data for Supabase:', supabaseBookingData);
+
+    // Send booking data to Supabase
     const { data, error } = await supabase
       .from('bookings')
       .insert(supabaseBookingData)
       .select();
 
     if (error) {
-      toast.error('Đã xảy ra lỗi khi đặt phòng! Vui lòng thử lại sau.');
       console.error('Booking error:', error);
+      toast.error('Đã xảy ra lỗi khi đặt phòng! Vui lòng thử lại sau.');
       return { success: false, error };
     }
 
-    // Đặt phòng thành công, gửi thông báo qua email
+    console.log('Booking created successfully:', data);
+
+    // Booking successful, send email notification
     try {
       const emailResponse = await supabase.functions.invoke('send-booking-notification', {
         body: { 
           booking: bookingData,
-          adminEmail: "nvh.adser@gmail.com" // Email của admin
+          adminEmail: "nvh.adser@gmail.com" // Admin email
         }
       });
       
@@ -59,12 +66,12 @@ export const createBooking = async (bookingData: BookingFormData) => {
       console.error('Failed to send email notification:', emailError);
     }
 
-    // Đặt phòng thành công
+    // Booking successful
     toast.success('Đặt phòng thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.');
     return { success: true, data };
   } catch (error) {
-    toast.error('Đã xảy ra lỗi không mong muốn!');
     console.error('Unexpected error:', error);
+    toast.error('Đã xảy ra lỗi không mong muốn!');
     return { success: false, error };
   }
 };
@@ -116,5 +123,50 @@ export const checkRoomAvailability = async (roomTypeId: string, checkIn: string,
   } catch (error) {
     console.error('Unexpected error:', error);
     return { available: false, error };
+  }
+};
+
+export const getBookingsByStatus = async (status?: string) => {
+  try {
+    let query = supabase
+      .from('bookings')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (status) {
+      query = query.eq('status', status);
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Error fetching bookings:', error);
+      return [];
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error('Unexpected error in getBookingsByStatus:', error);
+    return [];
+  }
+};
+
+export const updateBookingStatus = async (bookingId: string, status: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('bookings')
+      .update({ status })
+      .eq('id', bookingId)
+      .select();
+    
+    if (error) {
+      console.error('Error updating booking status:', error);
+      return { success: false, error };
+    }
+    
+    return { success: true, data };
+  } catch (error) {
+    console.error('Unexpected error in updateBookingStatus:', error);
+    return { success: false, error };
   }
 };
