@@ -212,6 +212,7 @@ export type Database = {
           name: string
           name_en: string
           price: number
+          weekend_price: number | null
         }
         Insert: {
           amenities: Json
@@ -227,6 +228,7 @@ export type Database = {
           name: string
           name_en: string
           price: number
+          weekend_price?: number | null
         }
         Update: {
           amenities?: Json
@@ -242,6 +244,7 @@ export type Database = {
           name?: string
           name_en?: string
           price?: number
+          weekend_price?: number | null
         }
         Relationships: []
       }

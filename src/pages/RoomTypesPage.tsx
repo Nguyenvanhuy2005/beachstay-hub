@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
-import { Loader2, Users } from 'lucide-react';
+import { Loader2, Users, Calendar } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 
@@ -63,6 +63,18 @@ const RoomTypesPage = () => {
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN').format(price);
+  };
+
+  const isWeekend = () => {
+    const day = new Date().getDay();
+    return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
+  };
+
+  const getDisplayPrice = (room) => {
+    if (isWeekend() && room.weekend_price) {
+      return room.weekend_price;
+    }
+    return room.price;
   };
 
   return (
@@ -139,7 +151,16 @@ const RoomTypesPage = () => {
                     <CardContent className="py-6 flex-grow flex flex-col">
                       <div className="flex justify-between items-start mb-3">
                         <h3 className="text-xl font-bold text-beach-900">{getRoomName(room)}</h3>
-                        <span className="text-beach-500 font-medium">{formatPrice(room.price)}đ</span>
+                        <div className="text-right">
+                          <span className="text-beach-500 font-medium block">{formatPrice(getDisplayPrice(room))}đ</span>
+                          {room.weekend_price && room.weekend_price !== room.price && (
+                            <span className="text-gray-500 text-xs block mt-1">
+                              {language === 'vi' ? 
+                                (isWeekend() ? 'Giá cuối tuần' : 'Giá ngày thường: ' + formatPrice(room.price) + 'đ') : 
+                                (isWeekend() ? 'Weekend price' : 'Regular price: ' + formatPrice(room.price) + 'đ')}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <p className="text-beach-700 mb-4 flex-grow">{getRoomDescription(room)}</p>
                       <div className="flex items-center mb-4">
@@ -154,6 +175,7 @@ const RoomTypesPage = () => {
                         </Button>
                         <Button asChild className="bg-beach-600 hover:bg-beach-700 text-white">
                           <Link to="/dat-phong">
+                            <Calendar className="mr-2 h-4 w-4" />
                             {language === 'vi' ? 'Đặt Ngay' : 'Book Now'}
                           </Link>
                         </Button>

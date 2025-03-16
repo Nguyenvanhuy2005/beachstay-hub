@@ -271,8 +271,13 @@ const RoomDetailPage = () => {
               
               <div className="space-y-4 mb-6">
                 <div>
-                  <p className="text-sm text-beach-600">{language === 'vi' ? 'Giá' : 'Price'}</p>
+                  <p className="text-sm text-beach-600">{language === 'vi' ? 'Giá ngày thường' : 'Regular price'}</p>
                   <p className="text-lg font-bold text-beach-900">{formatPrice(roomType.price)}/{language === 'vi' ? 'đêm' : 'night'}</p>
+                </div>
+                
+                <div>
+                  <p className="text-sm text-beach-600">{language === 'vi' ? 'Giá cuối tuần/lễ' : 'Weekend/holiday price'}</p>
+                  <p className="text-lg font-bold text-beach-900">{formatPrice(roomType.weekend_price || roomType.price)}/{language === 'vi' ? 'đêm' : 'night'}</p>
                 </div>
                 
                 <div>

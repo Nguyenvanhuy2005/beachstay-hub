@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -26,6 +25,7 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
   const [capacity, setCapacity] = useState('');
   const [capacityEn, setCapacityEn] = useState('');
   const [price, setPrice] = useState('');
+  const [weekendPrice, setWeekendPrice] = useState('');
   const [isPopular, setIsPopular] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>(['wifi', 'tv']);
@@ -70,6 +70,7 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
     setCapacity('');
     setCapacityEn('');
     setPrice('');
+    setWeekendPrice('');
     setIsPopular(false);
     setSelectedAmenities(['wifi', 'tv']);
     
@@ -87,7 +88,7 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name || !description || !capacity || !price || !mainImage) {
+    if (!name || !description || !capacity || !price || !weekendPrice || !mainImage) {
       toast.error('Vui lòng điền đầy đủ thông tin và chọn ảnh chính');
       return;
     }
@@ -121,12 +122,10 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
       
       const galleryUrls: string[] = [];
       
-      // Thêm ảnh chính vào galleryUrls chỉ nếu ảnh đã được tải lên thành công
       if (mainImageUrl) {
         galleryUrls.push(mainImageUrl);
       }
       
-      // Tải lên các ảnh bổ sung
       for (let i = 0; i < galleryImages.length; i++) {
         try {
           const file = galleryImages[i];
@@ -153,7 +152,6 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
           }
         } catch (galleryError) {
           console.error(`Error processing gallery image ${i}:`, galleryError);
-          // Tiếp tục với ảnh khác nếu có lỗi với ảnh hiện tại
         }
       }
 
@@ -169,7 +167,9 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
       console.log('Creating room record with data:', {
         name,
         image_url: mainImageUrl,
-        gallery_images: galleryUrls
+        gallery_images: galleryUrls,
+        price,
+        weekend_price: weekendPrice
       });
 
       const { error: insertError, data: insertedRoom } = await supabase
@@ -182,6 +182,7 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
           capacity,
           capacity_en: capacityEn || capacity,
           price: Number(price),
+          weekend_price: Number(weekendPrice),
           is_popular: isPopular,
           image_url: mainImageUrl,
           gallery_images: galleryUrls,
@@ -293,7 +294,7 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="price">Giá phòng (VND)</Label>
+                  <Label htmlFor="price">Giá phòng ngày thường (VND)</Label>
                   <Input 
                     id="price" 
                     type="number" 
@@ -303,14 +304,25 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
                   />
                 </div>
                 
-                <div className="flex items-center space-x-2 pt-8">
-                  <Switch 
-                    checked={isPopular} 
-                    onCheckedChange={setIsPopular} 
-                    id="is-popular" 
+                <div className="space-y-2">
+                  <Label htmlFor="weekend_price">Giá phòng cuối tuần/lễ (VND)</Label>
+                  <Input 
+                    id="weekend_price" 
+                    type="number" 
+                    value={weekendPrice} 
+                    onChange={e => setWeekendPrice(e.target.value)}
+                    placeholder="1800000"
                   />
-                  <Label htmlFor="is-popular">Đánh dấu là phòng nổi bật</Label>
                 </div>
+              </div>
+              
+              <div className="flex items-center space-x-2 pt-2">
+                <Switch 
+                  checked={isPopular} 
+                  onCheckedChange={setIsPopular} 
+                  id="is-popular" 
+                />
+                <Label htmlFor="is-popular">Đánh dấu là phòng nổi bật</Label>
               </div>
             </TabsContent>
             

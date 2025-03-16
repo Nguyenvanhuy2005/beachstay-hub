@@ -114,13 +114,17 @@ const RoomManagement = () => {
     }
   };
 
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-medium">Quản Lý Phòng</h3>
         <div className="flex space-x-2">
           <Button onClick={fetchRooms} variant="outline" size="sm">
-            Làm mới
+            <RefreshCw className="mr-1 h-4 w-4" /> Làm mới
           </Button>
           <Button onClick={() => setAddModalOpen(true)} size="sm">
             <Plus className="mr-1 h-4 w-4" /> Thêm phòng
@@ -129,7 +133,10 @@ const RoomManagement = () => {
       </div>
       
       {isLoading ? (
-        <div className="text-center py-4">Đang tải...</div>
+        <div className="text-center py-4">
+          <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+          <p className="mt-2">Đang tải...</p>
+        </div>
       ) : rooms.length === 0 ? (
         <div className="text-center py-12 bg-muted/40 rounded-md">
           <h3 className="text-lg font-medium mb-2">Chưa có phòng nào</h3>
@@ -144,7 +151,8 @@ const RoomManagement = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Tên Phòng</TableHead>
-                <TableHead>Giá</TableHead>
+                <TableHead>Giá ngày thường</TableHead>
+                <TableHead>Giá cuối tuần/lễ</TableHead>
                 <TableHead>Sức chứa</TableHead>
                 <TableHead className="text-center">Nổi bật</TableHead>
                 <TableHead className="text-center">Hình ảnh</TableHead>
@@ -155,7 +163,8 @@ const RoomManagement = () => {
               {rooms.map((room) => (
                 <TableRow key={room.id}>
                   <TableCell className="font-medium">{room.name}</TableCell>
-                  <TableCell>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(room.price)}</TableCell>
+                  <TableCell>{formatPrice(room.price)}</TableCell>
+                  <TableCell>{formatPrice(room.weekend_price || room.price)}</TableCell>
                   <TableCell>{room.capacity}</TableCell>
                   <TableCell className="text-center">
                     <Button 

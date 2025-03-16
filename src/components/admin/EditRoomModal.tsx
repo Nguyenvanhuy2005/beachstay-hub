@@ -26,6 +26,7 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
   const [capacity, setCapacity] = useState('');
   const [capacityEn, setCapacityEn] = useState('');
   const [price, setPrice] = useState('');
+  const [weekendPrice, setWeekendPrice] = useState('');
   const [isPopular, setIsPopular] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,6 +69,7 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
         setCapacity(data.capacity || '');
         setCapacityEn(data.capacity_en || '');
         setPrice(data.price?.toString() || '');
+        setWeekendPrice(data.weekend_price?.toString() || data.price?.toString() || '');
         setIsPopular(data.is_popular || false);
         setSelectedAmenities(data.amenities?.map((a: any) => a.id || a.vi) || ['wifi', 'tv']);
         setCurrentMainImageUrl(data.image_url || null);
@@ -121,6 +123,7 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
     setCapacity('');
     setCapacityEn('');
     setPrice('');
+    setWeekendPrice('');
     setIsPopular(false);
     setSelectedAmenities(['wifi', 'tv']);
     
@@ -140,7 +143,7 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name || !description || !capacity || !price) {
+    if (!name || !description || !capacity || !price || !weekendPrice) {
       toast.error('Vui lòng điền đầy đủ thông tin');
       return;
     }
@@ -218,6 +221,7 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
           capacity,
           capacity_en: capacityEn || capacity,
           price: Number(price),
+          weekend_price: Number(weekendPrice),
           is_popular: isPopular,
           image_url: mainImageUrl,
           gallery_images: newGalleryUrls,
@@ -340,7 +344,7 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="price">Giá phòng (VND)</Label>
+                  <Label htmlFor="price">Giá phòng ngày thường (VND)</Label>
                   <Input 
                     id="price" 
                     type="number" 
@@ -350,14 +354,25 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
                   />
                 </div>
                 
-                <div className="flex items-center space-x-2 pt-8">
-                  <Switch 
-                    checked={isPopular} 
-                    onCheckedChange={setIsPopular} 
-                    id="is-popular" 
+                <div className="space-y-2">
+                  <Label htmlFor="weekend_price">Giá phòng cuối tuần/lễ (VND)</Label>
+                  <Input 
+                    id="weekend_price" 
+                    type="number" 
+                    value={weekendPrice} 
+                    onChange={e => setWeekendPrice(e.target.value)}
+                    placeholder="1800000"
                   />
-                  <Label htmlFor="is-popular">Đánh dấu là phòng nổi bật</Label>
                 </div>
+              </div>
+              
+              <div className="flex items-center space-x-2 pt-2">
+                <Switch 
+                  checked={isPopular} 
+                  onCheckedChange={setIsPopular} 
+                  id="is-popular" 
+                />
+                <Label htmlFor="is-popular">Đánh dấu là phòng nổi bật</Label>
               </div>
             </TabsContent>
             
