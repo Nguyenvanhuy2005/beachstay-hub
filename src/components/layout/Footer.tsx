@@ -37,8 +37,8 @@ const Footer = () => {
               <li><Link to="/" className="text-gray-300 hover:text-beach-500 transition-colors">Trang Chủ</Link></li>
               <li><Link to="/ve-chung-toi" className="text-gray-300 hover:text-beach-500 transition-colors">Về Chúng Tôi</Link></li>
               <li><Link to="/loai-phong" className="text-gray-300 hover:text-beach-500 transition-colors">Loại Phòng</Link></li>
-              <li><Link to="/tien-ich" className="text-gray-300 hover:text-beach-500 transition-colors">Tiện Ích</Link></li>
               <li><Link to="/dich-vu" className="text-gray-300 hover:text-beach-500 transition-colors">Dịch Vụ</Link></li>
+              <li><Link to="/blog" className="text-gray-300 hover:text-beach-500 transition-colors">Blog</Link></li>
               <li><Link to="/lien-he" className="text-gray-300 hover:text-beach-500 transition-colors">Liên Hệ</Link></li>
               <li><Link to="/chinh-sach" className="text-gray-300 hover:text-beach-500 transition-colors">Chính Sách</Link></li>
             </ul>

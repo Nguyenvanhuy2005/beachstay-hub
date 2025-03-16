@@ -111,11 +111,11 @@ const NavLinks = ({ isScrolled }: { isScrolled: boolean }) => {
       <Link to="/loai-phong" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
         Loại Phòng
       </Link>
-      <Link to="/tien-ich" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
-        Tiện Ích
-      </Link>
       <Link to="/dich-vu" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
         Dịch Vụ
+      </Link>
+      <Link to="/blog" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
+        Blog
       </Link>
       <Link to="/lien-he" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
         Liên Hệ

@@ -12,7 +12,6 @@ import BlogPostPage from "./pages/BlogPostPage";
 import AboutPage from "./pages/AboutPage";
 import RoomTypesPage from "./pages/RoomTypesPage";
 import RoomDetailPage from "./pages/RoomDetailPage";
-import AmenitiesPage from "./pages/AmenitiesPage";
 import ServicesPage from "./pages/ServicesPage";
 import ContactPage from "./pages/ContactPage";
 import BookingPage from "./pages/BookingPage";
@@ -45,8 +44,6 @@ const App = () => (
             <Route path="/rooms" element={<RoomTypesPage />} />
             <Route path="/loai-phong/:id" element={<RoomDetailPage />} />
             <Route path="/rooms/:id" element={<RoomDetailPage />} />
-            <Route path="/tien-ich" element={<AmenitiesPage />} />
-            <Route path="/amenities" element={<AmenitiesPage />} />
             <Route path="/dich-vu" element={<ServicesPage />} />
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/lien-he" element={<ContactPage />} />
