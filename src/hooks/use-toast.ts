@@ -8,6 +8,7 @@ import {
 type ToastOptions = ToastProps & {
   description?: React.ReactNode;
   action?: ToastActionElement;
+  onDismiss?: (() => void) | (() => void)[];
 };
 
 const TOAST_LIMIT = 5;

@@ -6,7 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -39,6 +39,7 @@ const ContactPage = () => {
   const isEnglish = language === 'en';
   const navigate = useNavigate();
   const [success, setSuccess] = useState(false);
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -54,15 +55,13 @@ const ContactPage = () => {
     console.log(values);
     setSuccess(true);
 
-    // Using the sonner toast correctly
-    toast(
-      isEnglish ? "Message Sent" : "Đã Gửi Tin Nhắn", 
-      {
-        description: isEnglish
-          ? "We will contact you soon!"
-          : "Chúng tôi sẽ liên hệ với bạn sớm!",
-      }
-    );
+    // Using our toast component instead of sonner directly
+    toast({
+      title: isEnglish ? "Message Sent" : "Đã Gửi Tin Nhắn",
+      description: isEnglish
+        ? "We will contact you soon!"
+        : "Chúng tôi sẽ liên hệ với bạn sớm!",
+    });
 
     form.reset();
 

@@ -5,22 +5,35 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { getRoomTypes } from '@/api/bookingApi';
 import { useLanguage } from '@/contexts/LanguageContext';
 import BookingForm from '@/components/booking/BookingForm';
+import { useToast } from '@/hooks/use-toast';
 
 const BookingPage = () => {
   const { language } = useLanguage();
   const [roomTypes, setRoomTypes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchRoomTypes = async () => {
       setIsLoading(true);
-      const roomTypesData = await getRoomTypes();
-      setRoomTypes(roomTypesData);
-      setIsLoading(false);
+      try {
+        const roomTypesData = await getRoomTypes();
+        setRoomTypes(roomTypesData);
+      } catch (error) {
+        toast({
+          title: language === 'vi' ? 'Lỗi khi tải dữ liệu' : 'Error loading data',
+          description: language === 'vi' 
+            ? 'Không thể tải loại phòng. Vui lòng thử lại sau.' 
+            : 'Could not load room types. Please try again later.',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchRoomTypes();
-  }, []);
+  }, [language, toast]);
 
   return (
     <MainLayout>

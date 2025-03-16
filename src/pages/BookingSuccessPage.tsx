@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
@@ -9,11 +9,24 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
 
 const BookingSuccessPage = () => {
   const { language } = useLanguage();
   const location = useLocation();
   const { bookingId, bookingDetails } = location.state || {};
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (bookingDetails) {
+      toast({
+        title: language === 'vi' ? 'Đặt phòng thành công!' : 'Booking successful!',
+        description: language === 'vi' 
+          ? 'Xác nhận đặt phòng đã được gửi đến email của bạn.' 
+          : 'A booking confirmation has been sent to your email.',
+      });
+    }
+  }, [bookingDetails, language, toast]);
 
   if (!bookingDetails) {
     return (
