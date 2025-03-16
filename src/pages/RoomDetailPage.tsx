@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import MainLayout from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
-import { Loader2, ChevronLeft, Calendar, Users, Check, MapPin, ExternalLink } from 'lucide-react';
+import { Loader2, ChevronLeft, Calendar, Users, Check, MapPin, ExternalLink, X, Maximize2, ChevronRight } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
@@ -16,12 +16,19 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import {
+  Dialog,
+  DialogContent,
+  DialogOverlay,
+} from "@/components/ui/dialog";
 
 const RoomDetailPage = () => {
   const { id } = useParams();
   const [roomType, setRoomType] = useState(null);
   const [loading, setLoading] = useState(true);
   const { language } = useLanguage();
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -98,6 +105,49 @@ const RoomDetailPage = () => {
       currency: language === 'vi' ? 'VND' : 'USD',
       maximumFractionDigits: 0,
     }).format(language === 'vi' ? price : Math.round(price / 23000));
+  };
+
+  const getAllImages = () => {
+    if (!roomType) return [];
+    
+    const allImages = [];
+    
+    if (roomType.image_url) {
+      allImages.push(roomType.image_url);
+    }
+    
+    if (roomType.gallery_images && Array.isArray(roomType.gallery_images) && roomType.gallery_images.length > 0) {
+      allImages.push(...roomType.gallery_images);
+    }
+    
+    return [...new Set(allImages)];
+  };
+  
+  const images = getAllImages();
+  
+  const openLightbox = (index) => {
+    setCurrentImageIndex(index);
+    setLightboxOpen(true);
+  };
+  
+  const closeLightbox = () => {
+    setLightboxOpen(false);
+  };
+  
+  const goToNextImage = (e) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+  
+  const goToPrevImage = (e) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+  
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowRight') goToNextImage(e);
+    if (e.key === 'ArrowLeft') goToPrevImage(e);
+    if (e.key === 'Escape') closeLightbox();
   };
   
   if (loading) {
@@ -213,41 +263,130 @@ const RoomDetailPage = () => {
             {language === 'vi' ? 'Hình Ảnh Phòng' : 'Room Gallery'}
           </h2>
           
-          <Carousel className="w-full">
-            <CarouselContent>
-              {roomType.gallery_images && Array.isArray(roomType.gallery_images) && roomType.gallery_images.length > 0 ? (
-                roomType.gallery_images.map((image, index) => (
-                  <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+          <div className="hidden md:grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+            {images.length > 0 ? (
+              <>
+                <div className="col-span-2 row-span-2 relative group" onClick={() => openLightbox(0)}>
+                  <div className="w-full h-full aspect-[4/3] overflow-hidden rounded-lg border border-beach-100 cursor-pointer">
+                    <img 
+                      src={images[0]} 
+                      alt={`${getName()} - 1`} 
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="bg-black/50 p-3 rounded-full">
+                      <Maximize2 className="h-6 w-6 text-white" />
+                    </div>
+                  </div>
+                </div>
+                
+                {images.slice(1, 5).map((image, index) => (
+                  <div 
+                    key={index + 1} 
+                    className="relative group overflow-hidden rounded-lg border border-beach-100 cursor-pointer"
+                    onClick={() => openLightbox(index + 1)}
+                  >
+                    <div className="aspect-square w-full">
+                      <img 
+                        src={image} 
+                        alt={`${getName()} - ${index + 2}`} 
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="bg-black/50 p-2 rounded-full">
+                        <Maximize2 className="h-5 w-5 text-white" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                {images.length > 5 && (
+                  <div 
+                    className="relative group overflow-hidden rounded-lg border border-beach-100 cursor-pointer"
+                    onClick={() => openLightbox(4)}
+                  >
+                    <div className="aspect-square w-full">
+                      <img 
+                        src={images[4]} 
+                        alt={`${getName()} - 5`} 
+                        className="w-full h-full object-cover brightness-50"
+                      />
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+                        <Maximize2 className="h-6 w-6 mb-2" />
+                        <span className="font-medium text-sm">
+                          {language === 'vi' 
+                            ? `Xem tất cả ${images.length} ảnh` 
+                            : `View all ${images.length} photos`}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="col-span-3 aspect-video flex items-center justify-center bg-gray-100 rounded-lg border border-beach-100">
+                <p className="text-gray-500 italic">
+                  {language === 'vi' ? 'Không có hình ảnh' : 'No images available'}
+                </p>
+              </div>
+            )}
+          </div>
+          
+          <div className="md:hidden w-full">
+            <Carousel className="w-full">
+              <CarouselContent>
+                {images.length > 0 ? (
+                  images.map((image, index) => (
+                    <CarouselItem key={index} className="basis-full">
+                      <div className="p-1">
+                        <div className="aspect-video overflow-hidden rounded-lg border border-beach-100 relative" onClick={() => openLightbox(index)}>
+                          <img 
+                            src={image} 
+                            alt={`${getName()} - ${index + 1}`} 
+                            className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                          />
+                          <div className="absolute bottom-2 right-2 bg-black/50 text-white rounded-full h-8 w-8 flex items-center justify-center">
+                            <Maximize2 className="h-4 w-4" />
+                          </div>
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  ))
+                ) : (
+                  <CarouselItem className="basis-full">
                     <div className="p-1">
-                      <div className="aspect-video overflow-hidden rounded-lg border border-beach-100">
-                        <img 
-                          src={image} 
-                          alt={`${getName()} - ${index + 1}`} 
-                          className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                        />
+                      <div className="aspect-video overflow-hidden rounded-lg border border-beach-100 flex items-center justify-center bg-gray-100">
+                        <p className="text-gray-500 italic">
+                          {language === 'vi' ? 'Không có hình ảnh' : 'No images available'}
+                        </p>
                       </div>
                     </div>
                   </CarouselItem>
-                ))
-              ) : (
-                <CarouselItem className="md:basis-1/2 lg:basis-1/3">
-                  <div className="p-1">
-                    <div className="aspect-video overflow-hidden rounded-lg border border-beach-100">
-                      <img 
-                        src={roomType.image_url} 
-                        alt={getName()} 
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                      />
-                    </div>
-                  </div>
-                </CarouselItem>
-              )}
-            </CarouselContent>
-            <div className="hidden md:block">
-              <CarouselPrevious className="-left-4 bg-white" />
-              <CarouselNext className="-right-4 bg-white" />
-            </div>
-          </Carousel>
+                )}
+              </CarouselContent>
+              <div className="hidden md:block">
+                <CarouselPrevious className="-left-4 bg-white" />
+                <CarouselNext className="-right-4 bg-white" />
+              </div>
+            </Carousel>
+            
+            {images.length > 1 && (
+              <div className="mt-4 text-center">
+                <Button 
+                  variant="outline" 
+                  onClick={() => openLightbox(0)}
+                  className="border border-beach-300 hover:bg-beach-50 text-beach-800"
+                >
+                  <Maximize2 className="h-4 w-4 mr-2" />
+                  {language === 'vi' 
+                    ? `Xem tất cả ${images.length} ảnh` 
+                    : `View all ${images.length} photos`}
+                </Button>
+              </div>
+            )}
+          </div>
         </motion.div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -350,6 +489,47 @@ const RoomDetailPage = () => {
           </motion.div>
         </div>
       </div>
+      
+      <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-transparent border-none" onKeyDown={handleKeyDown}>
+          <div className="relative h-full w-full flex items-center justify-center">
+            <button
+              onClick={closeLightbox}
+              className="absolute top-4 right-4 z-50 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+            >
+              <X className="h-6 w-6" />
+            </button>
+            
+            <button
+              onClick={goToPrevImage}
+              className="absolute left-4 z-50 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+            
+            <button
+              onClick={goToNextImage}
+              className="absolute right-4 z-50 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+            >
+              <ChevronRight className="h-6 w-6" />
+            </button>
+            
+            <div className="relative h-full w-full flex items-center justify-center">
+              {images[currentImageIndex] && (
+                <img
+                  src={images[currentImageIndex]}
+                  alt={`${getName()} - Full size ${currentImageIndex + 1}`}
+                  className="max-h-[90vh] max-w-[90vw] object-contain"
+                />
+              )}
+            </div>
+            
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-black/50 text-white px-4 py-2 rounded-full">
+              {currentImageIndex + 1} / {images.length}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </MainLayout>
   );
 };
