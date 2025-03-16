@@ -263,7 +263,7 @@ const RoomDetailPage = () => {
             {language === 'vi' ? 'Hình Ảnh Phòng' : 'Room Gallery'}
           </h2>
           
-          <div className="hidden md:grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+          <div className="hidden md:grid grid-cols-3 md:grid-cols-4 gap-3 mb-4">
             {images.length > 0 ? (
               <>
                 <div className="col-span-2 row-span-2 relative group" onClick={() => openLightbox(0)}>
@@ -281,7 +281,7 @@ const RoomDetailPage = () => {
                   </div>
                 </div>
                 
-                {images.slice(1, 5).map((image, index) => (
+                {images.slice(1, 7).map((image, index) => (
                   <div 
                     key={index + 1} 
                     className="relative group overflow-hidden rounded-lg border border-beach-100 cursor-pointer"
@@ -302,15 +302,15 @@ const RoomDetailPage = () => {
                   </div>
                 ))}
                 
-                {images.length > 5 && (
+                {images.length > 7 && (
                   <div 
                     className="relative group overflow-hidden rounded-lg border border-beach-100 cursor-pointer"
-                    onClick={() => openLightbox(4)}
+                    onClick={() => openLightbox(6)}
                   >
                     <div className="aspect-square w-full">
                       <img 
-                        src={images[4]} 
-                        alt={`${getName()} - 5`} 
+                        src={images[6]} 
+                        alt={`${getName()} - 7`} 
                         className="w-full h-full object-cover brightness-50"
                       />
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
@@ -326,7 +326,7 @@ const RoomDetailPage = () => {
                 )}
               </>
             ) : (
-              <div className="col-span-3 aspect-video flex items-center justify-center bg-gray-100 rounded-lg border border-beach-100">
+              <div className="col-span-4 aspect-video flex items-center justify-center bg-gray-100 rounded-lg border border-beach-100">
                 <p className="text-gray-500 italic">
                   {language === 'vi' ? 'Không có hình ảnh' : 'No images available'}
                 </p>
