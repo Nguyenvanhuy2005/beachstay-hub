@@ -61,9 +61,14 @@ export const createBooking = async (bookingData: BookingFormData) => {
 
     console.log('Booking created successfully:', data);
 
-    // Booking successful, send email notification
+    // Booking successful, send email notification with enhanced logging
     try {
-      console.log('Sending email notification for booking...');
+      console.log('Preparing to send email notification for booking...');
+      console.log('Booking data being sent to function:', JSON.stringify({
+        booking: bookingData,
+        adminEmail: "nvh.adser@gmail.com"
+      }));
+      
       const emailResponse = await supabase.functions.invoke('send-booking-notification', {
         body: { 
           booking: bookingData,
@@ -73,6 +78,7 @@ export const createBooking = async (bookingData: BookingFormData) => {
       
       if (emailResponse.error) {
         console.error('Email notification error:', emailResponse.error);
+        console.error('Email error details:', JSON.stringify(emailResponse));
         toast.error('Đặt phòng thành công nhưng không thể gửi email xác nhận. Chúng tôi sẽ liên hệ với bạn sớm.');
       } else {
         console.log('Email notification response:', emailResponse.data);
@@ -80,6 +86,7 @@ export const createBooking = async (bookingData: BookingFormData) => {
       }
     } catch (emailError) {
       console.error('Failed to send email notification:', emailError);
+      console.error('Email error stack:', emailError instanceof Error ? emailError.stack : 'No stack trace');
       toast.error('Đặt phòng thành công nhưng không thể gửi email xác nhận. Chúng tôi sẽ liên hệ với bạn sớm.');
     }
 
