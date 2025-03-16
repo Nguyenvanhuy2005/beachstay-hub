@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -10,6 +9,7 @@ import { Loader2, ChevronLeft, Calendar, Users, Check, MapPin, ExternalLink, X, 
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 import {
   Carousel,
   CarouselContent,
@@ -264,71 +264,72 @@ const RoomDetailPage = () => {
             {language === 'vi' ? 'Hình Ảnh Phòng' : 'Room Gallery'}
           </h2>
           
-          <div className="hidden md:grid grid-cols-3 gap-2 mb-4">
+          <div className="hidden md:grid grid-cols-2 gap-3 mb-4">
             {images.length > 0 ? (
               <>
-                <div className="col-span-2 row-span-2 relative group" onClick={() => openLightbox(0)}>
-                  <div className="w-full overflow-hidden rounded-lg border border-beach-100 cursor-pointer" style={{ maxHeight: "600px" }}>
+                <div className="relative group" onClick={() => openLightbox(0)}>
+                  <AspectRatio ratio={16/9} className="overflow-hidden rounded-lg border border-beach-100 cursor-pointer">
                     <img 
                       src={images[0]} 
                       alt={`${getName()} - 1`} 
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                      style={{ maxHeight: "600px" }}
                     />
-                  </div>
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="bg-black/50 p-3 rounded-full">
-                      <Maximize2 className="h-6 w-6 text-white" />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="bg-black/50 p-3 rounded-full">
+                        <Maximize2 className="h-6 w-6 text-white" />
+                      </div>
                     </div>
-                  </div>
+                  </AspectRatio>
                 </div>
                 
-                {images.slice(1, 5).map((image, index) => (
-                  <div 
-                    key={index + 1} 
-                    className="relative group overflow-hidden rounded-lg border border-beach-100 cursor-pointer"
-                    onClick={() => openLightbox(index + 1)}
-                  >
-                    <div className="aspect-square w-full" style={{ maxHeight: "280px" }}>
-                      <img 
-                        src={image} 
-                        alt={`${getName()} - ${index + 2}`} 
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                      />
+                <div className="grid grid-cols-3 gap-3">
+                  {images.slice(1, 4).map((image, index) => (
+                    <div 
+                      key={index + 1} 
+                      className="relative group cursor-pointer"
+                      onClick={() => openLightbox(index + 1)}
+                    >
+                      <AspectRatio ratio={1} className="overflow-hidden rounded-lg border border-beach-100">
+                        <img 
+                          src={image} 
+                          alt={`${getName()} - ${index + 2}`} 
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="bg-black/50 p-2 rounded-full">
+                            <Maximize2 className="h-4 w-4 text-white" />
+                          </div>
+                        </div>
+                      </AspectRatio>
                     </div>
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="bg-black/50 p-2 rounded-full">
-                        <Maximize2 className="h-4 w-4 text-white" />
-                      </div>
+                  ))}
+
+                  {images.length > 4 && (
+                    <div 
+                      className="relative group cursor-pointer"
+                      onClick={() => openLightbox(0)}
+                    >
+                      <AspectRatio ratio={1} className="overflow-hidden rounded-lg border border-beach-100">
+                        <img 
+                          src={images.length > 4 ? images[3] : images[images.length-1]} 
+                          alt={`${getName()} gallery`} 
+                          className="w-full h-full object-cover brightness-50"
+                        />
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+                          <Maximize2 className="h-5 w-5 mb-1" />
+                          <span className="font-medium text-sm">
+                            {language === 'vi' 
+                              ? `Xem tất cả ${images.length} ảnh` 
+                              : `View all ${images.length} photos`}
+                          </span>
+                        </div>
+                      </AspectRatio>
                     </div>
-                  </div>
-                ))}
-                
-                {images.length > 5 && (
-                  <div 
-                    className="relative group overflow-hidden rounded-lg border border-beach-100 cursor-pointer"
-                    onClick={() => openLightbox(4)}
-                  >
-                    <div className="aspect-square w-full" style={{ maxHeight: "280px" }}>
-                      <img 
-                        src={images[4]} 
-                        alt={`${getName()} - 5`} 
-                        className="w-full h-full object-cover brightness-50"
-                      />
-                      <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-                        <Maximize2 className="h-5 w-5 mb-1" />
-                        <span className="font-medium text-sm">
-                          {language === 'vi' 
-                            ? `Xem tất cả ${images.length} ảnh` 
-                            : `View all ${images.length} photos`}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </>
             ) : (
-              <div className="col-span-3 aspect-video flex items-center justify-center bg-gray-100 rounded-lg border border-beach-100">
+              <div className="col-span-2 aspect-video flex items-center justify-center bg-gray-100 rounded-lg border border-beach-100">
                 <p className="text-gray-500 italic">
                   {language === 'vi' ? 'Không có hình ảnh' : 'No images available'}
                 </p>
@@ -340,10 +341,10 @@ const RoomDetailPage = () => {
             <Carousel className="w-full">
               <CarouselContent>
                 {images.length > 0 ? (
-                  images.slice(0, 5).map((image, index) => (
+                  images.slice(0, 4).map((image, index) => (
                     <CarouselItem key={index} className="basis-full">
                       <div className="p-1">
-                        <div className="aspect-video overflow-hidden rounded-lg border border-beach-100 relative" onClick={() => openLightbox(index)}>
+                        <AspectRatio ratio={16/9} className="overflow-hidden rounded-lg border border-beach-100 relative" onClick={() => openLightbox(index)}>
                           <img 
                             src={image} 
                             alt={`${getName()} - ${index + 1}`} 
@@ -352,18 +353,18 @@ const RoomDetailPage = () => {
                           <div className="absolute bottom-2 right-2 bg-black/50 text-white rounded-full h-8 w-8 flex items-center justify-center">
                             <Maximize2 className="h-4 w-4" />
                           </div>
-                        </div>
+                        </AspectRatio>
                       </div>
                     </CarouselItem>
                   ))
                 ) : (
                   <CarouselItem className="basis-full">
                     <div className="p-1">
-                      <div className="aspect-video overflow-hidden rounded-lg border border-beach-100 flex items-center justify-center bg-gray-100">
+                      <AspectRatio ratio={16/9} className="overflow-hidden rounded-lg border border-beach-100 flex items-center justify-center bg-gray-100">
                         <p className="text-gray-500 italic">
                           {language === 'vi' ? 'Không có hình ảnh' : 'No images available'}
                         </p>
-                      </div>
+                      </AspectRatio>
                     </div>
                   </CarouselItem>
                 )}
