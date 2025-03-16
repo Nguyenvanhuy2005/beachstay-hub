@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, CheckCircle, XCircle, Image, RefreshCw } from 'lucide-react';
+import { Plus, Pencil, Trash2, CheckCircle, XCircle, Image, RefreshCw, Loader2 } from 'lucide-react';
 import AddRoomModal from './AddRoomModal';
 import EditRoomModal from './EditRoomModal';
 import { 
