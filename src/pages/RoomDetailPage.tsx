@@ -264,72 +264,86 @@ const RoomDetailPage = () => {
             {language === 'vi' ? 'Hình Ảnh Phòng' : 'Room Gallery'}
           </h2>
           
-          <div className="hidden md:grid grid-cols-2 gap-3 mb-4">
+          <div className="hidden md:block">
             {images.length > 0 ? (
-              <>
-                <div className="relative group" onClick={() => openLightbox(0)}>
-                  <AspectRatio ratio={16/9} className="overflow-hidden rounded-lg border border-beach-100 cursor-pointer">
+              <div className="grid grid-cols-2 gap-2 h-[450px]">
+                <div className="h-full" onClick={() => openLightbox(0)}>
+                  <div className="h-full w-full relative group cursor-pointer overflow-hidden rounded-lg border border-beach-100">
                     <img 
                       src={images[0]} 
-                      alt={`${getName()} - 1`} 
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                      alt={`${getName()} - 1`}
+                      className="h-full w-full object-cover hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="bg-black/50 p-3 rounded-full">
                         <Maximize2 className="h-6 w-6 text-white" />
                       </div>
                     </div>
-                  </AspectRatio>
+                  </div>
                 </div>
                 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-rows-2 grid-cols-2 gap-2 h-full">
                   {images.slice(1, 4).map((image, index) => (
                     <div 
                       key={index + 1} 
-                      className="relative group cursor-pointer"
+                      className="relative group cursor-pointer h-full w-full overflow-hidden rounded-lg border border-beach-100"
                       onClick={() => openLightbox(index + 1)}
                     >
-                      <AspectRatio ratio={1} className="overflow-hidden rounded-lg border border-beach-100">
-                        <img 
-                          src={image} 
-                          alt={`${getName()} - ${index + 2}`} 
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <div className="bg-black/50 p-2 rounded-full">
-                            <Maximize2 className="h-4 w-4 text-white" />
-                          </div>
+                      <img 
+                        src={image} 
+                        alt={`${getName()} - ${index + 2}`}
+                        className="h-full w-full object-cover hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="bg-black/50 p-2 rounded-full">
+                          <Maximize2 className="h-4 w-4 text-white" />
                         </div>
-                      </AspectRatio>
+                      </div>
                     </div>
                   ))}
 
                   {images.length > 4 && (
                     <div 
-                      className="relative group cursor-pointer"
-                      onClick={() => openLightbox(0)}
+                      className="relative group cursor-pointer h-full w-full overflow-hidden rounded-lg border border-beach-100"
+                      onClick={() => openLightbox(4)}
                     >
-                      <AspectRatio ratio={1} className="overflow-hidden rounded-lg border border-beach-100">
-                        <img 
-                          src={images.length > 4 ? images[3] : images[images.length-1]} 
-                          alt={`${getName()} gallery`} 
-                          className="w-full h-full object-cover brightness-50"
-                        />
-                        <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-                          <Maximize2 className="h-5 w-5 mb-1" />
-                          <span className="font-medium text-sm">
-                            {language === 'vi' 
-                              ? `Xem tất cả ${images.length} ảnh` 
-                              : `View all ${images.length} photos`}
-                          </span>
+                      <img 
+                        src={images[4]} 
+                        alt={`${getName()} - 5`}
+                        className="h-full w-full object-cover brightness-50"
+                      />
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+                        <Maximize2 className="h-5 w-5 mb-1" />
+                        <span className="font-medium text-sm">
+                          {language === 'vi' 
+                            ? `Xem tất cả ${images.length} ảnh` 
+                            : `View all ${images.length} photos`}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {images.length <= 4 && images.length > 3 && (
+                    <div 
+                      className="relative group cursor-pointer h-full w-full overflow-hidden rounded-lg border border-beach-100"
+                      onClick={() => openLightbox(3)}
+                    >
+                      <img 
+                        src={images[3]} 
+                        alt={`${getName()} - 4`}
+                        className="h-full w-full object-cover hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="bg-black/50 p-2 rounded-full">
+                          <Maximize2 className="h-4 w-4 text-white" />
                         </div>
-                      </AspectRatio>
+                      </div>
                     </div>
                   )}
                 </div>
-              </>
+              </div>
             ) : (
-              <div className="col-span-2 aspect-video flex items-center justify-center bg-gray-100 rounded-lg border border-beach-100">
+              <div className="aspect-[2/1] flex items-center justify-center bg-gray-100 rounded-lg border border-beach-100">
                 <p className="text-gray-500 italic">
                   {language === 'vi' ? 'Không có hình ảnh' : 'No images available'}
                 </p>
