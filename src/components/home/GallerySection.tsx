@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Camera, Loader2 } from 'lucide-react';
+import { ArrowRight, Camera, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import AnimationWrapper from '@/components/utils/AnimationWrapper';
@@ -11,31 +10,37 @@ import { useToast } from '@/hooks/use-toast';
 // Fallback images in case database fetch fails
 const fallbackImages = [
   {
+    id: 'fallback-1',
     src: '/lovable-uploads/595dc250-29ec-4d1d-873b-d34aecdba712.png',
     alt: 'Khu vực hồ bơi ngoài trời',
     category: 'Hồ Bơi'
   },
   {
+    id: 'fallback-2',
     src: '/lovable-uploads/21668da3-408e-4c55-845e-d0812b05e091.png', 
     alt: 'Phòng ngủ sang trọng với tầm nhìn ra hồ bơi',
     category: 'Phòng Ngủ'
   },
   {
+    id: 'fallback-3',
     src: '/lovable-uploads/3de4ca25-b7f7-4567-8e8a-de3b9ef3e8ab.png',
     alt: 'Không gian phòng khách thoáng đãng',
     category: 'Phòng Khách'
   },
   {
+    id: 'fallback-4',
     src: '/lovable-uploads/447ed5f1-0675-492c-8437-bb1fdf09ab86.png',
     alt: 'Phòng ăn và bếp đầy đủ tiện nghi',
     category: 'Phòng Ăn'
   },
   {
+    id: 'fallback-5',
     src: '/lovable-uploads/dd828878-82ae-4104-959b-b8793c180d89.png',
     alt: 'Phòng ngủ với thiết kế hiện đại',
     category: 'Phòng Ngủ'
   },
   {
+    id: 'fallback-6',
     src: '/lovable-uploads/570e7af9-b072-46c1-a4b0-b982c09d1df4.png',
     alt: 'Khu vực lối vào villa',
     category: 'Ngoại Thất'
