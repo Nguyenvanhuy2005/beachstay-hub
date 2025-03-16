@@ -18,6 +18,19 @@ export const createBooking = async (bookingData: BookingFormData) => {
   try {
     console.log('Creating booking with data:', bookingData);
     
+    // Kiểm tra tính khả dụng trước khi tạo đặt phòng
+    const availabilityCheck = await checkRoomAvailability(
+      bookingData.roomType,
+      bookingData.checkIn,
+      bookingData.checkOut
+    );
+    
+    if (!availabilityCheck.available) {
+      console.error('Room is not available for the selected dates');
+      toast.error('Phòng đã hết chỗ cho ngày bạn chọn! Vui lòng chọn ngày khác hoặc loại phòng khác.');
+      return { success: false, error: 'Room not available' };
+    }
+    
     // Transform the booking data to match Supabase schema
     const supabaseBookingData = {
       full_name: bookingData.fullName,
@@ -99,6 +112,9 @@ export const getRoomTypes = async () => {
 
 export const checkRoomAvailability = async (roomTypeId: string, checkIn: string, checkOut: string) => {
   try {
+    console.log(`Checking availability for room type ${roomTypeId} from ${checkIn} to ${checkOut}`);
+    
+    // Gọi hàm RPC để kiểm tra tính khả dụng
     const { data, error } = await supabase
       .rpc('check_room_availability', {
         p_room_type_id: roomTypeId,
@@ -111,6 +127,8 @@ export const checkRoomAvailability = async (roomTypeId: string, checkIn: string,
       return { available: false, error };
     }
 
+    console.log('Availability check result:', data);
+    
     // Access the first element of the array returned by the RPC
     if (data && data.length > 0) {
       return { 
@@ -121,7 +139,7 @@ export const checkRoomAvailability = async (roomTypeId: string, checkIn: string,
 
     return { available: false, error: 'No data returned from availability check' };
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Unexpected error in checkRoomAvailability:', error);
     return { available: false, error };
   }
 };

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -8,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
-import { Calendar as CalendarIcon, AlertCircle } from 'lucide-react';
+import { Calendar as CalendarIcon, AlertCircle, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
@@ -32,6 +31,7 @@ const BookingPage = () => {
   const [roomTypes, setRoomTypes] = useState<any[]>([]);
   const [formErrors, setFormErrors] = useState<{[key: string]: string}>({});
   const [roomAvailability, setRoomAvailability] = useState<{available: boolean, remainingRooms?: number}>({available: true});
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
   
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -53,16 +53,30 @@ const BookingPage = () => {
   const checkAvailability = async () => {
     if (!roomType || !checkIn || !checkOut) return;
     
+    setCheckingAvailability(true);
     const checkInStr = checkIn.toISOString().split('T')[0];
     const checkOutStr = checkOut.toISOString().split('T')[0];
     
-    const result = await checkRoomAvailability(roomType, checkInStr, checkOutStr);
-    setRoomAvailability(result);
-    
-    if (!result.available) {
-      toast.error(language === 'vi' 
-        ? 'Phòng đã hết chỗ cho ngày bạn chọn' 
-        : 'This room is not available for the selected dates');
+    try {
+      console.log(`Checking availability for ${roomType} from ${checkInStr} to ${checkOutStr}`);
+      const result = await checkRoomAvailability(roomType, checkInStr, checkOutStr);
+      console.log('Availability result:', result);
+      setRoomAvailability(result);
+      
+      if (!result.available) {
+        toast.error(language === 'vi' 
+          ? 'Phòng đã hết chỗ cho ngày bạn chọn! Vui lòng chọn ngày khác hoặc loại phòng khác.' 
+          : 'This room is not available for the selected dates. Please choose different dates or room type.');
+      } else if (result.remainingRooms && result.remainingRooms <= 2) {
+        toast.warning(language === 'vi'
+          ? `Chỉ còn ${result.remainingRooms} phòng trống cho ngày bạn chọn!`
+          : `Only ${result.remainingRooms} rooms left for your selected dates!`);
+      }
+    } catch (error) {
+      console.error('Error checking availability:', error);
+      setRoomAvailability({available: false});
+    } finally {
+      setCheckingAvailability(false);
     }
   };
 
@@ -109,11 +123,28 @@ const BookingPage = () => {
       return;
     }
 
-    if (!roomAvailability.available) {
-      toast.error(language === 'vi' 
-        ? 'Phòng đã hết chỗ cho ngày bạn chọn' 
-        : 'This room is not available for the selected dates');
-      return;
+    // Double-check availability before submitting
+    if (roomType && checkIn && checkOut) {
+      setCheckingAvailability(true);
+      const checkInStr = checkIn.toISOString().split('T')[0];
+      const checkOutStr = checkOut.toISOString().split('T')[0];
+      
+      try {
+        const result = await checkRoomAvailability(roomType, checkInStr, checkOutStr);
+        setRoomAvailability(result);
+        
+        if (!result.available) {
+          toast.error(language === 'vi' 
+            ? 'Phòng đã hết chỗ cho ngày bạn chọn! Vui lòng chọn ngày khác hoặc loại phòng khác.' 
+            : 'This room is not available for the selected dates');
+          setCheckingAvailability(false);
+          return;
+        }
+      } catch (error) {
+        console.error('Error checking availability before submission:', error);
+        setCheckingAvailability(false);
+        return;
+      }
     }
     
     setLoading(true);
@@ -122,8 +153,8 @@ const BookingPage = () => {
       fullName,
       email,
       phone,
-      checkIn: checkIn.toISOString().split('T')[0],
-      checkOut: checkOut.toISOString().split('T')[0],
+      checkIn: checkIn!.toISOString().split('T')[0],
+      checkOut: checkOut!.toISOString().split('T')[0],
       roomType,
       adults,
       children,
@@ -154,7 +185,13 @@ const BookingPage = () => {
         : 'An error occurred during booking. Please try again later.');
     } finally {
       setLoading(false);
+      setCheckingAvailability(false);
     }
+  };
+
+  const formatSelectedDate = (date: Date | undefined) => {
+    if (!date) return language === 'vi' ? 'Chọn ngày' : 'Pick a date';
+    return format(date, 'PPP');
   };
 
   return (
@@ -272,7 +309,7 @@ const BookingPage = () => {
                               )}
                             >
                               <CalendarIcon className="mr-2 h-4 w-4" />
-                              {checkIn ? format(checkIn, "PPP") : (language === 'vi' ? 'Chọn ngày' : 'Pick a date')}
+                              {formatSelectedDate(checkIn)}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0">
@@ -304,7 +341,7 @@ const BookingPage = () => {
                               )}
                             >
                               <CalendarIcon className="mr-2 h-4 w-4" />
-                              {checkOut ? format(checkOut, "PPP") : (language === 'vi' ? 'Chọn ngày' : 'Pick a date')}
+                              {formatSelectedDate(checkOut)}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0">
@@ -330,11 +367,13 @@ const BookingPage = () => {
                         id="room-type"
                         className={cn(
                           "w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-beach-500",
-                          formErrors.roomType && "border-destructive"
+                          formErrors.roomType && "border-destructive",
+                          !roomAvailability.available && roomType && "border-destructive"
                         )}
                         value={roomType}
                         onChange={(e) => setRoomType(e.target.value)}
                         required
+                        disabled={checkingAvailability}
                       >
                         <option value="">{language === 'vi' ? 'Chọn loại phòng' : 'Select room type'}</option>
                         {roomTypes.map((type) => (
@@ -347,9 +386,20 @@ const BookingPage = () => {
                     </div>
 
                     {/* Availability Alert */}
-                    {roomType && checkIn && checkOut && !roomAvailability.available && (
-                      <Alert variant="destructive">
+                    {checkingAvailability && (
+                      <Alert>
                         <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                          {language === 'vi'
+                            ? 'Đang kiểm tra tính khả dụng của phòng...'
+                            : 'Checking room availability...'}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+
+                    {!checkingAvailability && roomType && checkIn && checkOut && !roomAvailability.available && (
+                      <Alert variant="destructive">
+                        <XCircle className="h-4 w-4" />
                         <AlertDescription>
                           {language === 'vi'
                             ? 'Phòng này đã hết chỗ cho ngày bạn chọn. Vui lòng chọn ngày khác hoặc loại phòng khác.'
@@ -358,7 +408,7 @@ const BookingPage = () => {
                       </Alert>
                     )}
 
-                    {roomType && checkIn && checkOut && roomAvailability.available && roomAvailability.remainingRooms !== undefined && roomAvailability.remainingRooms <= 2 && (
+                    {!checkingAvailability && roomType && checkIn && checkOut && roomAvailability.available && roomAvailability.remainingRooms !== undefined && roomAvailability.remainingRooms <= 2 && (
                       <Alert>
                         <AlertCircle className="h-4 w-4" />
                         <AlertDescription>
@@ -422,7 +472,7 @@ const BookingPage = () => {
                       type="submit" 
                       className="w-full" 
                       size="lg"
-                      disabled={loading || (roomType && checkIn && checkOut && !roomAvailability.available)}
+                      disabled={loading || checkingAvailability || (roomType && checkIn && checkOut && !roomAvailability.available)}
                     >
                       {loading 
                         ? (language === 'vi' ? 'Đang xử lý...' : 'Processing...') 
@@ -542,3 +592,4 @@ const BookingPage = () => {
 };
 
 export default BookingPage;
+

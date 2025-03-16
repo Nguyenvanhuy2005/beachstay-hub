@@ -1,8 +1,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
-import { useState } from "react";
-import { createBooking } from "@/api/bookingApi";
+import { useState, useEffect } from "react";
+import { createBooking, checkRoomAvailability, getRoomTypes } from "@/api/bookingApi";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -23,6 +23,23 @@ const CtaSection = () => {
   const [checkOut, setCheckOut] = useState('');
   const [roomType, setRoomType] = useState('');
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const [roomTypes, setRoomTypes] = useState<any[]>([]);
+  const [errorMessage, setErrorMessage] = useState('');
+  
+  useEffect(() => {
+    loadRoomTypes();
+  }, []);
+  
+  const loadRoomTypes = async () => {
+    const data = await getRoomTypes();
+    setRoomTypes(data);
+  };
+  
+  // Reset error when inputs change
+  useEffect(() => {
+    if (errorMessage) setErrorMessage('');
+  }, [checkIn, checkOut, roomType]);
   
   const handleQuickBooking = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,9 +49,22 @@ const CtaSection = () => {
       return;
     }
     
-    setLoading(true);
+    setChecking(true);
     
     try {
+      // Kiểm tra tính khả dụng trước khi đặt phòng
+      const availabilityResult = await checkRoomAvailability(roomType, checkIn, checkOut);
+      
+      if (!availabilityResult.available) {
+        setErrorMessage('Phòng đã hết chỗ cho ngày bạn chọn! Vui lòng chọn ngày khác hoặc loại phòng khác.');
+        toast.error('Phòng đã hết chỗ cho ngày bạn chọn! Vui lòng chọn ngày khác hoặc loại phòng khác.');
+        setChecking(false);
+        return;
+      }
+      
+      setLoading(true);
+      setChecking(false);
+      
       const bookingData = {
         fullName,
         email,
@@ -177,23 +207,28 @@ const CtaSection = () => {
               <div>
                 <label className="block text-gray-700 mb-1 text-sm font-medium">Loại phòng</label>
                 <select 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-beach-500 focus:border-beach-500 text-gray-900"
+                  className={`w-full px-4 py-3 border rounded-md focus:ring-beach-500 focus:border-beach-500 text-gray-900 ${errorMessage ? 'border-red-500' : 'border-gray-300'}`}
                   value={roomType}
                   onChange={(e) => setRoomType(e.target.value)}
                   required
                 >
                   <option value="">Chọn loại phòng</option>
-                  <option value="villa">Villa Hồ Bơi Riêng</option>
-                  <option value="apartment">Căn Hộ Hướng Biển</option>
-                  <option value="deluxe">Phòng Deluxe</option>
+                  {roomTypes.map((type) => (
+                    <option key={type.id} value={type.id}>
+                      {type.name} - {new Intl.NumberFormat('vi-VN').format(type.price)}đ/đêm
+                    </option>
+                  ))}
                 </select>
+                {errorMessage && (
+                  <p className="mt-1 text-red-500 text-sm">{errorMessage}</p>
+                )}
               </div>
               <Button 
                 className="w-full bg-beach-600 hover:bg-beach-700 text-white py-3"
                 type="submit"
-                disabled={loading}
+                disabled={loading || checking}
               >
-                {loading ? "Đang xử lý..." : "Gửi Yêu Cầu"}
+                {loading ? "Đang xử lý..." : checking ? "Đang kiểm tra..." : "Gửi Yêu Cầu"}
               </Button>
             </form>
           </div>

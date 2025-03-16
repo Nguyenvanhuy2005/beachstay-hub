@@ -1,3 +1,4 @@
+
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 // Use client from integrations to ensure consistency
@@ -21,4 +22,27 @@ export const createAdminAccount = async () => {
 export const getPublicUrl = (bucket: string, path: string) => {
   const { data } = supabase.storage.from(bucket).getPublicUrl(path);
   return data.publicUrl;
+};
+
+// Helper function to call the check_room_availability RPC function
+export const checkRoomAvailability = async (roomTypeId: string, checkIn: string, checkOut: string) => {
+  try {
+    const { data, error } = await supabase.rpc('check_room_availability', {
+      p_room_type_id: roomTypeId,
+      p_check_in: checkIn,
+      p_check_out: checkOut
+    });
+
+    if (error) {
+      console.error('Error in checkRoomAvailability:', error);
+      return { available: false, error };
+    }
+
+    return data && data.length > 0 
+      ? { available: data[0].available, remainingRooms: data[0].remaining_rooms } 
+      : { available: false, error: 'No data returned' };
+  } catch (error) {
+    console.error('Unexpected error in checkRoomAvailability:', error);
+    return { available: false, error };
+  }
 };
