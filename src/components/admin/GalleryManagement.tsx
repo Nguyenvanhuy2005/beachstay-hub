@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { X, Upload, Image, Loader2, RefreshCw, Plus } from 'lucide-react';
+import { X, Upload, Image, Loader2, RefreshCw, Plus, Database } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getPublicUrl } from '@/lib/supabase';
+import DataSyncHelper from './DataSyncHelper';
 
 interface GalleryImage {
   id: string;
@@ -28,6 +29,7 @@ const GalleryManagement = () => {
   const [newImageCategory, setNewImageCategory] = useState('');
   const [newImageAlt, setNewImageAlt] = useState('');
   const [categories, setCategories] = useState<string[]>([]);
+  const [syncModalOpen, setSyncModalOpen] = useState(false);
   const { toast } = useToast();
   const { language } = useLanguage();
   const isVietnamese = language === 'vi';
@@ -228,14 +230,26 @@ const GalleryManagement = () => {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>
-          {isVietnamese ? 'Quản lý thư viện ảnh' : 'Gallery Management'}
-        </CardTitle>
-        <CardDescription>
-          {isVietnamese 
-            ? 'Thêm, xóa và quản lý hình ảnh trong thư viện ảnh của website' 
-            : 'Add, remove, and manage images in the website gallery'}
-        </CardDescription>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle>
+              {isVietnamese ? 'Quản lý thư viện ảnh' : 'Gallery Management'}
+            </CardTitle>
+            <CardDescription>
+              {isVietnamese 
+                ? 'Thêm, xóa và quản lý hình ảnh trong thư viện ảnh của website' 
+                : 'Add, remove, and manage images in the website gallery'}
+            </CardDescription>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setSyncModalOpen(true)}
+          >
+            <Database className="mr-1 h-4 w-4" /> 
+            {isVietnamese ? 'Đồng bộ dữ liệu' : 'Sync Data'}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
@@ -423,6 +437,11 @@ const GalleryManagement = () => {
           </div>
         </div>
       </CardContent>
+      
+      <DataSyncHelper 
+        open={syncModalOpen}
+        onOpenChange={setSyncModalOpen}
+      />
     </Card>
   );
 };
