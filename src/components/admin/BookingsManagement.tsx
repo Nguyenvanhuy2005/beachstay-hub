@@ -38,115 +38,111 @@ const BookingsManagement = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [roomTypes, setRoomTypes] = useState<{[key: string]: string}>({});
 
-  // Trực tiếp gọi API Supabase để lấy dữ liệu đặt phòng
+  // Fetch bookings with better error handling and debugging
   const fetchBookings = async () => {
+    console.log('⭐ Starting to fetch bookings with filter:', statusFilter);
     setLoading(true);
     
     try {
-      console.log('[BookingsManagement] Đang tải dữ liệu đặt phòng với bộ lọc:', statusFilter);
-      
-      // Xây dựng truy vấn cơ bản
+      // Build the query
       let query = supabase
         .from('bookings')
         .select('*')
         .order('created_at', { ascending: false });
       
-      // Áp dụng bộ lọc nếu không phải "all"
+      // Apply status filter if not set to 'all'
       if (statusFilter !== 'all') {
         query = query.eq('status', statusFilter);
       }
       
-      // Thực thi truy vấn
+      // Execute the query
       const { data, error } = await query;
       
       if (error) {
-        console.error('[BookingsManagement] Lỗi khi tải dữ liệu đặt phòng:', error);
+        console.error('Error fetching bookings:', error);
         toast.error(language === 'vi' ? 'Không thể tải dữ liệu đặt phòng' : 'Could not load booking data');
+        setLoading(false);
         return;
       }
       
-      console.log('[BookingsManagement] Kết quả từ Supabase:', data);
-      console.log('[BookingsManagement] Số lượng đặt phòng:', data?.length || 0);
+      console.log('Fetched bookings:', data);
       
+      // Fetch room types to display room names
       if (data && data.length > 0) {
-        // Tải loại phòng để hiển thị tên phòng
-        const enhancedBookings = await Promise.all(data.map(async (booking) => {
-          let roomName = roomTypes[booking.room_type_id] || '';
+        // Get all unique room type IDs from bookings
+        const roomTypeIds = [...new Set(data.map(booking => booking.room_type_id))].filter(Boolean);
+        
+        if (roomTypeIds.length > 0) {
+          const { data: roomTypesData, error: roomTypesError } = await supabase
+            .from('room_types')
+            .select('id, name')
+            .in('id', roomTypeIds);
           
-          if (!roomName && booking.room_type_id) {
-            try {
-              const { data: roomData } = await supabase
-                .from('room_types')
-                .select('name')
-                .eq('id', booking.room_type_id)
-                .single();
-              
-              if (roomData) {
-                roomName = roomData.name;
-              }
-            } catch (err) {
-              console.error('[BookingsManagement] Lỗi khi tải thông tin phòng:', err);
-            }
+          if (!roomTypesError && roomTypesData) {
+            // Create map of room type ids to names
+            const roomTypeMap: {[key: string]: string} = {};
+            roomTypesData.forEach((room: RoomType) => {
+              roomTypeMap[room.id] = room.name;
+            });
+            
+            console.log('Room type map:', roomTypeMap);
+            setRoomTypes(roomTypeMap);
           }
-          
-          return {
-            ...booking,
-            room_name: roomName
-          };
+        }
+        
+        // Enhance bookings with room names
+        const enhancedBookings = data.map(booking => ({
+          ...booking,
+          room_name: booking.room_type_id ? roomTypes[booking.room_type_id] || 'Unknown Room' : 'No Room Selected'
         }));
         
         setBookings(enhancedBookings);
+        console.log('Set enhanced bookings:', enhancedBookings);
       } else {
-        console.log('[BookingsManagement] Không tìm thấy đặt phòng nào');
+        console.log('No bookings found');
         setBookings([]);
       }
     } catch (error) {
-      console.error('[BookingsManagement] Lỗi ngoại lệ khi tải dữ liệu đặt phòng:', error);
-      toast.error(language === 'vi' ? 'Không thể tải dữ liệu đặt phòng' : 'Could not load booking data');
+      console.error('Unexpected error in fetchBookings:', error);
+      toast.error(language === 'vi' ? 'Lỗi không xác định khi tải dữ liệu' : 'Unexpected error loading data');
     } finally {
       setLoading(false);
     }
   };
 
-  // Lấy thông tin loại phòng
-  const fetchRoomTypes = async () => {
-    try {
-      console.log('[BookingsManagement] Đang tải dữ liệu loại phòng...');
-      
-      const { data, error } = await supabase
-        .from('room_types')
-        .select('id, name');
-      
-      if (error) {
-        console.error('[BookingsManagement] Lỗi khi tải loại phòng:', error);
-        return;
-      }
-      
-      console.log('[BookingsManagement] Dữ liệu loại phòng từ Supabase:', data);
-      
-      // Tạo map các loại phòng để dễ truy cập
-      const roomTypeMap: {[key: string]: string} = {};
-      data?.forEach((room: RoomType) => {
-        roomTypeMap[room.id] = room.name;
-      });
-      
-      console.log('[BookingsManagement] Map loại phòng đã tạo:', roomTypeMap);
-      setRoomTypes(roomTypeMap);
-    } catch (error) {
-      console.error('[BookingsManagement] Lỗi ngoại lệ khi tải loại phòng:', error);
-    }
-  };
-
-  // Tải dữ liệu khi component được mount và khi bộ lọc thay đổi
+  // Load data on component mount and when filter changes
   useEffect(() => {
-    fetchRoomTypes();
-    fetchBookings();
+    // First fetch room types
+    const fetchRoomTypes = async () => {
+      try {
+        const { data: roomTypesData, error: roomTypesError } = await supabase
+          .from('room_types')
+          .select('id, name');
+        
+        if (!roomTypesError && roomTypesData) {
+          const roomTypeMap: {[key: string]: string} = {};
+          roomTypesData.forEach((room: RoomType) => {
+            roomTypeMap[room.id] = room.name;
+          });
+          
+          console.log('Initial room types:', roomTypeMap);
+          setRoomTypes(roomTypeMap);
+        }
+      } catch (err) {
+        console.error('Error fetching room types:', err);
+      }
+    };
+    
+    // Fetch room types first, then bookings
+    fetchRoomTypes().then(() => {
+      fetchBookings();
+    });
   }, [statusFilter]);
 
-  // Cập nhật trạng thái đặt phòng
+  // Update booking status
   const handleStatusChange = async (bookingId: string, newStatus: string) => {
     try {
-      console.log(`[BookingsManagement] Đang cập nhật trạng thái đặt phòng ${bookingId} thành ${newStatus}`);
+      console.log(`Updating booking ${bookingId} status to ${newStatus}`);
       
       const { data, error } = await supabase
         .from('bookings')
@@ -155,7 +151,7 @@ const BookingsManagement = () => {
         .select();
       
       if (error) {
-        console.error('[BookingsManagement] Lỗi khi cập nhật trạng thái:', error);
+        console.error('Error updating booking status:', error);
         toast.error(
           language === 'vi' 
             ? 'Không thể cập nhật trạng thái đặt phòng' 
@@ -164,7 +160,7 @@ const BookingsManagement = () => {
         return;
       }
       
-      console.log('[BookingsManagement] Kết quả cập nhật trạng thái:', data);
+      console.log('Status update result:', data);
       
       toast.success(
         language === 'vi' 
@@ -172,7 +168,7 @@ const BookingsManagement = () => {
           : `Booking status updated to "${newStatus}"`
       );
       
-      // Cập nhật state bookings
+      // Update local state to reflect the change
       setBookings(prev => 
         prev.map(booking => 
           booking.id === bookingId 
@@ -181,7 +177,7 @@ const BookingsManagement = () => {
         )
       );
     } catch (error) {
-      console.error('[BookingsManagement] Lỗi ngoại lệ khi cập nhật trạng thái:', error);
+      console.error('Unexpected error updating status:', error);
       toast.error(
         language === 'vi' 
           ? 'Không thể cập nhật trạng thái đặt phòng' 
@@ -190,7 +186,7 @@ const BookingsManagement = () => {
     }
   };
 
-  // Hiển thị badge trạng thái
+  // Helper function to render status badges
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'confirmed':

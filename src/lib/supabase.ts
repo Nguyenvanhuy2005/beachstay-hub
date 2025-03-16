@@ -1,3 +1,4 @@
+
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 // Use client from integrations to ensure consistency
@@ -83,6 +84,7 @@ export const getBookedDatesForRoomType = async (roomTypeId: string) => {
 // Helper function to get booked dates for all room types - useful for admin view
 export const getAllBookedDates = async () => {
   try {
+    // Make sure to use PUBLIC schema to bypass RLS
     const { data, error } = await supabase
       .from('bookings')
       .select('check_in, check_out, room_type_id, status')
