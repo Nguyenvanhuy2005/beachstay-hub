@@ -33,6 +33,9 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
   const [isLoading, setIsLoading] = useState(true);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>(['wifi', 'tv']);
   
+  const [address, setAddress] = useState('');
+  const [addressEn, setAddressEn] = useState('');
+  
   const [mainImage, setMainImage] = useState<File | null>(null);
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   const [currentMainImageUrl, setCurrentMainImageUrl] = useState<string | null>(null);
@@ -75,6 +78,8 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
         setSelectedAmenities(data.amenities?.map((a: any) => a.id || a.vi) || ['wifi', 'tv']);
         setCurrentMainImageUrl(data.image_url || null);
         setCurrentGalleryUrls(data.gallery_images || []);
+        setAddress(data.address || '');
+        setAddressEn(data.address_en || '');
       }
     } catch (error) {
       console.error('Error fetching room details:', error);
@@ -127,6 +132,8 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
     setWeekendPrice('');
     setIsPopular(false);
     setSelectedAmenities(['wifi', 'tv']);
+    setAddress('');
+    setAddressEn('');
     
     if (mainImagePreview) {
       URL.revokeObjectURL(mainImagePreview);
@@ -226,7 +233,9 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
           is_popular: isPopular,
           image_url: mainImageUrl,
           gallery_images: newGalleryUrls,
-          amenities: amenitiesData
+          amenities: amenitiesData,
+          address,
+          address_en: addressEn || address
         })
         .eq('id', roomId);
 
@@ -318,6 +327,28 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
                     onChange={e => setDescriptionEn(e.target.value)}
                     placeholder="Detailed room description..."
                     rows={4}
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="address">Địa chỉ (VI)</Label>
+                  <Input 
+                    id="address" 
+                    value={address} 
+                    onChange={e => setAddress(e.target.value)}
+                    placeholder="Địa chỉ phòng (Ví dụ: Khu nghỉ dưỡng Annam, Hội An)"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="address_en">Địa chỉ (EN)</Label>
+                  <Input 
+                    id="address_en" 
+                    value={addressEn} 
+                    onChange={e => setAddressEn(e.target.value)}
+                    placeholder="Room address (e.g., Annam Resort, Hoi An)"
                   />
                 </div>
               </div>

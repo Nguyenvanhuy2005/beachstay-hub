@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import MainLayout from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
-import { Loader2, ChevronLeft, Calendar, Users, Check } from 'lucide-react';
+import { Loader2, ChevronLeft, Calendar, Users, Check, MapPin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
@@ -86,6 +86,10 @@ const RoomDetailPage = () => {
     return language === 'vi' ? roomType?.capacity : roomType?.capacity_en;
   };
   
+  const getAddress = () => {
+    return language === 'vi' ? roomType?.address : roomType?.address_en;
+  };
+  
   const formatPrice = (price) => {
     return new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
       style: 'currency',
@@ -151,7 +155,7 @@ const RoomDetailPage = () => {
               {getName()}
             </motion.h1>
             <motion.div 
-              className="flex items-center gap-2"
+              className="flex flex-wrap items-center gap-2 mb-2"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
@@ -162,6 +166,18 @@ const RoomDetailPage = () => {
                 {getCapacity()}
               </Badge>
             </motion.div>
+            
+            {getAddress() && (
+              <motion.div
+                className="flex items-center text-beach-100"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                <MapPin className="h-4 w-4 mr-1" />
+                <span className="text-sm">{getAddress()}</span>
+              </motion.div>
+            )}
           </div>
         </div>
       </div>
@@ -240,6 +256,16 @@ const RoomDetailPage = () => {
           >
             <h2 className="font-serif text-2xl font-bold mb-6 text-beach-900">{language === 'vi' ? 'Mô Tả' : 'Description'}</h2>
             <p className="text-beach-800 leading-relaxed mb-8">{getDescription()}</p>
+            
+            {getAddress() && (
+              <div className="mb-8">
+                <h3 className="font-serif text-xl font-bold mb-4 text-beach-900">{language === 'vi' ? 'Địa Chỉ' : 'Address'}</h3>
+                <div className="flex items-center text-beach-800">
+                  <MapPin className="h-5 w-5 mr-2 text-beach-600" />
+                  <span>{getAddress()}</span>
+                </div>
+              </div>
+            )}
             
             <div>
               <h3 className="font-serif text-xl font-bold mb-4 text-beach-900">{language === 'vi' ? 'Tiện Nghi Phòng' : 'Room Amenities'}</h3>

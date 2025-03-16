@@ -231,6 +231,8 @@ export type Database = {
       }
       room_types: {
         Row: {
+          address: string | null
+          address_en: string | null
           amenities: Json
           capacity: string
           capacity_en: string
@@ -247,6 +249,8 @@ export type Database = {
           weekend_price: number | null
         }
         Insert: {
+          address?: string | null
+          address_en?: string | null
           amenities: Json
           capacity: string
           capacity_en: string
@@ -263,6 +267,8 @@ export type Database = {
           weekend_price?: number | null
         }
         Update: {
+          address?: string | null
+          address_en?: string | null
           amenities?: Json
           capacity?: string
           capacity_en?: string

@@ -30,6 +30,9 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>(['wifi', 'tv']);
   
+  const [address, setAddress] = useState('');
+  const [addressEn, setAddressEn] = useState('');
+  
   const [mainImage, setMainImage] = useState<File | null>(null);
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   
@@ -73,6 +76,8 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
     setWeekendPrice('');
     setIsPopular(false);
     setSelectedAmenities(['wifi', 'tv']);
+    setAddress('');
+    setAddressEn('');
     
     if (mainImagePreview) {
       URL.revokeObjectURL(mainImagePreview);
@@ -169,7 +174,9 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
         image_url: mainImageUrl,
         gallery_images: galleryUrls,
         price,
-        weekend_price: weekendPrice
+        weekend_price: weekendPrice,
+        address,
+        address_en: addressEn
       });
 
       const { error: insertError, data: insertedRoom } = await supabase
@@ -186,7 +193,9 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
           is_popular: isPopular,
           image_url: mainImageUrl,
           gallery_images: galleryUrls,
-          amenities: amenitiesData
+          amenities: amenitiesData,
+          address,
+          address_en: addressEn || address
         })
         .select('*')
         .single();
@@ -266,6 +275,28 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
                     onChange={e => setDescriptionEn(e.target.value)}
                     placeholder="Detailed room description..."
                     rows={4}
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="address">Địa chỉ (VI)</Label>
+                  <Input 
+                    id="address" 
+                    value={address} 
+                    onChange={e => setAddress(e.target.value)}
+                    placeholder="Địa chỉ phòng (Ví dụ: Khu nghỉ dưỡng Annam, Hội An)"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="address_en">Địa chỉ (EN)</Label>
+                  <Input 
+                    id="address_en" 
+                    value={addressEn} 
+                    onChange={e => setAddressEn(e.target.value)}
+                    placeholder="Room address (e.g., Annam Resort, Hoi An)"
                   />
                 </div>
               </div>
