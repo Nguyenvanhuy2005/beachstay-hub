@@ -6,15 +6,25 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/lib/supabase';
+import { supabase, checkRoomAvailability } from '@/lib/supabase';
 import { Loader2, Users, Calendar } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import RoomSearchFilter from '@/components/booking/RoomSearchFilter';
+
+interface SearchFilters {
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+}
 
 const RoomTypesPage = () => {
   const { language } = useLanguage();
   const [roomTypes, setRoomTypes] = useState([]);
+  const [filteredRoomTypes, setFilteredRoomTypes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
+  const [searchFilters, setSearchFilters] = useState<SearchFilters | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -35,18 +45,89 @@ const RoomTypesPage = () => {
         console.error('Error fetching room types:', error);
         toast.error(language === 'vi' ? 'Không thể tải dữ liệu phòng' : 'Error loading room data');
         setRoomTypes([]);
+        setFilteredRoomTypes([]);
         return;
       }
 
       console.log('Room types fetched successfully:', data?.length || 0);
       setRoomTypes(data || []);
+      setFilteredRoomTypes(data || []);
     } catch (error) {
       console.error('Unexpected error in fetchRoomTypes:', error);
       toast.error(language === 'vi' ? 'Đã xảy ra lỗi không mong muốn' : 'An unexpected error occurred');
       setRoomTypes([]);
+      setFilteredRoomTypes([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const searchAvailableRooms = async (filters: SearchFilters) => {
+    try {
+      setSearching(true);
+      setSearchFilters(filters);
+      
+      // If no search filters, show all rooms
+      if (!filters.checkIn || !filters.checkOut) {
+        setFilteredRoomTypes(roomTypes);
+        return;
+      }
+      
+      toast.info(
+        language === 'vi' 
+          ? `Đang tìm phòng trống từ ${filters.checkIn} đến ${filters.checkOut}...` 
+          : `Searching for available rooms from ${filters.checkIn} to ${filters.checkOut}...`
+      );
+      
+      const availableRooms = [];
+      
+      // Check availability for each room type
+      for (const room of roomTypes) {
+        const { available, remainingRooms } = await checkRoomAvailability(
+          room.id,
+          filters.checkIn,
+          filters.checkOut
+        );
+        
+        if (available) {
+          availableRooms.push({
+            ...room,
+            remainingRooms
+          });
+        }
+      }
+      
+      setFilteredRoomTypes(availableRooms);
+      
+      if (availableRooms.length === 0) {
+        toast.warning(
+          language === 'vi'
+            ? 'Không tìm thấy phòng trống trong khoảng thời gian này'
+            : 'No available rooms found for these dates'
+        );
+      } else {
+        toast.success(
+          language === 'vi'
+            ? `Tìm thấy ${availableRooms.length} phòng trống`
+            : `Found ${availableRooms.length} available rooms`
+        );
+      }
+    } catch (error) {
+      console.error('Error searching for available rooms:', error);
+      toast.error(
+        language === 'vi'
+          ? 'Đã xảy ra lỗi khi tìm kiếm phòng trống'
+          : 'An error occurred while searching for available rooms'
+      );
+      setFilteredRoomTypes(roomTypes);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchFilters(null);
+    setFilteredRoomTypes(roomTypes);
   };
 
   const getRoomName = (room) => {
@@ -112,22 +193,61 @@ const RoomTypesPage = () => {
         </div>
       </div>
       
+      {/* Search Filter Section */}
+      <div className="bg-beach-50 py-6">
+        <div className="container mx-auto px-4 -mt-16 relative z-30">
+          <RoomSearchFilter onSearch={searchAvailableRooms} isLoading={searching} />
+        </div>
+      </div>
+      
       {/* Room Types Section */}
-      <section className="py-16 md:py-24">
+      <section className="py-12 md:py-16 bg-beach-50">
         <div className="container mx-auto px-4">
-          {loading ? (
+          {searchFilters && (
+            <div className="mb-6 flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-medium text-beach-800">
+                  {language === 'vi' 
+                    ? `Kết quả tìm kiếm (${filteredRoomTypes.length})` 
+                    : `Search Results (${filteredRoomTypes.length})`}
+                </h2>
+                <p className="text-sm text-beach-600">
+                  {language === 'vi'
+                    ? `Phòng trống từ ${searchFilters.checkIn} đến ${searchFilters.checkOut}`
+                    : `Available rooms from ${searchFilters.checkIn} to ${searchFilters.checkOut}`}
+                </p>
+              </div>
+              <Button variant="outline" onClick={clearSearch}>
+                {language === 'vi' ? 'Xóa bộ lọc' : 'Clear filters'}
+              </Button>
+            </div>
+          )}
+          
+          {(loading || searching) ? (
             <div className="flex justify-center items-center py-20">
               <Loader2 className="h-10 w-10 animate-spin text-beach-600" />
             </div>
-          ) : roomTypes.length === 0 ? (
-            <div className="text-center py-20">
-              <h3 className="text-xl font-medium text-gray-600">
-                {language === 'vi' ? 'Không có loại phòng nào' : 'No room types available'}
+          ) : filteredRoomTypes.length === 0 ? (
+            <div className="text-center py-16 bg-white rounded-lg shadow-sm border border-beach-100">
+              <h3 className="text-xl font-medium text-gray-600 mb-2">
+                {language === 'vi' 
+                  ? 'Không tìm thấy phòng trống' 
+                  : 'No available rooms found'}
               </h3>
+              <p className="text-gray-500 mb-6">
+                {language === 'vi'
+                  ? 'Vui lòng thử chọn ngày khác hoặc liên hệ với chúng tôi để được hỗ trợ.'
+                  : 'Please try different dates or contact us for assistance.'}
+              </p>
+              <Button asChild className="bg-beach-600 hover:bg-beach-700 text-white">
+                <Link to="/lien-he">
+                  {language === 'vi' ? 'Liên hệ ngay' : 'Contact us'}
+                </Link>
+              </Button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {roomTypes.map((room) => (
+              {filteredRoomTypes.map((room) => (
                 <motion.div
                   key={room.id}
                   initial={{ opacity: 0, y: 30 }}
@@ -135,7 +255,7 @@ const RoomTypesPage = () => {
                   transition={{ duration: 0.5 }}
                   viewport={{ once: true }}
                 >
-                  <Card className="overflow-hidden h-full flex flex-col">
+                  <Card className="overflow-hidden h-full flex flex-col hover:shadow-md transition-shadow">
                     <div className="h-60 overflow-hidden relative">
                       <img 
                         src={room.image_url} 
@@ -145,6 +265,13 @@ const RoomTypesPage = () => {
                       {room.is_popular && (
                         <Badge className="absolute top-3 right-3 bg-coral-500">
                           {language === 'vi' ? 'Phổ biến' : 'Popular'}
+                        </Badge>
+                      )}
+                      {room.remainingRooms !== undefined && (
+                        <Badge className="absolute top-3 left-3 bg-beach-600">
+                          {language === 'vi' 
+                            ? `Còn ${room.remainingRooms} phòng` 
+                            : `${room.remainingRooms} rooms left`}
                         </Badge>
                       )}
                     </div>
@@ -174,7 +301,7 @@ const RoomTypesPage = () => {
                           </Link>
                         </Button>
                         <Button asChild className="bg-beach-600 hover:bg-beach-700 text-white">
-                          <Link to="/dat-phong">
+                          <Link to={`/dat-phong${searchFilters ? `?roomType=${room.id}&checkIn=${searchFilters.checkIn}&checkOut=${searchFilters.checkOut}&guests=${searchFilters.guests}` : ''}`}>
                             <Calendar className="mr-2 h-4 w-4" />
                             {language === 'vi' ? 'Đặt Ngay' : 'Book Now'}
                           </Link>
@@ -190,7 +317,7 @@ const RoomTypesPage = () => {
       </section>
       
       {/* CTA Section */}
-      <section className="py-16 md:py-24 bg-beach-50">
+      <section className="py-16 md:py-24 bg-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="font-serif text-3xl font-bold mb-6 text-beach-900">
             {language === 'vi' ? 'Cần Hỗ Trợ Chọn Phòng?' : 'Need Help Choosing a Room?'}

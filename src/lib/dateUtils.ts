@@ -1,5 +1,5 @@
 
-import { isSameDay, isAfter, isBefore, eachDayOfInterval, format } from 'date-fns';
+import { isSameDay, isAfter, isBefore, eachDayOfInterval, format, addDays } from 'date-fns';
 
 export const isDateInBookedRange = (
   date: Date, 
@@ -43,4 +43,42 @@ export const formatPriceInMillions = (price: number): string => {
   if (!price) return '0M';
   const inMillions = price / 1000000;
   return `${inMillions.toFixed(1)}M`;
+};
+
+// Get tomorrow's date
+export const getTomorrow = (): Date => {
+  return addDays(new Date(), 1);
+};
+
+// Get date after tomorrow
+export const getDayAfterTomorrow = (): Date => {
+  return addDays(new Date(), 2);
+};
+
+// Parse a date string in any common format to a Date object
+export const parseAnyDate = (dateStr: string): Date | null => {
+  if (!dateStr) return null;
+  
+  try {
+    // Try parsing as ISO format first
+    const date = new Date(dateStr);
+    if (!isNaN(date.getTime())) {
+      return date;
+    }
+    
+    // If that fails, try other common formats
+    const formats = ['dd/MM/yyyy', 'MM/dd/yyyy', 'yyyy-MM-dd'];
+    for (const formatStr of formats) {
+      try {
+        return parse(dateStr, formatStr, new Date());
+      } catch (e) {
+        // Continue to next format
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error parsing date:', error);
+    return null;
+  }
 };

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -32,7 +31,6 @@ import { checkRoomAvailability, getBookedDatesForRoomType, getRoomPriceForDate }
 import { useLanguage } from '@/contexts/LanguageContext';
 import { isDateInBookedRange } from '@/lib/dateUtils';
 
-// Create form schema
 const bookingFormSchema = z.object({
   fullName: z.string().min(3, { message: 'Họ tên phải có ít nhất 3 ký tự' }),
   email: z.string().email({ message: 'Email không hợp lệ' }),
@@ -73,22 +71,28 @@ const BookingForm: React.FC<BookingFormProps> = ({ roomTypes, isLoading }) => {
     remainingRooms: 0 
   });
 
+  const location = window.location;
+  const searchParams = new URLSearchParams(location.search);
+  const urlRoomType = searchParams.get('roomType');
+  const urlCheckIn = searchParams.get('checkIn');
+  const urlCheckOut = searchParams.get('checkOut');
+  const urlGuests = searchParams.get('guests');
+
   const form = useForm({
     resolver: zodResolver(bookingFormSchema),
     defaultValues: {
       fullName: '',
       email: '',
       phone: '',
-      checkIn: '',
-      checkOut: '',
-      roomType: '',
-      adults: 2,
+      checkIn: urlCheckIn || '',
+      checkOut: urlCheckOut || '',
+      roomType: urlRoomType || '',
+      adults: urlGuests ? parseInt(urlGuests) : 2,
       children: 0,
       specialRequests: '',
     },
   });
 
-  // Watch for room type changes
   useEffect(() => {
     const roomType = form.watch('roomType');
     if (roomType) {
@@ -99,7 +103,6 @@ const BookingForm: React.FC<BookingFormProps> = ({ roomTypes, isLoading }) => {
     }
   }, [form.watch('roomType'), roomTypes]);
 
-  // Fetch booked dates when room type changes
   useEffect(() => {
     const fetchBookedDates = async () => {
       const roomType = form.watch('roomType');
@@ -137,7 +140,6 @@ const BookingForm: React.FC<BookingFormProps> = ({ roomTypes, isLoading }) => {
     fetchBookedDates();
   }, [form.watch('roomType')]);
 
-  // Calculate total price
   useEffect(() => {
     const calculateTotalPrice = async () => {
       const roomType = form.watch('roomType');
@@ -187,7 +189,6 @@ const BookingForm: React.FC<BookingFormProps> = ({ roomTypes, isLoading }) => {
     calculateTotalPrice();
   }, [form.watch('roomType'), form.watch('checkIn'), form.watch('checkOut'), selectedRoom]);
 
-  // Check availability
   useEffect(() => {
     const checkAvailability = async () => {
       const roomType = form.watch('roomType');
