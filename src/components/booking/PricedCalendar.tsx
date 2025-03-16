@@ -4,12 +4,13 @@ import { Calendar } from '@/components/ui/calendar';
 import { format, isSameDay } from 'date-fns';
 import { supabase } from '@/lib/supabase';
 import { DayContentProps } from 'react-day-picker';
+import { DateRange } from 'react-day-picker';
 
 interface PricedCalendarProps {
   roomTypeId: string;
   regularPrice: number;
   weekendPrice: number;
-  selected?: Date | { from: Date, to: Date };
+  selected?: Date | DateRange;
   onSelect?: (date: Date | undefined) => void;
   onRangeSelect?: (range: { from: Date, to: Date } | undefined) => void;
   disabled?: (date: Date) => boolean;
@@ -96,9 +97,11 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
     let isSelectedDate = false;
     
     if (selected) {
-      if ('from' in selected && selected.from && selected.to) {
+      if ('from' in selected && selected.from) {
         // Range mode
-        isSelectedDate = isSameDay(date, selected.from) || isSameDay(date, selected.to);
+        isSelectedDate = 
+          (selected.from && isSameDay(date, selected.from)) || 
+          (selected.to && isSameDay(date, selected.to));
       } else if (selected instanceof Date) {
         // Single date mode
         isSelectedDate = isSameDay(date, selected);
@@ -130,10 +133,10 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
     return (
       <Calendar
         mode="range"
-        selected={selected as { from: Date, to: Date }}
+        selected={selected as DateRange}
         onSelect={(range) => {
-          if (onRangeSelect && range) {
-            onRangeSelect(range);
+          if (onRangeSelect && range && range.from && range.to) {
+            onRangeSelect({ from: range.from, to: range.to });
           }
         }}
         disabled={disabled}
