@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -47,7 +46,6 @@ const AdminDashboard = () => {
         console.log('User email:', userEmail);
         
         if (userEmail) {
-          // Chấp nhận email mặc định (admin@annamvillage.vn) làm quản trị viên
           if (userEmail === 'admin@annamvillage.vn') {
             console.log('Default admin email detected');
             setIsAdmin(true);
@@ -55,7 +53,6 @@ const AdminDashboard = () => {
             return;
           }
           
-          // Kiểm tra nếu email tồn tại trong bảng admin_users
           const { data: adminData, error } = await supabase
             .from('admin_users')
             .select('*')
@@ -131,7 +128,7 @@ const AdminDashboard = () => {
         </Button>
       </div>
       
-      <Tabs defaultValue="rooms" className="w-full">
+      <Tabs defaultValue="bookings" className="w-full">
         <TabsList className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
           <TabsTrigger value="rooms">
             {language === 'vi' ? 'Quản lý phòng' : 'Room Management'}
