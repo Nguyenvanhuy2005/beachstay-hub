@@ -12,6 +12,11 @@ import PricingManagement from './PricingManagement';
 import ContentManagement from './ContentManagement';
 import GalleryManagement from './GalleryManagement';
 import { toast } from 'sonner';
+import { Settings, Lock, Users, Database, Globe, Send } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
 
 const AdminDashboard = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -169,25 +174,131 @@ const AdminDashboard = () => {
         </TabsContent>
         
         <TabsContent value="settings" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {language === 'vi' ? 'Cài đặt hệ thống' : 'System Settings'}
-              </CardTitle>
-              <CardDescription>
-                {language === 'vi' 
-                  ? 'Quản lý cài đặt chung của hệ thống' 
-                  : 'Manage general system settings'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                {language === 'vi' 
-                  ? 'Tính năng này sẽ được phát triển trong tương lai.' 
-                  : 'This feature will be developed in the future.'}
-              </p>
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <CardTitle>
+                  {language === 'vi' ? 'Cài đặt hệ thống' : 'System Settings'}
+                </CardTitle>
+                <CardDescription>
+                  {language === 'vi' 
+                    ? 'Quản lý cài đặt chung của hệ thống' 
+                    : 'Manage general system settings'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-medium">
+                        {language === 'vi' ? 'Email thông báo' : 'Notification Email'}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {language === 'vi' 
+                          ? 'Email nhận thông báo đặt phòng và liên hệ' 
+                          : 'Email to receive booking and contact notifications'}
+                      </p>
+                    </div>
+                    <div className="w-[280px]">
+                      <Input 
+                        type="email" 
+                        placeholder="admin@annamvillage.vn" 
+                        value="admin@annamvillage.vn" 
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                  <Separator />
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-medium">
+                        {language === 'vi' ? 'Ngôn ngữ mặc định' : 'Default Language'}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {language === 'vi' 
+                          ? 'Ngôn ngữ mặc định khi khách truy cập website' 
+                          : 'Default language when visitors access the website'}
+                      </p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="vietnamese" className="cursor-pointer">Tiếng Việt</Label>
+                      <Switch id="vietnamese" checked={true} />
+                      <Label htmlFor="english" className="cursor-pointer ml-4">English</Label>
+                      <Switch id="english" checked={false} />
+                    </div>
+                  </div>
+                  <Separator />
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-medium">
+                        {language === 'vi' ? 'Chế độ bảo trì' : 'Maintenance Mode'}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {language === 'vi' 
+                          ? 'Bật/tắt chế độ bảo trì cho website' 
+                          : 'Enable/disable maintenance mode for the website'}
+                      </p>
+                    </div>
+                    <Switch id="maintenance-mode" />
+                  </div>
+                </div>
+                
+                <Button className="w-full sm:w-auto mt-6">
+                  <Save className="mr-2 h-4 w-4" />
+                  {language === 'vi' ? 'Lưu cài đặt' : 'Save Settings'}
+                </Button>
+              </CardContent>
+            </Card>
+            
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Lock className="h-5 w-5 mr-2" />
+                    {language === 'vi' ? 'Bảo mật' : 'Security'}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Button variant="outline" className="w-full">
+                    {language === 'vi' ? 'Đổi mật khẩu' : 'Change Password'}
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Users className="h-5 w-5 mr-2" />
+                    {language === 'vi' ? 'Quản trị viên' : 'Administrators'}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Button variant="outline" className="w-full">
+                    {language === 'vi' ? 'Quản lý quản trị viên' : 'Manage Administrators'}
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Database className="h-5 w-5 mr-2" />
+                    {language === 'vi' ? 'Dữ liệu' : 'Data'}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <Button variant="outline" className="w-full">
+                    {language === 'vi' ? 'Sao lưu dữ liệu' : 'Backup Data'}
+                  </Button>
+                  <Button variant="outline" className="w-full">
+                    {language === 'vi' ? 'Khôi phục dữ liệu' : 'Restore Data'}
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
