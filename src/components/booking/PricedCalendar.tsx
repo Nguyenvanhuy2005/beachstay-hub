@@ -128,17 +128,34 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
     );
   };
   
+  // Handle selection based on mode
+  const handleRangeSelect = (range: DateRange | undefined) => {
+    if (onRangeSelect) {
+      onRangeSelect(range);
+    }
+  };
+  
+  const handleSingleSelect = (date: Date | undefined) => {
+    if (onSelect) {
+      onSelect(date);
+    }
+  };
+  
+  const handleMultipleSelect = (dates: Date[] | undefined) => {
+    if (onSelect && dates && dates.length > 0) {
+      onSelect(dates[dates.length - 1]);
+    } else if (onSelect) {
+      onSelect(undefined);
+    }
+  };
+  
   // Conditionally render the calendar based on mode
   if (mode === "range") {
     return (
       <Calendar
         mode="range"
         selected={selected as DateRange}
-        onSelect={(range) => {
-          if (onRangeSelect) {
-            onRangeSelect(range);
-          }
-        }}
+        onSelect={handleRangeSelect}
         disabled={disabled}
         components={{
           DayContent: renderDay
@@ -153,7 +170,7 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
       <Calendar
         mode="single"
         selected={selected as Date}
-        onSelect={onSelect}
+        onSelect={handleSingleSelect}
         disabled={disabled}
         components={{
           DayContent: renderDay
@@ -169,13 +186,7 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
       <Calendar
         mode="multiple"
         selected={selected instanceof Date ? [selected] : []}
-        onSelect={(dates) => {
-          if (onSelect && dates && dates.length > 0) {
-            onSelect(dates[dates.length - 1]);
-          } else if (onSelect) {
-            onSelect(undefined);
-          }
-        }}
+        onSelect={handleMultipleSelect}
         disabled={disabled}
         components={{
           DayContent: renderDay
