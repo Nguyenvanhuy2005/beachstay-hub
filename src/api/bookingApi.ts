@@ -160,3 +160,27 @@ export const updateBookingStatus = async (bookingId: string, status: string) => 
     return { success: false, error };
   }
 };
+
+export const exportBookingData = async () => {
+  try {
+    const bookings = await getBookingsWithRoomInfo();
+    
+    // Convert bookings to a JSON string
+    const jsonString = JSON.stringify(bookings, null, 2);
+    
+    // Create and download the file
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bookings_export_${new Date().toISOString()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    return { success: true, count: bookings.length };
+  } catch (error) {
+    console.error('Error exporting booking data:', error);
+    return { success: false, error };
+  }
+};

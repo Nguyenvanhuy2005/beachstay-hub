@@ -6,10 +6,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { Loader2, Upload, X } from 'lucide-react';
+import { Loader2, Upload, X, Database } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RoomAmenities, amenityOptions } from './RoomAmenities';
+import DataSyncHelper from './DataSyncHelper';
 
 interface AddRoomModalProps {
   open: boolean;
@@ -29,6 +30,7 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
   const [isPopular, setIsPopular] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>(['wifi', 'tv']);
+  const [dataSyncOpen, setDataSyncOpen] = useState(false);
   
   const [address, setAddress] = useState('');
   const [addressEn, setAddressEn] = useState('');
@@ -218,250 +220,270 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Thêm Phòng Mới</DialogTitle>
-        </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Tabs defaultValue="basic" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="basic">Thông tin cơ bản</TabsTrigger>
-              <TabsTrigger value="amenities">Tiện nghi</TabsTrigger>
-              <TabsTrigger value="images">Hình ảnh</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="basic" className="space-y-4 mt-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Tên phòng (VI)</Label>
-                  <Input 
-                    id="name" 
-                    value={name} 
-                    onChange={e => setName(e.target.value)}
-                    placeholder="Phòng Deluxe"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="name_en">Tên phòng (EN)</Label>
-                  <Input 
-                    id="name_en" 
-                    value={nameEn} 
-                    onChange={e => setNameEn(e.target.value)}
-                    placeholder="Deluxe Room"
-                  />
-                </div>
-              </div>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex justify-between items-center">
+              <span>Thêm Phòng Mới</span>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDataSyncOpen(true);
+                }}
+              >
+                <Database className="h-4 w-4 mr-2" />
+                Đồng bộ dữ liệu
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Tabs defaultValue="basic" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="basic">Thông tin cơ bản</TabsTrigger>
+                <TabsTrigger value="amenities">Tiện nghi</TabsTrigger>
+                <TabsTrigger value="images">Hình ảnh</TabsTrigger>
+              </TabsList>
               
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="description">Mô tả (VI)</Label>
-                  <Textarea 
-                    id="description" 
-                    value={description} 
-                    onChange={e => setDescription(e.target.value)}
-                    placeholder="Mô tả chi tiết về phòng..."
-                    rows={4}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="description_en">Mô tả (EN)</Label>
-                  <Textarea 
-                    id="description_en" 
-                    value={descriptionEn} 
-                    onChange={e => setDescriptionEn(e.target.value)}
-                    placeholder="Detailed room description..."
-                    rows={4}
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="address">Địa chỉ (VI)</Label>
-                  <Input 
-                    id="address" 
-                    value={address} 
-                    onChange={e => setAddress(e.target.value)}
-                    placeholder="Địa chỉ phòng (Ví dụ: Khu nghỉ dưỡng Annam, Hội An)"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="address_en">Địa chỉ (EN)</Label>
-                  <Input 
-                    id="address_en" 
-                    value={addressEn} 
-                    onChange={e => setAddressEn(e.target.value)}
-                    placeholder="Room address (e.g., Annam Resort, Hoi An)"
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="capacity">Sức chứa (VI)</Label>
-                  <Input 
-                    id="capacity" 
-                    value={capacity} 
-                    onChange={e => setCapacity(e.target.value)}
-                    placeholder="2 người lớn, 1 trẻ em"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="capacity_en">Sức chứa (EN)</Label>
-                  <Input 
-                    id="capacity_en" 
-                    value={capacityEn} 
-                    onChange={e => setCapacityEn(e.target.value)}
-                    placeholder="2 adults, 1 child"
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="price">Giá phòng ngày thường (VND)</Label>
-                  <Input 
-                    id="price" 
-                    type="number" 
-                    value={price} 
-                    onChange={e => setPrice(e.target.value)}
-                    placeholder="1500000"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="weekend_price">Giá phòng cuối tuần/lễ (VND)</Label>
-                  <Input 
-                    id="weekend_price" 
-                    type="number" 
-                    value={weekendPrice} 
-                    onChange={e => setWeekendPrice(e.target.value)}
-                    placeholder="1800000"
-                  />
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-2 pt-2">
-                <Switch 
-                  checked={isPopular} 
-                  onCheckedChange={setIsPopular} 
-                  id="is-popular" 
-                />
-                <Label htmlFor="is-popular">Đánh dấu là phòng nổi bật</Label>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="amenities" className="space-y-4 mt-4">
-              <RoomAmenities
-                selectedAmenities={selectedAmenities}
-                onChange={setSelectedAmenities}
-              />
-            </TabsContent>
-            
-            <TabsContent value="images" className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label htmlFor="main-image">Ảnh chính (bắt buộc)</Label>
-                <div className="flex items-center space-x-4">
-                  <Input 
-                    id="main-image" 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={handleMainImageChange}
-                    className="w-2/3"
-                  />
+              <TabsContent value="basic" className="space-y-4 mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Tên phòng (VI)</Label>
+                    <Input 
+                      id="name" 
+                      value={name} 
+                      onChange={e => setName(e.target.value)}
+                      placeholder="Phòng Deluxe"
+                    />
+                  </div>
                   
-                  {mainImagePreview && (
-                    <div className="relative h-20 w-20 overflow-hidden rounded-md border">
-                      <img 
-                        src={mainImagePreview} 
-                        alt="Main preview" 
-                        className="h-full w-full object-cover"
-                      />
-                      <button
-                        type="button"
-                        className="absolute top-0 right-0 bg-black/50 p-1 rounded-bl"
-                        onClick={() => {
-                          URL.revokeObjectURL(mainImagePreview);
-                          setMainImage(null);
-                          setMainImagePreview(null);
-                        }}
-                      >
-                        <X className="h-4 w-4 text-white" />
-                      </button>
-                    </div>
-                  )}
+                  <div className="space-y-2">
+                    <Label htmlFor="name_en">Tên phòng (EN)</Label>
+                    <Input 
+                      id="name_en" 
+                      value={nameEn} 
+                      onChange={e => setNameEn(e.target.value)}
+                      placeholder="Deluxe Room"
+                    />
+                  </div>
                 </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="gallery-images">Ảnh bổ sung (tùy chọn)</Label>
-                <Input 
-                  id="gallery-images" 
-                  type="file" 
-                  accept="image/*" 
-                  multiple
-                  onChange={handleGalleryImagesChange}
-                />
                 
-                {galleryPreviews.length > 0 && (
-                  <div className="grid grid-cols-5 gap-2 mt-2">
-                    {galleryPreviews.map((preview, index) => (
-                      <div key={index} className="relative h-20 w-20 overflow-hidden rounded-md border">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Mô tả (VI)</Label>
+                    <Textarea 
+                      id="description" 
+                      value={description} 
+                      onChange={e => setDescription(e.target.value)}
+                      placeholder="Mô tả chi tiết về phòng..."
+                      rows={4}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="description_en">Mô tả (EN)</Label>
+                    <Textarea 
+                      id="description_en" 
+                      value={descriptionEn} 
+                      onChange={e => setDescriptionEn(e.target.value)}
+                      placeholder="Detailed room description..."
+                      rows={4}
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="address">Địa chỉ (VI)</Label>
+                    <Input 
+                      id="address" 
+                      value={address} 
+                      onChange={e => setAddress(e.target.value)}
+                      placeholder="Địa chỉ phòng (Ví dụ: Khu nghỉ dưỡng Annam, Hội An)"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="address_en">Địa chỉ (EN)</Label>
+                    <Input 
+                      id="address_en" 
+                      value={addressEn} 
+                      onChange={e => setAddressEn(e.target.value)}
+                      placeholder="Room address (e.g., Annam Resort, Hoi An)"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="capacity">Sức chứa (VI)</Label>
+                    <Input 
+                      id="capacity" 
+                      value={capacity} 
+                      onChange={e => setCapacity(e.target.value)}
+                      placeholder="2 người lớn, 1 trẻ em"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="capacity_en">Sức chứa (EN)</Label>
+                    <Input 
+                      id="capacity_en" 
+                      value={capacityEn} 
+                      onChange={e => setCapacityEn(e.target.value)}
+                      placeholder="2 adults, 1 child"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="price">Giá phòng ngày thường (VND)</Label>
+                    <Input 
+                      id="price" 
+                      type="number" 
+                      value={price} 
+                      onChange={e => setPrice(e.target.value)}
+                      placeholder="1500000"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="weekend_price">Giá phòng cuối tuần/lễ (VND)</Label>
+                    <Input 
+                      id="weekend_price" 
+                      type="number" 
+                      value={weekendPrice} 
+                      onChange={e => setWeekendPrice(e.target.value)}
+                      placeholder="1800000"
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-2 pt-2">
+                  <Switch 
+                    checked={isPopular} 
+                    onCheckedChange={setIsPopular} 
+                    id="is-popular" 
+                  />
+                  <Label htmlFor="is-popular">Đánh dấu là phòng nổi bật</Label>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="amenities" className="space-y-4 mt-4">
+                <RoomAmenities
+                  selectedAmenities={selectedAmenities}
+                  onChange={setSelectedAmenities}
+                />
+              </TabsContent>
+              
+              <TabsContent value="images" className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="main-image">Ảnh chính (bắt buộc)</Label>
+                  <div className="flex items-center space-x-4">
+                    <Input 
+                      id="main-image" 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleMainImageChange}
+                      className="w-2/3"
+                    />
+                    
+                    {mainImagePreview && (
+                      <div className="relative h-20 w-20 overflow-hidden rounded-md border">
                         <img 
-                          src={preview} 
-                          alt={`Gallery ${index}`} 
+                          src={mainImagePreview} 
+                          alt="Main preview" 
                           className="h-full w-full object-cover"
                         />
                         <button
                           type="button"
                           className="absolute top-0 right-0 bg-black/50 p-1 rounded-bl"
-                          onClick={() => removeGalleryImage(index)}
+                          onClick={() => {
+                            URL.revokeObjectURL(mainImagePreview);
+                            setMainImage(null);
+                            setMainImagePreview(null);
+                          }}
                         >
                           <X className="h-4 w-4 text-white" />
                         </button>
                       </div>
-                    ))}
+                    )}
                   </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="gallery-images">Ảnh bổ sung (tùy chọn)</Label>
+                  <Input 
+                    id="gallery-images" 
+                    type="file" 
+                    accept="image/*" 
+                    multiple
+                    onChange={handleGalleryImagesChange}
+                  />
+                  
+                  {galleryPreviews.length > 0 && (
+                    <div className="grid grid-cols-5 gap-2 mt-2">
+                      {galleryPreviews.map((preview, index) => (
+                        <div key={index} className="relative h-20 w-20 overflow-hidden rounded-md border">
+                          <img 
+                            src={preview} 
+                            alt={`Gallery ${index}`} 
+                            className="h-full w-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            className="absolute top-0 right-0 bg-black/50 p-1 rounded-bl"
+                            onClick={() => removeGalleryImage(index)}
+                          >
+                            <X className="h-4 w-4 text-white" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
+            
+            <DialogFooter>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => {
+                  resetForm();
+                  onOpenChange(false);
+                }}
+                disabled={isSubmitting}
+              >
+                Hủy
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang xử lý...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Thêm phòng
+                  </>
                 )}
-              </div>
-            </TabsContent>
-          </Tabs>
-          
-          <DialogFooter>
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => {
-                resetForm();
-                onOpenChange(false);
-              }}
-              disabled={isSubmitting}
-            >
-              Hủy
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Đang xử lý...
-                </>
-              ) : (
-                <>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Thêm phòng
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+      
+      <DataSyncHelper 
+        open={dataSyncOpen} 
+        onOpenChange={setDataSyncOpen}
+      />
+    </>
   );
 };
 

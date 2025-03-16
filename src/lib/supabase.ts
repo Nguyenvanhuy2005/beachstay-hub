@@ -217,3 +217,72 @@ export const getCustomPricesForRoom = async (roomTypeId: string, startDate: stri
     return {};
   }
 };
+
+// Helper to synchronize gallery images with Supabase
+export const syncGalleryImages = async (images: any[]) => {
+  try {
+    console.log('Starting gallery images synchronization...');
+    
+    // Clear existing gallery images first
+    const { error: deleteError } = await supabase
+      .from('gallery_images')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all records
+      
+    if (deleteError) {
+      console.error('Error clearing gallery images:', deleteError);
+      return { success: false, error: deleteError };
+    }
+    
+    // Insert new images
+    const { data, error: insertError } = await supabase
+      .from('gallery_images')
+      .insert(images)
+      .select();
+      
+    if (insertError) {
+      console.error('Error inserting gallery images:', insertError);
+      return { success: false, error: insertError };
+    }
+    
+    console.log('Gallery images synchronized successfully:', data?.length);
+    return { success: true, data };
+  } catch (error) {
+    console.error('Unexpected error in syncGalleryImages:', error);
+    return { success: false, error };
+  }
+};
+
+// Helper function to import/export database content for backup
+export const exportDatabaseContent = async (table: string) => {
+  try {
+    const { data, error } = await supabase
+      .from(table)
+      .select('*');
+      
+    if (error) {
+      console.error(`Error exporting ${table}:`, error);
+      return { success: false, error };
+    }
+    
+    console.log(`Exported ${data?.length} records from ${table}`);
+    
+    // Create a download link for the JSON data
+    const jsonString = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    // Create and click a download link
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${table}_export_${new Date().toISOString()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    return { success: true, data };
+  } catch (error) {
+    console.error(`Unexpected error exporting ${table}:`, error);
+    return { success: false, error };
+  }
+};
