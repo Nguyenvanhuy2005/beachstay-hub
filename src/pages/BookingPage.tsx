@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -74,6 +75,8 @@ const BookingPage = () => {
   const [bookedDateRanges, setBookedDateRanges] = useState<{start: Date, end: Date}[]>([]);
   
   const [selectedRoom, setSelectedRoom] = useState<any>(null);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [dateSelectionMode, setDateSelectionMode] = useState<'checkIn' | 'checkOut'>('checkIn');
   
   const form = useForm({
     resolver: zodResolver(bookingFormSchema),
@@ -226,19 +229,36 @@ const BookingPage = () => {
       return true;
     }
     
-    return false;
-  };
-
-  const disableCheckoutDates = (date: Date) => {
-    const checkInDate = form.getValues('checkIn');
-    if (checkInDate) {
-      const parsedCheckInDate = parse(checkInDate, 'yyyy-MM-dd', new Date());
-      if (isBefore(date, parsedCheckInDate)) {
-        return true;
+    if (dateSelectionMode === 'checkOut') {
+      const checkInValue = form.getValues('checkIn');
+      if (checkInValue) {
+        const parsedCheckInDate = parse(checkInValue, 'yyyy-MM-dd', new Date());
+        if (isBefore(date, parsedCheckInDate)) {
+          return true;
+        }
       }
     }
     
-    return disableDates(date);
+    return false;
+  };
+
+  const handleSelectDate = (date: Date | undefined) => {
+    if (!date) return;
+    
+    if (dateSelectionMode === 'checkIn') {
+      form.setValue('checkIn', format(date, 'yyyy-MM-dd'));
+      
+      // Auto-select checkout date as next day if it's valid
+      const nextDay = addDays(date, 1);
+      if (!isDateInBookedRange(nextDay)) {
+        form.setValue('checkOut', format(nextDay, 'yyyy-MM-dd'));
+      }
+      
+      setDateSelectionMode('checkOut');
+    } else {
+      form.setValue('checkOut', format(date, 'yyyy-MM-dd'));
+      setCalendarOpen(false);
+    }
   };
 
   return (
@@ -377,128 +397,111 @@ const BookingPage = () => {
                         </FormItem>
                       )}
                     />
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="checkIn"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>
+                              {language === 'vi' ? 'Ngày nhận phòng' : 'Check-in date'}
+                            </FormLabel>
+                            <FormControl>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full justify-start text-left font-normal"
+                                onClick={() => {
+                                  setDateSelectionMode('checkIn');
+                                  setCalendarOpen(true);
+                                }}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {field.value ? (
+                                  format(parse(field.value, 'yyyy-MM-dd', new Date()), 'PPP')
+                                ) : (
+                                  <span>{language === 'vi' ? 'Chọn ngày' : 'Pick a date'}</span>
+                                )}
+                              </Button>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="checkOut"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>
+                              {language === 'vi' ? 'Ngày trả phòng' : 'Check-out date'}
+                            </FormLabel>
+                            <FormControl>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full justify-start text-left font-normal"
+                                onClick={() => {
+                                  setDateSelectionMode('checkOut');
+                                  setCalendarOpen(true);
+                                }}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {field.value ? (
+                                  format(parse(field.value, 'yyyy-MM-dd', new Date()), 'PPP')
+                                ) : (
+                                  <span>{language === 'vi' ? 'Chọn ngày' : 'Pick a date'}</span>
+                                )}
+                              </Button>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                     
-                    <FormField
-                      control={form.control}
-                      name="checkIn"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel>
-                            {language === 'vi' ? 'Ngày nhận phòng' : 'Check-in date'}
-                          </FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant="outline"
-                                  className={`w-full justify-start text-left font-normal ${!field.value ? "text-muted-foreground" : ""}`}
-                                >
-                                  <CalendarIcon className="mr-2 h-4 w-4" />
-                                  {field.value ? (
-                                    format(parse(field.value, 'yyyy-MM-dd', new Date()), 'PPP')
-                                  ) : (
-                                    <span>{language === 'vi' ? 'Chọn ngày' : 'Pick a date'}</span>
-                                  )}
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              {selectedRoom ? (
-                                <PricedCalendar
-                                  roomTypeId={selectedRoom.id}
-                                  regularPrice={selectedRoom.price}
-                                  weekendPrice={selectedRoom.weekend_price || selectedRoom.price}
-                                  mode="single"
-                                  selected={field.value ? parse(field.value, 'yyyy-MM-dd', new Date()) : undefined}
-                                  onSelect={(date) => {
-                                    field.onChange(date ? format(date, 'yyyy-MM-dd') : '');
-                                    if (date) {
-                                      const checkOutDate = form.getValues('checkOut');
-                                      if (checkOutDate) {
-                                        const parsedCheckOutDate = parse(checkOutDate, 'yyyy-MM-dd', new Date());
-                                        if (isBefore(parsedCheckOutDate, date) || isDateInBookedRange(parsedCheckOutDate)) {
-                                          let nextDay = addDays(date, 1);
-                                          while (isDateInBookedRange(nextDay)) {
-                                            nextDay = addDays(nextDay, 1);
-                                          }
-                                          form.setValue('checkOut', format(nextDay, 'yyyy-MM-dd'));
-                                        }
-                                      }
-                                    }
-                                  }}
-                                  disabled={disableDates}
-                                  className="pointer-events-auto"
-                                  fromMonth={new Date()}
-                                />
-                              ) : (
-                                <div className="p-4 text-center">
-                                  <p className="text-sm text-muted-foreground">
-                                    {language === 'vi' 
-                                      ? 'Vui lòng chọn loại phòng trước' 
-                                      : 'Please select a room type first'}
-                                  </p>
-                                </div>
-                              )}
-                            </PopoverContent>
-                          </Popover>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="checkOut"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel>
-                            {language === 'vi' ? 'Ngày trả phòng' : 'Check-out date'}
-                          </FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant="outline"
-                                  className={`w-full justify-start text-left font-normal ${!field.value ? "text-muted-foreground" : ""}`}
-                                >
-                                  <CalendarIcon className="mr-2 h-4 w-4" />
-                                  {field.value ? (
-                                    format(parse(field.value, 'yyyy-MM-dd', new Date()), 'PPP')
-                                  ) : (
-                                    <span>{language === 'vi' ? 'Chọn ngày' : 'Pick a date'}</span>
-                                  )}
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              {selectedRoom ? (
-                                <PricedCalendar
-                                  roomTypeId={selectedRoom.id}
-                                  regularPrice={selectedRoom.price}
-                                  weekendPrice={selectedRoom.weekend_price || selectedRoom.price}
-                                  mode="single"
-                                  selected={field.value ? parse(field.value, 'yyyy-MM-dd', new Date()) : undefined}
-                                  onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
-                                  disabled={disableCheckoutDates}
-                                  className="pointer-events-auto"
-                                  fromMonth={new Date()}
-                                />
-                              ) : (
-                                <div className="p-4 text-center">
-                                  <p className="text-sm text-muted-foreground">
-                                    {language === 'vi' 
-                                      ? 'Vui lòng chọn loại phòng trước' 
-                                      : 'Please select a room type first'}
-                                  </p>
-                                </div>
-                              )}
-                            </PopoverContent>
-                          </Popover>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
+                    {calendarOpen && selectedRoom && (
+                      <div className="bg-white border rounded-lg p-4 shadow-md w-full max-w-full">
+                        <div className="flex justify-between items-center mb-2">
+                          <h3 className="font-medium">
+                            {dateSelectionMode === 'checkIn' 
+                              ? (language === 'vi' ? 'Chọn ngày nhận phòng' : 'Select check-in date')
+                              : (language === 'vi' ? 'Chọn ngày trả phòng' : 'Select check-out date')
+                            }
+                          </h3>
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => setCalendarOpen(false)}
+                          >
+                            ✕
+                          </Button>
+                        </div>
+                        <PricedCalendar
+                          roomTypeId={selectedRoom.id}
+                          regularPrice={selectedRoom.price}
+                          weekendPrice={selectedRoom.weekend_price || selectedRoom.price}
+                          mode="single"
+                          selected={dateSelectionMode === 'checkIn' 
+                            ? parse(form.getValues('checkIn'), 'yyyy-MM-dd', new Date())
+                            : parse(form.getValues('checkOut'), 'yyyy-MM-dd', new Date())
+                          }
+                          onSelect={handleSelectDate}
+                          disabled={disableDates}
+                          className="pointer-events-auto w-full max-w-full"
+                          fromMonth={new Date()}
+                          showPrices={true}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
                       control={form.control}
                       name="adults"

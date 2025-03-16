@@ -9,11 +9,6 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { format, isSameDay, isWeekend } from 'date-fns';
 import { CalendarIcon, Trash2, Save, Loader2 } from 'lucide-react';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 
 interface DatePriceManagementProps {
   roomId: string;
@@ -196,32 +191,15 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
     return customPrices.some(item => item.date === dateStr);
   };
 
-  // Render custom day contents with price indicators
-  const renderDay = (day: Date) => {
-    const dateStr = format(day, 'yyyy-MM-dd');
-    const customPriceItem = customPrices.find(item => item.date === dateStr);
-    
-    const price = customPriceItem
-      ? customPriceItem.price
-      : isWeekend(day)
-        ? weekendPrice
-        : regularPrice;
-    
-    const formattedPrice = new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
-    
-    return (
-      <div className="flex flex-col items-center">
-        <div>{day.getDate()}</div>
-        <div className={`text-[9px] mt-1 ${customPriceItem ? 'text-blue-500 font-bold' : 'text-gray-500'}`}>
-          {formattedPrice}
-        </div>
-      </div>
-    );
+  // Function to determine price type
+  const getPriceType = (date: Date) => {
+    if (hasCustomPrice(date)) {
+      return 'Giá tùy chỉnh';
+    } else if (isWeekend(date)) {
+      return 'Giá cuối tuần';
+    } else {
+      return 'Giá ngày thường';
+    }
   };
 
   if (isLoading) {
@@ -248,10 +226,7 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
             <Calendar
               mode="single"
               selected={selectedDate}
-              onSelect={setSelectedDate}
-              components={{
-                Day: ({ date }) => renderDay(date)
-              }}
+              onSelect={(date) => date && setSelectedDate(date)}
               className="rounded-md border max-w-full"
             />
           </div>

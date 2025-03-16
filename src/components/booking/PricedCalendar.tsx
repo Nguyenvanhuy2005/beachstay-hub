@@ -16,6 +16,7 @@ interface PricedCalendarProps {
   mode?: "single" | "range" | "multiple";
   fromMonth?: Date;
   toMonth?: Date;
+  showPrices?: boolean;
 }
 
 interface CustomPrice {
@@ -33,7 +34,8 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
   className,
   mode = "single",
   fromMonth,
-  toMonth
+  toMonth,
+  showPrices = false
 }) => {
   const [customPrices, setCustomPrices] = useState<CustomPrice[]>([]);
   
@@ -92,9 +94,11 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
     return (
       <div className={`flex flex-col items-center ${isSelectedDate ? 'text-white' : ''}`}>
         <div>{date.getDate()}</div>
-        <div className={`text-[9px] mt-1 ${isCustomPrice ? 'font-bold' : ''} ${isSelectedDate ? 'text-white' : 'text-gray-600'}`}>
-          {formattedPrice}
-        </div>
+        {showPrices && (
+          <div className={`text-[9px] mt-1 ${isCustomPrice ? 'font-bold' : ''} ${isSelectedDate ? 'text-white' : 'text-gray-600'}`}>
+            {formattedPrice}
+          </div>
+        )}
       </div>
     );
   };
