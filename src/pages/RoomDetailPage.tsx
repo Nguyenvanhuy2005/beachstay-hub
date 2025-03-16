@@ -264,7 +264,7 @@ const RoomDetailPage = () => {
             {language === 'vi' ? 'Hình Ảnh Phòng' : 'Room Gallery'}
           </h2>
           
-          <div className="hidden md:grid grid-cols-4 md:grid-cols-5 gap-2 mb-4">
+          <div className="hidden md:grid grid-cols-3 gap-2 mb-4">
             {images.length > 0 ? (
               <>
                 <div className="col-span-2 row-span-2 relative group" onClick={() => openLightbox(0)}>
@@ -283,7 +283,7 @@ const RoomDetailPage = () => {
                   </div>
                 </div>
                 
-                {images.slice(1, 9).map((image, index) => (
+                {images.slice(1, 5).map((image, index) => (
                   <div 
                     key={index + 1} 
                     className="relative group overflow-hidden rounded-lg border border-beach-100 cursor-pointer"
@@ -304,20 +304,20 @@ const RoomDetailPage = () => {
                   </div>
                 ))}
                 
-                {images.length > 9 && (
+                {images.length > 5 && (
                   <div 
                     className="relative group overflow-hidden rounded-lg border border-beach-100 cursor-pointer"
-                    onClick={() => openLightbox(8)}
+                    onClick={() => openLightbox(4)}
                   >
                     <div className="aspect-square w-full" style={{ maxHeight: "280px" }}>
                       <img 
-                        src={images[8]} 
-                        alt={`${getName()} - 9`} 
+                        src={images[4]} 
+                        alt={`${getName()} - 5`} 
                         className="w-full h-full object-cover brightness-50"
                       />
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
                         <Maximize2 className="h-5 w-5 mb-1" />
-                        <span className="font-medium text-xs">
+                        <span className="font-medium text-sm">
                           {language === 'vi' 
                             ? `Xem tất cả ${images.length} ảnh` 
                             : `View all ${images.length} photos`}
@@ -328,7 +328,7 @@ const RoomDetailPage = () => {
                 )}
               </>
             ) : (
-              <div className="col-span-5 aspect-video flex items-center justify-center bg-gray-100 rounded-lg border border-beach-100">
+              <div className="col-span-3 aspect-video flex items-center justify-center bg-gray-100 rounded-lg border border-beach-100">
                 <p className="text-gray-500 italic">
                   {language === 'vi' ? 'Không có hình ảnh' : 'No images available'}
                 </p>
@@ -340,7 +340,7 @@ const RoomDetailPage = () => {
             <Carousel className="w-full">
               <CarouselContent>
                 {images.length > 0 ? (
-                  images.map((image, index) => (
+                  images.slice(0, 5).map((image, index) => (
                     <CarouselItem key={index} className="basis-full">
                       <div className="p-1">
                         <div className="aspect-video overflow-hidden rounded-lg border border-beach-100 relative" onClick={() => openLightbox(index)}>
