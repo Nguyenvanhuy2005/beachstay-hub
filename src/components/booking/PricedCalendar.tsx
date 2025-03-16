@@ -99,20 +99,68 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
     );
   };
   
-  return (
-    <Calendar
-      mode={mode}
-      selected={selected}
-      onSelect={onSelect}
-      disabled={disabled}
-      components={{
-        Day: renderDay
-      }}
-      className={className}
-      fromMonth={fromMonth}
-      toMonth={toMonth}
-    />
-  );
+  // We need to render the calendar with the correct props based on the mode
+  if (mode === "single") {
+    return (
+      <Calendar
+        mode="single"
+        selected={selected}
+        onSelect={onSelect}
+        disabled={disabled}
+        components={{
+          Day: renderDay
+        }}
+        className={className}
+        fromMonth={fromMonth}
+        toMonth={toMonth}
+      />
+    );
+  } else if (mode === "range") {
+    // Handle range mode if needed
+    return (
+      <Calendar
+        mode="range"
+        selected={{
+          from: selected,
+          to: selected
+        }}
+        onSelect={(range) => {
+          if (onSelect && range?.from) {
+            onSelect(range.from);
+          }
+        }}
+        disabled={disabled}
+        components={{
+          Day: renderDay
+        }}
+        className={className}
+        fromMonth={fromMonth}
+        toMonth={toMonth}
+      />
+    );
+  } else {
+    // Handle multiple mode if needed
+    return (
+      <Calendar
+        mode="multiple"
+        selected={selected ? [selected] : []}
+        onSelect={(dates) => {
+          if (onSelect && dates && dates.length > 0) {
+            onSelect(dates[dates.length - 1]);
+          } else if (onSelect) {
+            onSelect(undefined);
+          }
+        }}
+        disabled={disabled}
+        components={{
+          Day: renderDay
+        }}
+        className={className}
+        fromMonth={fromMonth}
+        toMonth={toMonth}
+      />
+    );
+  }
 };
 
 export default PricedCalendar;
