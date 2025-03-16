@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { format, isSameDay, isWeekend } from 'date-fns';
 import { supabase } from '@/lib/supabase';
+import { DayContentProps } from 'react-day-picker';
 
 interface PricedCalendarProps {
   roomTypeId: string;
@@ -81,7 +82,8 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
   };
   
   // Custom render for each day in the calendar
-  const renderDay = (date: Date) => {
+  const renderDay = (props: DayContentProps) => {
+    const { date } = props;
     const price = getPriceForDate(date);
     const formattedPrice = formatPrice(price);
     const isCustomPrice = customPrices.some(item => item.date === format(date, 'yyyy-MM-dd'));
@@ -104,7 +106,7 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
       onSelect={onSelect}
       disabled={disabled}
       components={{
-        Day: ({ date }) => renderDay(date)
+        Day: renderDay
       }}
       className={className}
       fromMonth={fromMonth}

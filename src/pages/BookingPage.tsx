@@ -412,14 +412,17 @@ const BookingPage = () => {
                                   selected={field.value ? parse(field.value, 'yyyy-MM-dd', new Date()) : undefined}
                                   onSelect={(date) => {
                                     field.onChange(date ? format(date, 'yyyy-MM-dd') : '');
-                                    if (checkInDate && date) {
-                                      const checkOutDate = parse(checkInDate, 'yyyy-MM-dd', new Date());
-                                      if (isBefore(checkOutDate, date) || isDateInBookedRange(checkOutDate)) {
-                                        let nextDay = addDays(date, 1);
-                                        while (isDateInBookedRange(nextDay)) {
-                                          nextDay = addDays(nextDay, 1);
+                                    if (date) {
+                                      const checkOutDate = form.getValues('checkOut');
+                                      if (checkOutDate) {
+                                        const parsedCheckOutDate = parse(checkOutDate, 'yyyy-MM-dd', new Date());
+                                        if (isBefore(parsedCheckOutDate, date) || isDateInBookedRange(parsedCheckOutDate)) {
+                                          let nextDay = addDays(date, 1);
+                                          while (isDateInBookedRange(nextDay)) {
+                                            nextDay = addDays(nextDay, 1);
+                                          }
+                                          form.setValue('checkOut', format(nextDay, 'yyyy-MM-dd'));
                                         }
-                                        form.setValue('checkOut', format(nextDay, 'yyyy-MM-dd'));
                                       }
                                     }
                                   }}
