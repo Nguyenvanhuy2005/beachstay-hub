@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -161,7 +162,7 @@ const RoomTypesPage = () => {
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-beach-900/80 to-beach-800/90 z-10"></div>
           <img 
-            src="/lovable-uploads/24bfb323-5715-4a74-9d5a-83e88159595a.png"
+            src="/lovable-uploads/7e2eee36-3be7-4e6f-87d5-e0540c160bef.png"
             alt="Room Types" 
             className="w-full h-full object-cover"
           />
@@ -312,7 +313,7 @@ const RoomTypesPage = () => {
       
       <section className="py-16 md:py-24 bg-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="font-serif text-3xl font-bold mb-6 text-beach-900">
+          <h2 className="font-display text-3xl font-bold mb-6 text-beach-900">
             {language === 'vi' ? 'Cần Hỗ Trợ Chọn Phòng?' : 'Need Help Choosing a Room?'}
           </h2>
           <p className="text-beach-700 max-w-2xl mx-auto mb-8">
