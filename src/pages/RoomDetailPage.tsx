@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -263,15 +264,16 @@ const RoomDetailPage = () => {
             {language === 'vi' ? 'Hình Ảnh Phòng' : 'Room Gallery'}
           </h2>
           
-          <div className="hidden md:grid grid-cols-3 md:grid-cols-4 gap-3 mb-4">
+          <div className="hidden md:grid grid-cols-4 md:grid-cols-5 gap-2 mb-4">
             {images.length > 0 ? (
               <>
                 <div className="col-span-2 row-span-2 relative group" onClick={() => openLightbox(0)}>
-                  <div className="w-full h-full aspect-[4/3] overflow-hidden rounded-lg border border-beach-100 cursor-pointer">
+                  <div className="w-full overflow-hidden rounded-lg border border-beach-100 cursor-pointer" style={{ maxHeight: "600px" }}>
                     <img 
                       src={images[0]} 
                       alt={`${getName()} - 1`} 
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                      style={{ maxHeight: "600px" }}
                     />
                   </div>
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -281,13 +283,13 @@ const RoomDetailPage = () => {
                   </div>
                 </div>
                 
-                {images.slice(1, 7).map((image, index) => (
+                {images.slice(1, 9).map((image, index) => (
                   <div 
                     key={index + 1} 
                     className="relative group overflow-hidden rounded-lg border border-beach-100 cursor-pointer"
                     onClick={() => openLightbox(index + 1)}
                   >
-                    <div className="aspect-square w-full">
+                    <div className="aspect-square w-full" style={{ maxHeight: "280px" }}>
                       <img 
                         src={image} 
                         alt={`${getName()} - ${index + 2}`} 
@@ -296,26 +298,26 @@ const RoomDetailPage = () => {
                     </div>
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="bg-black/50 p-2 rounded-full">
-                        <Maximize2 className="h-5 w-5 text-white" />
+                        <Maximize2 className="h-4 w-4 text-white" />
                       </div>
                     </div>
                   </div>
                 ))}
                 
-                {images.length > 7 && (
+                {images.length > 9 && (
                   <div 
                     className="relative group overflow-hidden rounded-lg border border-beach-100 cursor-pointer"
-                    onClick={() => openLightbox(6)}
+                    onClick={() => openLightbox(8)}
                   >
-                    <div className="aspect-square w-full">
+                    <div className="aspect-square w-full" style={{ maxHeight: "280px" }}>
                       <img 
-                        src={images[6]} 
-                        alt={`${getName()} - 7`} 
+                        src={images[8]} 
+                        alt={`${getName()} - 9`} 
                         className="w-full h-full object-cover brightness-50"
                       />
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-                        <Maximize2 className="h-6 w-6 mb-2" />
-                        <span className="font-medium text-sm">
+                        <Maximize2 className="h-5 w-5 mb-1" />
+                        <span className="font-medium text-xs">
                           {language === 'vi' 
                             ? `Xem tất cả ${images.length} ảnh` 
                             : `View all ${images.length} photos`}
@@ -326,7 +328,7 @@ const RoomDetailPage = () => {
                 )}
               </>
             ) : (
-              <div className="col-span-4 aspect-video flex items-center justify-center bg-gray-100 rounded-lg border border-beach-100">
+              <div className="col-span-5 aspect-video flex items-center justify-center bg-gray-100 rounded-lg border border-beach-100">
                 <p className="text-gray-500 italic">
                   {language === 'vi' ? 'Không có hình ảnh' : 'No images available'}
                 </p>
@@ -519,7 +521,7 @@ const RoomDetailPage = () => {
                 <img
                   src={images[currentImageIndex]}
                   alt={`${getName()} - Full size ${currentImageIndex + 1}`}
-                  className="max-h-[90vh] max-w-[90vw] object-contain"
+                  className="max-h-[85vh] max-w-[85vw] object-contain"
                 />
               )}
             </div>
