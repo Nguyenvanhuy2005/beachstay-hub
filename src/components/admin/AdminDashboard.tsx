@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
-import RoomsManagement from './RoomsManagement';
+import RoomManagement from './RoomManagement';
 import BookingsManagement from './BookingsManagement';
 import PricingManagement from './PricingManagement';
 import ContentManagement from './ContentManagement';
@@ -128,7 +128,7 @@ const AdminDashboard = () => {
             </TabsList>
             
             <TabsContent value="rooms" className="mt-6">
-              <RoomsManagement />
+              <RoomManagement />
             </TabsContent>
             
             <TabsContent value="bookings" className="mt-6">
