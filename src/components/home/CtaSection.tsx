@@ -1,8 +1,8 @@
-
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { useState, useEffect } from "react";
-import { createBooking, checkRoomAvailability, getRoomTypes } from "@/api/bookingApi";
+import { createBooking, getRoomTypes } from "@/api/bookingApi";
+import { checkRoomAvailability } from "@/lib/supabase";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -36,7 +36,6 @@ const CtaSection = () => {
     setRoomTypes(data);
   };
   
-  // Reset error when inputs change
   useEffect(() => {
     if (errorMessage) setErrorMessage('');
   }, [checkIn, checkOut, roomType]);
@@ -52,7 +51,6 @@ const CtaSection = () => {
     setChecking(true);
     
     try {
-      // Kiểm tra tính khả dụng trước khi đặt phòng
       const availabilityResult = await checkRoomAvailability(roomType, checkIn, checkOut);
       
       if (!availabilityResult.available) {
@@ -101,7 +99,6 @@ const CtaSection = () => {
 
   return (
     <section className="py-20 bg-gradient-to-r from-beach-700 to-beach-600 text-white relative overflow-hidden">
-      {/* Background decoration */}
       <div className="absolute top-0 right-0 w-1/3 h-full bg-beach-500/20 -skew-x-12 transform origin-top-right"></div>
       
       <div className="container mx-auto px-4 md:px-6 relative z-10">
