@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -51,6 +50,8 @@ const bookingFormSchema = z.object({
   children: z.number().min(0, { message: 'Số trẻ em không thể âm' }).max(10, { message: 'Tối đa 10 trẻ em' }),
   specialRequests: z.string().optional(),
 }).refine((data) => {
+  if (!data.checkIn || !data.checkOut) return true;
+  
   const checkIn = parse(data.checkIn, 'yyyy-MM-dd', new Date());
   const checkOut = parse(data.checkOut, 'yyyy-MM-dd', new Date());
   return isAfter(checkOut, checkIn);
@@ -85,8 +86,8 @@ const BookingPage = () => {
       fullName: '',
       email: '',
       phone: '',
-      checkIn: format(new Date(), 'yyyy-MM-dd'),
-      checkOut: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
+      checkIn: '',
+      checkOut: '',
       roomType: '',
       adults: 2,
       children: 0,
@@ -152,7 +153,6 @@ const BookingPage = () => {
     fetchBookedDates();
   }, [form.watch('roomType')]);
 
-  // Calculate total price when dates and room are selected
   useEffect(() => {
     const calculateTotalPrice = async () => {
       const roomType = form.watch('roomType');
@@ -173,7 +173,6 @@ const BookingPage = () => {
           return;
         }
         
-        // Calculate nights
         const nights = differenceInDays(checkOutDate, checkInDate);
         
         if (nights <= 0) {
@@ -181,17 +180,14 @@ const BookingPage = () => {
           return;
         }
         
-        // Get all dates in the range
         const dates = eachDayOfInterval({ 
           start: checkInDate, 
-          end: new Date(checkOutDate.getTime() - 1) // Exclude checkout day
+          end: new Date(checkOutDate.getTime() - 1) 
         });
         
-        // Calculate price for each night
         let sum = 0;
         
         for (const date of dates) {
-          // Get price for this specific date
           const price = await getRoomPriceForDate(roomType, format(date, 'yyyy-MM-dd'));
           sum += price || selectedRoom.price;
         }
@@ -302,20 +298,17 @@ const BookingPage = () => {
     setSelectedDateRange(range);
   };
 
-  // Format date for display
   const formatDisplayDate = (dateStr: string) => {
     if (!dateStr) return '';
     const date = parse(dateStr, 'yyyy-MM-dd', new Date());
     return format(date, 'dd/MM/yyyy');
   };
 
-  // Get formatted check-in and check-out dates
   const checkInDate = form.watch('checkIn');
   const checkOutDate = form.watch('checkOut');
   const formattedCheckIn = formatDisplayDate(checkInDate);
   const formattedCheckOut = formatDisplayDate(checkOutDate);
   
-  // Calculate number of nights
   const numberOfNights = useMemo(() => {
     if (!checkInDate || !checkOutDate) return 0;
     const start = parse(checkInDate, 'yyyy-MM-dd', new Date());
@@ -435,13 +428,9 @@ const BookingPage = () => {
                             onValueChange={(value) => {
                               field.onChange(value);
                               if (value !== field.value) {
-                                const today = new Date();
-                                form.setValue('checkIn', format(today, 'yyyy-MM-dd'));
-                                form.setValue('checkOut', format(addDays(today, 1), 'yyyy-MM-dd'));
-                                setSelectedDateRange({
-                                  from: today,
-                                  to: addDays(today, 1)
-                                });
+                                form.setValue('checkIn', '');
+                                form.setValue('checkOut', '');
+                                setSelectedDateRange(undefined);
                               }
                             }} 
                             value={field.value}

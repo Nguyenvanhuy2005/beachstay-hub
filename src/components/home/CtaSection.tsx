@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Check, Calendar } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
@@ -51,7 +50,6 @@ const CtaSection = () => {
     if (errorMessage) setErrorMessage('');
   }, [checkIn, checkOut, roomType]);
   
-  // Fetch booked dates when room type changes
   useEffect(() => {
     const fetchBookedDates = async () => {
       if (!roomType) return;
@@ -59,14 +57,12 @@ const CtaSection = () => {
       try {
         const bookedDateRanges = await getBookedDatesForRoomType(roomType);
         
-        // Convert date ranges to array of individual dates
         const allBookedDates: Date[] = [];
         
         bookedDateRanges.forEach(booking => {
           const startDate = new Date(booking.check_in);
           const endDate = new Date(booking.check_out);
           
-          // Get all dates in this range
           const datesInRange = eachDayOfInterval({ start: startDate, end: endDate });
           allBookedDates.push(...datesInRange);
         });
@@ -80,7 +76,6 @@ const CtaSection = () => {
     fetchBookedDates();
   }, [roomType]);
   
-  // Function to check if a date is booked
   const isDateBooked = (date: string) => {
     if (!bookedDates.length || !date) return false;
     
@@ -98,7 +93,6 @@ const CtaSection = () => {
       return;
     }
     
-    // Check if selected dates are booked
     if (isDateBooked(checkIn) || isDateBooked(checkOut)) {
       setErrorMessage('Ngày bạn chọn đã có khách đặt! Vui lòng chọn ngày khác.');
       toast.error('Ngày bạn chọn đã có khách đặt! Vui lòng chọn ngày khác.');
@@ -185,18 +179,15 @@ const CtaSection = () => {
     setSelectedDateRange(range);
   };
 
-  // Format date for display
   const formatDisplayDate = (dateStr: string) => {
     if (!dateStr) return '';
     const date = parse(dateStr, 'yyyy-MM-dd', new Date());
     return format(date, 'dd/MM/yyyy');
   };
 
-  // Get formatted check-in and check-out dates
   const formattedCheckIn = formatDisplayDate(checkIn);
   const formattedCheckOut = formatDisplayDate(checkOut);
   
-  // Calculate number of nights
   const numberOfNights = useMemo(() => {
     if (!checkIn || !checkOut) return 0;
     const start = parse(checkIn, 'yyyy-MM-dd', new Date());
@@ -296,7 +287,6 @@ const CtaSection = () => {
                   value={roomType}
                   onChange={(e) => {
                     setRoomType(e.target.value);
-                    // Reset dates when room type changes
                     if (e.target.value !== roomType) {
                       setCheckIn('');
                       setCheckOut('');
