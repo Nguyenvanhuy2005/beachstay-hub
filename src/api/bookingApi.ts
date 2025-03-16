@@ -1,5 +1,5 @@
 
-import { supabase, checkRoomAvailability } from '@/lib/supabase';
+import { supabase, checkRoomAvailability, getBookingsWithRoomInfo } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 export interface BookingFormData {
@@ -131,26 +131,7 @@ export const getRoomTypes = async () => {
 
 export const getBookingsByStatus = async (status?: string) => {
   try {
-    console.log('Fetching bookings with status filter:', status || 'all');
-    
-    let query = supabase
-      .from('bookings')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (status) {
-      query = query.eq('status', status);
-    }
-    
-    const { data, error } = await query;
-    
-    if (error) {
-      console.error('Error fetching bookings:', error);
-      return [];
-    }
-    
-    console.log('Bookings fetched:', data?.length || 0);
-    return data || [];
+    return await getBookingsWithRoomInfo(status);
   } catch (error) {
     console.error('Unexpected error in getBookingsByStatus:', error);
     return [];

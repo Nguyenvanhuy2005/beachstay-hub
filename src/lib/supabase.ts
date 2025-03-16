@@ -102,6 +102,52 @@ export const getAllBookedDates = async () => {
   }
 };
 
+// Helper function to get bookings with room information included
+export const getBookingsWithRoomInfo = async (statusFilter?: string) => {
+  try {
+    console.log('Fetching bookings with room info. Status filter:', statusFilter || 'all');
+    
+    // Build the query to join bookings with room_types
+    let query = supabase
+      .from('bookings')
+      .select(`
+        *,
+        room_types:room_type_id (
+          id,
+          name,
+          name_en
+        )
+      `)
+      .order('created_at', { ascending: false });
+    
+    // Apply status filter if provided
+    if (statusFilter && statusFilter !== 'all') {
+      query = query.eq('status', statusFilter);
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Error fetching bookings with room info:', error);
+      return [];
+    }
+    
+    console.log('Fetched bookings with room info:', data?.length, 'bookings found');
+    
+    // Transform the data to make it easier to work with
+    const enhancedBookings = data?.map(booking => ({
+      ...booking,
+      room_name: booking.room_types?.name || 'Unknown Room',
+      room_name_en: booking.room_types?.name_en || 'Unknown Room'
+    })) || [];
+    
+    return enhancedBookings;
+  } catch (error) {
+    console.error('Unexpected error in getBookingsWithRoomInfo:', error);
+    return [];
+  }
+};
+
 // Get room price for a specific date
 export const getRoomPriceForDate = async (roomTypeId: string, date: string) => {
   try {

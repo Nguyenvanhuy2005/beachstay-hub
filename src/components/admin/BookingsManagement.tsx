@@ -9,7 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { Loader2, CheckCircle, XCircle, Clock, RefreshCw } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, getBookingsWithRoomInfo } from '@/lib/supabase';
 
 interface Booking {
   id: string;
@@ -24,11 +24,7 @@ interface Booking {
   created_at: string;
   room_type_id: string;
   room_name?: string;
-}
-
-interface RoomType {
-  id: string;
-  name: string;
+  room_name_en?: string;
 }
 
 const BookingsManagement = () => {
@@ -36,7 +32,6 @@ const BookingsManagement = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [roomTypes, setRoomTypes] = useState<{[key: string]: string}>({});
 
   // Fetch bookings with better error handling and debugging
   const fetchBookings = async () => {
@@ -44,64 +39,11 @@ const BookingsManagement = () => {
     setLoading(true);
     
     try {
-      // Build the query
-      let query = supabase
-        .from('bookings')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Use the new helper function to get bookings with room info
+      const bookingsWithRoomInfo = await getBookingsWithRoomInfo(statusFilter);
+      console.log('Fetched bookings with room info:', bookingsWithRoomInfo);
       
-      // Apply status filter if not set to 'all'
-      if (statusFilter !== 'all') {
-        query = query.eq('status', statusFilter);
-      }
-      
-      // Execute the query
-      const { data, error } = await query;
-      
-      if (error) {
-        console.error('Error fetching bookings:', error);
-        toast.error(language === 'vi' ? 'Không thể tải dữ liệu đặt phòng' : 'Could not load booking data');
-        setLoading(false);
-        return;
-      }
-      
-      console.log('Fetched bookings:', data);
-      
-      // Fetch room types to display room names
-      if (data && data.length > 0) {
-        // Get all unique room type IDs from bookings
-        const roomTypeIds = [...new Set(data.map(booking => booking.room_type_id))].filter(Boolean);
-        
-        if (roomTypeIds.length > 0) {
-          const { data: roomTypesData, error: roomTypesError } = await supabase
-            .from('room_types')
-            .select('id, name')
-            .in('id', roomTypeIds);
-          
-          if (!roomTypesError && roomTypesData) {
-            // Create map of room type ids to names
-            const roomTypeMap: {[key: string]: string} = {};
-            roomTypesData.forEach((room: RoomType) => {
-              roomTypeMap[room.id] = room.name;
-            });
-            
-            console.log('Room type map:', roomTypeMap);
-            setRoomTypes(roomTypeMap);
-          }
-        }
-        
-        // Enhance bookings with room names
-        const enhancedBookings = data.map(booking => ({
-          ...booking,
-          room_name: booking.room_type_id ? roomTypes[booking.room_type_id] || 'Unknown Room' : 'No Room Selected'
-        }));
-        
-        setBookings(enhancedBookings);
-        console.log('Set enhanced bookings:', enhancedBookings);
-      } else {
-        console.log('No bookings found');
-        setBookings([]);
-      }
+      setBookings(bookingsWithRoomInfo);
     } catch (error) {
       console.error('Unexpected error in fetchBookings:', error);
       toast.error(language === 'vi' ? 'Lỗi không xác định khi tải dữ liệu' : 'Unexpected error loading data');
@@ -112,31 +54,7 @@ const BookingsManagement = () => {
 
   // Load data on component mount and when filter changes
   useEffect(() => {
-    // First fetch room types
-    const fetchRoomTypes = async () => {
-      try {
-        const { data: roomTypesData, error: roomTypesError } = await supabase
-          .from('room_types')
-          .select('id, name');
-        
-        if (!roomTypesError && roomTypesData) {
-          const roomTypeMap: {[key: string]: string} = {};
-          roomTypesData.forEach((room: RoomType) => {
-            roomTypeMap[room.id] = room.name;
-          });
-          
-          console.log('Initial room types:', roomTypeMap);
-          setRoomTypes(roomTypeMap);
-        }
-      } catch (err) {
-        console.error('Error fetching room types:', err);
-      }
-    };
-    
-    // Fetch room types first, then bookings
-    fetchRoomTypes().then(() => {
-      fetchBookings();
-    });
+    fetchBookings();
   }, [statusFilter]);
 
   // Update booking status
@@ -262,7 +180,7 @@ const BookingsManagement = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>{language === 'vi' ? 'Khách hàng' : 'Customer'}</TableHead>
-                  <TableHead>{language === 'vi' ? 'Loại phòng' : 'Room Type'}</TableHead>
+                  <TableHead>{language === 'vi' ? 'Tên phòng' : 'Room Name'}</TableHead>
                   <TableHead>{language === 'vi' ? 'Ngày nhận/trả' : 'Check-in/out'}</TableHead>
                   <TableHead>{language === 'vi' ? 'Trạng thái' : 'Status'}</TableHead>
                   <TableHead>{language === 'vi' ? 'Thao tác' : 'Actions'}</TableHead>
@@ -277,7 +195,9 @@ const BookingsManagement = () => {
                       <div className="text-sm text-muted-foreground">{booking.phone}</div>
                     </TableCell>
                     <TableCell>
-                      {booking.room_name || roomTypes[booking.room_type_id] || (language === 'vi' ? 'Không xác định' : 'Unknown')}
+                      {language === 'vi' 
+                        ? booking.room_name || 'Không xác định'
+                        : booking.room_name_en || 'Unknown Room'}
                     </TableCell>
                     <TableCell>
                       <div>{format(new Date(booking.check_in), 'dd/MM/yyyy')}</div>
