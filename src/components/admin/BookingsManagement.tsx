@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/lib/supabase';
-import { getBookingsByStatus, updateBookingStatus } from '@/api/bookingApi';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { Loader2, CheckCircle, XCircle, Clock } from 'lucide-react';
@@ -38,9 +37,23 @@ const BookingsManagement = () => {
   const fetchBookings = async () => {
     setLoading(true);
     try {
-      const status = statusFilter !== 'all' ? statusFilter : undefined;
-      const fetchedBookings = await getBookingsByStatus(status);
-      setBookings(fetchedBookings);
+      let query = supabase
+        .from('bookings')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (statusFilter !== 'all') {
+        query = query.eq('status', statusFilter);
+      }
+      
+      const { data, error } = await query;
+      
+      if (error) {
+        throw error;
+      }
+      
+      console.log('Đã tìm thấy', data?.length, 'đơn đặt phòng');
+      setBookings(data || []);
     } catch (error) {
       console.error('Lỗi khi lấy danh sách đặt phòng:', error);
       toast.error(language === 'vi' ? 'Không thể tải dữ liệu đặt phòng' : 'Could not load booking data');
@@ -77,26 +90,30 @@ const BookingsManagement = () => {
   // Cập nhật trạng thái đặt phòng
   const handleStatusChange = async (bookingId: string, newStatus: string) => {
     try {
-      const result = await updateBookingStatus(bookingId, newStatus);
+      const { data, error } = await supabase
+        .from('bookings')
+        .update({ status: newStatus })
+        .eq('id', bookingId)
+        .select();
       
-      if (result.success) {
-        toast.success(
-          language === 'vi' 
-            ? `Đã cập nhật trạng thái đặt phòng thành "${newStatus}"` 
-            : `Booking status updated to "${newStatus}"`
-        );
-        
-        // Cập nhật danh sách đặt phòng
-        setBookings(prev => 
-          prev.map(booking => 
-            booking.id === bookingId 
-              ? { ...booking, status: newStatus } 
-              : booking
-          )
-        );
-      } else {
-        throw new Error(result.error as any);
+      if (error) {
+        throw error;
       }
+      
+      toast.success(
+        language === 'vi' 
+          ? `Đã cập nhật trạng thái đặt phòng thành "${newStatus}"` 
+          : `Booking status updated to "${newStatus}"`
+      );
+      
+      // Cập nhật danh sách đặt phòng
+      setBookings(prev => 
+        prev.map(booking => 
+          booking.id === bookingId 
+            ? { ...booking, status: newStatus } 
+            : booking
+        )
+      );
     } catch (error) {
       console.error('Lỗi khi cập nhật trạng thái:', error);
       toast.error(
@@ -201,7 +218,7 @@ const BookingsManagement = () => {
                       <div className="text-sm text-muted-foreground">{booking.phone}</div>
                     </TableCell>
                     <TableCell>
-                      {roomTypes[booking.room_type_id] || language === 'vi' ? 'Không xác định' : 'Unknown'}
+                      {roomTypes[booking.room_type_id] || (language === 'vi' ? 'Không xác định' : 'Unknown')}
                     </TableCell>
                     <TableCell>
                       <div>{format(new Date(booking.check_in), 'dd/MM/yyyy')}</div>
