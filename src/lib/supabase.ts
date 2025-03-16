@@ -27,6 +27,8 @@ export const getPublicUrl = (bucket: string, path: string) => {
 // Helper function to call the check_room_availability RPC function
 export const checkRoomAvailability = async (roomTypeId: string, checkIn: string, checkOut: string) => {
   try {
+    console.log(`Checking availability for room type ${roomTypeId} from ${checkIn} to ${checkOut}`);
+    
     const { data, error } = await supabase.rpc('check_room_availability', {
       p_room_type_id: roomTypeId,
       p_check_in: checkIn,
@@ -35,14 +37,22 @@ export const checkRoomAvailability = async (roomTypeId: string, checkIn: string,
 
     if (error) {
       console.error('Error in checkRoomAvailability:', error);
-      return { available: false, error };
+      return { available: false, error, remainingRooms: 0 };
     }
 
-    return data && data.length > 0 
-      ? { available: data[0].available, remainingRooms: data[0].remaining_rooms } 
-      : { available: false, error: 'No data returned' };
+    console.log('Availability check result:', data);
+    
+    // Access the first element of the array returned by the RPC
+    if (data && data.length > 0) {
+      return { 
+        available: data[0].available, 
+        remainingRooms: data[0].remaining_rooms 
+      };
+    }
+
+    return { available: false, error: 'No data returned', remainingRooms: 0 };
   } catch (error) {
     console.error('Unexpected error in checkRoomAvailability:', error);
-    return { available: false, error };
+    return { available: false, error, remainingRooms: 0 };
   }
 };

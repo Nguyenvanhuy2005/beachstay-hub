@@ -1,5 +1,5 @@
 
-import { supabase } from '@/lib/supabase';
+import { supabase, checkRoomAvailability } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 export interface BookingFormData {
@@ -18,7 +18,7 @@ export const createBooking = async (bookingData: BookingFormData) => {
   try {
     console.log('Creating booking with data:', bookingData);
     
-    // Kiểm tra tính khả dụng trước khi tạo đặt phòng
+    // Double-check availability before proceeding with booking creation
     const availabilityCheck = await checkRoomAvailability(
       bookingData.roomType,
       bookingData.checkIn,
@@ -28,7 +28,7 @@ export const createBooking = async (bookingData: BookingFormData) => {
     if (!availabilityCheck.available) {
       console.error('Room is not available for the selected dates');
       toast.error('Phòng đã hết chỗ cho ngày bạn chọn! Vui lòng chọn ngày khác hoặc loại phòng khác.');
-      return { success: false, error: 'Room not available' };
+      return { success: false, error: 'Room not available', remainingRooms: availabilityCheck.remainingRooms || 0 };
     }
     
     // Transform the booking data to match Supabase schema
@@ -81,7 +81,7 @@ export const createBooking = async (bookingData: BookingFormData) => {
 
     // Booking successful
     toast.success('Đặt phòng thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.');
-    return { success: true, data };
+    return { success: true, data, bookingId: data[0]?.id };
   } catch (error) {
     console.error('Unexpected error:', error);
     toast.error('Đã xảy ra lỗi không mong muốn!');
