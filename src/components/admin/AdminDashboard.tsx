@@ -12,7 +12,7 @@ import PricingManagement from './PricingManagement';
 import ContentManagement from './ContentManagement';
 import GalleryManagement from './GalleryManagement';
 import { toast } from 'sonner';
-import { Settings, Lock, Users, Database, Globe, Send } from 'lucide-react';
+import { Settings, Lock, Users, Database, Globe, Send, Save } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
