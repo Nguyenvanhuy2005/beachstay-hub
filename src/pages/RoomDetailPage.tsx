@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -6,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import MainLayout from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
-import { Loader2, ChevronLeft, Calendar, Users, Check, MapPin } from 'lucide-react';
+import { Loader2, ChevronLeft, Calendar, Users, Check, MapPin, ExternalLink } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
@@ -39,7 +38,6 @@ const RoomDetailPage = () => {
         
         console.log("Fetching room with ID:", id);
         
-        // Fetch from Supabase
         const { data, error } = await supabase
           .from('room_types')
           .select('*')
@@ -73,7 +71,6 @@ const RoomDetailPage = () => {
     fetchRoomType();
   }, [id, language]);
   
-  // Helper functions
   const getName = () => {
     return language === 'vi' ? roomType?.name : roomType?.name_en;
   };
@@ -88,6 +85,11 @@ const RoomDetailPage = () => {
   
   const getAddress = () => {
     return language === 'vi' ? roomType?.address : roomType?.address_en;
+  };
+  
+  const getGoogleMapsUrl = () => {
+    const address = encodeURIComponent(getAddress() || '');
+    return `https://www.google.com/maps/search/?api=1&query=${address}`;
   };
   
   const formatPrice = (price) => {
@@ -133,7 +135,6 @@ const RoomDetailPage = () => {
   
   return (
     <MainLayout>
-      {/* Hero Banner */}
       <div className="relative h-80 md:h-96 bg-beach-900">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-beach-900/70 to-beach-900/90 z-10"></div>
@@ -168,21 +169,24 @@ const RoomDetailPage = () => {
             </motion.div>
             
             {getAddress() && (
-              <motion.div
-                className="flex items-center text-beach-100"
+              <motion.a
+                href={getGoogleMapsUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center text-beach-100 hover:text-beach-50 group transition-colors"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
               >
                 <MapPin className="h-4 w-4 mr-1" />
                 <span className="text-sm">{getAddress()}</span>
-              </motion.div>
+                <ExternalLink className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </motion.a>
             )}
           </div>
         </div>
       </div>
       
-      {/* Room Details */}
       <div className="container mx-auto px-4 py-16">
         <div className="flex flex-wrap gap-4 mb-8 items-center">
           <Button asChild className="rounded-md border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 transition-colors">
@@ -199,7 +203,6 @@ const RoomDetailPage = () => {
           </Button>
         </div>
         
-        {/* Image Gallery Section */}
         <motion.div 
           className="mb-12"
           initial={{ opacity: 0, y: 30 }}
@@ -260,10 +263,16 @@ const RoomDetailPage = () => {
             {getAddress() && (
               <div className="mb-8">
                 <h3 className="font-serif text-xl font-bold mb-4 text-beach-900">{language === 'vi' ? 'Địa Chỉ' : 'Address'}</h3>
-                <div className="flex items-center text-beach-800">
+                <a 
+                  href={getGoogleMapsUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center text-beach-800 hover:text-beach-600 group transition-colors"
+                >
                   <MapPin className="h-5 w-5 mr-2 text-beach-600" />
                   <span>{getAddress()}</span>
-                </div>
+                  <ExternalLink className="h-4 w-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </a>
               </div>
             )}
             
