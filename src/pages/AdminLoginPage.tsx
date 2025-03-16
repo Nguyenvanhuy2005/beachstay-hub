@@ -9,12 +9,15 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { AlertTriangle } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 
 const AdminLoginPage = () => {
-  const [email, setEmail] = useState('admin@annamvillage.vn');
-  const [password, setPassword] = useState('admin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [resetMessage, setResetMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
@@ -100,52 +103,170 @@ const AdminLoginPage = () => {
     }
   };
 
-  const handleAdminReset = async () => {
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true);
-    setIsCreatingAdmin(true);
     setErrorMessage('');
-    toast.info('Đang khởi tạo lại tài khoản admin...');
+    setResetMessage('');
     
     try {
-      // Try to sign up with admin credentials (this will create a new user if it doesn't exist)
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: 'admin@annamvillage.vn',
-        password: 'admin',
-      });
-
-      // If user exists or was created successfully
-      if (signUpError && !signUpError.message.includes('already registered')) {
-        throw signUpError;
+      const cleanEmail = forgotEmail.trim().toLowerCase();
+      
+      if (!cleanEmail) {
+        setErrorMessage('Vui lòng nhập email');
+        return;
       }
-
-      // Ensure the admin record exists in the admin_users table
-      const { error: upsertError } = await supabase
+      
+      // Check if email is in admin_users table
+      const { data: adminData, error: adminError } = await supabase
         .from('admin_users')
-        .upsert([
-          { 
-            email: 'admin@annamvillage.vn', 
-            is_active: true 
-          }
-        ], 
-        { onConflict: 'email' });
+        .select('*')
+        .eq('email', cleanEmail)
+        .maybeSingle();
       
-      if (upsertError) {
-        throw upsertError;
+      if (adminError) {
+        console.error('Error checking admin status:', adminError);
+        setErrorMessage('Lỗi kiểm tra email');
+        return;
       }
       
-      toast.success('Tài khoản admin đã được khởi tạo lại, vui lòng đăng nhập');
+      if (!adminData) {
+        setErrorMessage('Email không tồn tại trong hệ thống quản trị');
+        return;
+      }
+
+      // Send password reset email
+      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+        redirectTo: `${window.location.origin}/admin/reset-password`,
+      });
       
-      // Set default credentials for easier login
-      setEmail('admin@annamvillage.vn');
-      setPassword('admin');
+      if (error) {
+        console.error('Reset password error:', error);
+        setErrorMessage(error.message);
+        throw error;
+      }
+      
+      setResetMessage('Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư của bạn.');
+      toast.success('Email đặt lại mật khẩu đã được gửi');
     } catch (error: any) {
-      console.error('Error resetting admin account:', error);
-      setErrorMessage('Lỗi khởi tạo tài khoản: ' + error.message);
-      toast.error('Lỗi khởi tạo tài khoản admin');
+      console.error('Error in forgot password:', error);
+      setErrorMessage('Lỗi gửi email đặt lại mật khẩu');
     } finally {
       setIsLoading(false);
-      setIsCreatingAdmin(false);
     }
+  };
+
+  const renderForgotPasswordForm = () => {
+    return (
+      <form onSubmit={handleForgotPassword} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="forgot-email">Email</Label>
+          <Input
+            id="forgot-email"
+            type="email" 
+            value={forgotEmail}
+            onChange={(e) => setForgotEmail(e.target.value)}
+            placeholder="Nhập email quản trị của bạn"
+            className="bg-white"
+            required
+          />
+        </div>
+        
+        {errorMessage && (
+          <div className="p-3 rounded bg-red-50 text-red-600 text-sm flex items-start gap-2">
+            <AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+        
+        {resetMessage && (
+          <div className="p-3 rounded bg-green-50 text-green-600 text-sm">
+            {resetMessage}
+          </div>
+        )}
+        
+        <div className="flex flex-col space-y-2">
+          <Button 
+            type="submit" 
+            className="w-full bg-beach-600 hover:bg-beach-700" 
+            disabled={isLoading}
+          >
+            {isLoading ? 'Đang gửi...' : 'Gửi yêu cầu đặt lại mật khẩu'}
+          </Button>
+          
+          <Button 
+            type="button" 
+            variant="outline"
+            className="w-full border-beach-300 text-beach-700" 
+            onClick={() => setIsForgotPassword(false)}
+            disabled={isLoading}
+          >
+            Quay lại đăng nhập
+          </Button>
+        </div>
+      </form>
+    );
+  };
+
+  const renderLoginForm = () => {
+    return (
+      <form onSubmit={handleLogin} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email" 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="admin@annamvillage.vn"
+            className="bg-white"
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="password">Mật khẩu</Label>
+          <Input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="bg-white"
+            required
+          />
+        </div>
+        
+        {errorMessage && (
+          <div className="p-3 rounded bg-red-50 text-red-600 text-sm flex items-start gap-2">
+            <AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+        
+        <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded">
+          Tài khoản mặc định: admin@annamvillage.vn / admin
+        </div>
+        
+        <div className="flex flex-col space-y-2">
+          <Button 
+            type="submit" 
+            className="w-full bg-beach-600 hover:bg-beach-700" 
+            disabled={isLoading}
+          >
+            {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+          </Button>
+          
+          <Button 
+            type="button" 
+            variant="link"
+            className="text-beach-700" 
+            onClick={() => setIsForgotPassword(true)}
+            disabled={isLoading}
+          >
+            Quên mật khẩu?
+          </Button>
+        </div>
+      </form>
+    );
   };
 
   return (
@@ -154,71 +275,17 @@ const AdminLoginPage = () => {
         <div className="container mx-auto px-4 max-w-md">
           <Card className="shadow-lg border-t-4 border-t-beach-600">
             <CardHeader className="space-y-1 text-center">
-              <CardTitle className="text-2xl font-bold">Đăng nhập Quản trị</CardTitle>
-              <CardDescription>Nhập thông tin đăng nhập</CardDescription>
+              <CardTitle className="text-2xl font-bold">
+                {isForgotPassword ? 'Quên mật khẩu' : 'Đăng nhập Quản trị'}
+              </CardTitle>
+              <CardDescription>
+                {isForgotPassword 
+                  ? 'Nhập email của bạn để đặt lại mật khẩu' 
+                  : 'Nhập thông tin đăng nhập'}
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              {isCreatingAdmin ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-beach-700 mx-auto mb-4"></div>
-                  <p>Đang khởi tạo tài khoản admin...</p>
-                </div>
-              ) : (
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email" 
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="admin@annamvillage.vn"
-                      className="bg-white"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Mật khẩu</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="bg-white"
-                      required
-                    />
-                  </div>
-                  
-                  {errorMessage && (
-                    <div className="p-3 rounded bg-red-50 text-red-600 text-sm flex items-start gap-2">
-                      <AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
-                      <span>{errorMessage}</span>
-                    </div>
-                  )}
-                  
-                  <div className="text-sm text-gray-500 bg-gray-50 p-2 rounded">
-                    Tài khoản mặc định: admin@annamvillage.vn / admin
-                  </div>
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-beach-600 hover:bg-beach-700" 
-                    disabled={isLoading}
-                  >
-                    {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-                  </Button>
-                  
-                  <Button 
-                    type="button" 
-                    variant="outline"
-                    className="w-full mt-2 border-beach-300 text-beach-700" 
-                    onClick={handleAdminReset}
-                    disabled={isLoading}
-                  >
-                    Khởi tạo lại tài khoản admin
-                  </Button>
-                </form>
-              )}
+              {isForgotPassword ? renderForgotPasswordForm() : renderLoginForm()}
             </CardContent>
           </Card>
         </div>

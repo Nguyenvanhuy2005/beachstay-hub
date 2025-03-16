@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -21,15 +22,16 @@ const AdminDashboard = () => {
   useEffect(() => {
     const checkAdminStatus = async () => {
       try {
-        const session = await supabase.auth.getSession();
+        const { data: sessionData } = await supabase.auth.getSession();
         
-        if (!session.data?.session?.user) {
+        if (!sessionData?.session?.user) {
           // No session, redirect to login
-          navigate('/admin/login');
+          setIsAdmin(false);
+          setLoading(false);
           return;
         }
         
-        const userEmail = session.data.session.user.email;
+        const userEmail = sessionData.session.user.email;
         
         if (userEmail) {
           const { data: adminData, error } = await supabase
@@ -41,23 +43,20 @@ const AdminDashboard = () => {
           if (error) {
             console.error('Error fetching admin data:', error);
             setIsAdmin(false);
-            navigate('/admin/login');
           } else if (adminData) {
             setIsAdmin(true);
           } else {
             // User is logged in but not an admin
             toast.error(language === 'vi' ? 'Tài khoản không có quyền quản trị' : 'Account does not have admin privileges');
             await supabase.auth.signOut();
-            navigate('/admin/login');
+            setIsAdmin(false);
           }
         } else {
           setIsAdmin(false);
-          navigate('/admin/login');
         }
       } catch (error) {
         console.error('Session check error:', error);
         setIsAdmin(false);
-        navigate('/admin/login');
       } finally {
         setLoading(false);
       }
@@ -66,20 +65,12 @@ const AdminDashboard = () => {
     checkAdminStatus();
   }, [navigate, language]);
 
-  // Fix: Thêm điều kiện trả về UI tải trong khi kiểm tra
-  if (loading) {
-    return (
-      <div className="container mx-auto py-8 px-4 text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-beach-700 mx-auto"></div>
-        <p className="mt-4">{language === 'vi' ? 'Đang tải...' : 'Loading...'}</p>
-      </div>
-    );
-  }
-
-  // Fix: Không redirect trong render, chỉ trả về null
-  if (!isAdmin) {
-    return null;
-  }
+  useEffect(() => {
+    // Handle redirecting separately from state updates
+    if (!loading && !isAdmin) {
+      navigate('/admin/login');
+    }
+  }, [loading, isAdmin, navigate]);
 
   const handleSignOut = async () => {
     try {
@@ -98,6 +89,19 @@ const AdminDashboard = () => {
       toast.error(language === 'vi' ? `Lỗi: ${error.message}` : `Error: ${error.message}`);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto py-8 px-4 text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-beach-700 mx-auto"></div>
+        <p className="mt-4">{language === 'vi' ? 'Đang tải...' : 'Loading...'}</p>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return null;
+  }
 
   return (
     <div className="container mx-auto py-8 px-4">
