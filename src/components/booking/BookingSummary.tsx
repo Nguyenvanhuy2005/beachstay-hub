@@ -42,6 +42,12 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
     return differenceInDays(end, start);
   }, [checkIn, checkOut]);
 
+  // Format price to display in millions (M)
+  const formatPriceInMillions = (price: number): string => {
+    const inMillions = price / 1000000;
+    return `${inMillions.toFixed(1)}M`;
+  };
+
   return (
     <>
       {availabilityStatus.checked && !availabilityStatus.available && (
@@ -88,7 +94,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                 </span>
               </div>
               <div className="text-xl font-bold">
-                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalPrice)}
+                {formatPriceInMillions(totalPrice)}
               </div>
             </div>
           </AlertDescription>

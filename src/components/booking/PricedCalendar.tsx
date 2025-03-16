@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { format, isSameDay } from 'date-fns';
@@ -77,21 +76,17 @@ const PricedCalendar: React.FC<PricedCalendarProps> = ({
     return date.getDay() === 6 ? weekendPrice : regularPrice;
   };
   
-  // Format price for display
-  const formatPrice = (price: number): string => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
+  // Format price for display in millions (M)
+  const formatPriceInMillions = (price: number): string => {
+    const inMillions = price / 1000000;
+    return `${inMillions.toFixed(1)}M`;
   };
   
   // Custom render for each day in the calendar
   const renderDay = (props: DayContentProps) => {
     const { date } = props;
     const price = getPriceForDate(date);
-    const formattedPrice = formatPrice(price);
+    const formattedPrice = formatPriceInMillions(price);
     const isCustomPrice = customPrices.some(item => item.date === format(date, 'yyyy-MM-dd'));
     
     let isSelectedDate = false;

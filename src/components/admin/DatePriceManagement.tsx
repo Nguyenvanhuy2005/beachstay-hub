@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,7 +32,6 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Load custom prices for this room
   useEffect(() => {
     if (!roomId) return;
     
@@ -59,7 +57,6 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
     fetchCustomPrices();
   }, [roomId]);
 
-  // When a date is selected, set the price input to the current price for that date
   useEffect(() => {
     if (!selectedDate) return;
     
@@ -71,14 +68,12 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
     if (existingCustomPrice) {
       setCustomPrice(existingCustomPrice.price.toString());
     } else {
-      // Default to weekend price if it's a Saturday (day 6), otherwise regular price
       const isSaturday = selectedDate.getDay() === 6;
       const defaultPrice = isSaturday ? weekendPrice : regularPrice;
       setCustomPrice(defaultPrice.toString());
     }
   }, [selectedDate, customPrices, regularPrice, weekendPrice]);
 
-  // Function to save a custom price for the selected date
   const saveCustomPrice = async () => {
     if (!selectedDate || !customPrice || !roomId) return;
     
@@ -92,13 +87,11 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
         return;
       }
       
-      // Check if there's already a custom price for this date
       const existingCustomPrice = customPrices.find(
         item => item.date === dateStr
       );
       
       if (existingCustomPrice) {
-        // Update existing custom price
         const { error } = await supabase
           .from('room_date_prices')
           .update({ price: priceValue })
@@ -106,7 +99,6 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
           
         if (error) throw error;
         
-        // Update local state
         setCustomPrices(prev => 
           prev.map(item => 
             item.id === existingCustomPrice.id 
@@ -117,7 +109,6 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
         
         toast.success('Đã cập nhật giá tùy chỉnh');
       } else {
-        // Insert new custom price
         const { data, error } = await supabase
           .from('room_date_prices')
           .insert({
@@ -130,7 +121,6 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
           
         if (error) throw error;
         
-        // Add to local state
         setCustomPrices(prev => [...prev, data]);
         
         toast.success('Đã thêm giá tùy chỉnh');
@@ -143,7 +133,6 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
     }
   };
 
-  // Function to remove a custom price for the selected date
   const removeCustomPrice = async () => {
     if (!selectedDate || !roomId) return;
     
@@ -151,13 +140,11 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
     try {
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
       
-      // Check if there's a custom price for this date
       const existingCustomPrice = customPrices.find(
         item => item.date === dateStr
       );
       
       if (existingCustomPrice) {
-        // Delete the custom price
         const { error } = await supabase
           .from('room_date_prices')
           .delete()
@@ -165,12 +152,10 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
           
         if (error) throw error;
         
-        // Update local state
         setCustomPrices(prev => 
           prev.filter(item => item.id !== existingCustomPrice.id)
         );
         
-        // Reset the price input to the default for this date
         const isSaturday = selectedDate.getDay() === 6;
         const defaultPrice = isSaturday ? weekendPrice : regularPrice;
         setCustomPrice(defaultPrice.toString());
@@ -187,21 +172,24 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
     }
   };
 
-  // Helper function to check if a date has a custom price
   const hasCustomPrice = (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
     return customPrices.some(item => item.date === dateStr);
   };
 
-  // Function to determine price type
   const getPriceType = (date: Date) => {
     if (hasCustomPrice(date)) {
       return 'Giá tùy chỉnh';
-    } else if (date.getDay() === 6) {  // 6 = Saturday
+    } else if (date.getDay() === 6) {
       return 'Giá cuối tuần';
     } else {
       return 'Giá ngày thường';
     }
+  };
+
+  const formatPriceInMillions = (price: number): string => {
+    const inMillions = price / 1000000;
+    return `${inMillions.toFixed(1)}M`;
   };
 
   if (isLoading) {
@@ -269,8 +257,8 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
               />
               <p className="text-sm text-muted-foreground">
                 Giá mặc định: {selectedDate && selectedDate.getDay() === 6
-                  ? `${new Intl.NumberFormat('vi-VN').format(weekendPrice)} đ (cuối tuần - Thứ 7)` 
-                  : `${new Intl.NumberFormat('vi-VN').format(regularPrice)} đ (ngày thường)`}
+                  ? `${formatPriceInMillions(weekendPrice)} (cuối tuần - Thứ 7)` 
+                  : `${formatPriceInMillions(regularPrice)} (ngày thường)`}
               </p>
             </div>
             

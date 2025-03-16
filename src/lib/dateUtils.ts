@@ -37,3 +37,10 @@ export const getDatesBetween = (startDate: Date, endDate: Date): Date[] => {
     return [];
   }
 };
+
+// Format price to display in millions (M) format
+export const formatPriceInMillions = (price: number): string => {
+  if (!price) return '0M';
+  const inMillions = price / 1000000;
+  return `${inMillions.toFixed(1)}M`;
+};
