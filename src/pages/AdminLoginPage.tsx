@@ -2,79 +2,67 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '@/components/layout/MainLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { supabase, createAdminAccount, isAdmin } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { AlertTriangle } from 'lucide-react';
 
 const AdminLoginPage = () => {
   const [email, setEmail] = useState('admin@annamvillage.vn');
   const [password, setPassword] = useState('admin');
   const [isLoading, setIsLoading] = useState(false);
   const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Initialize admin account when component mounts
-    const init = async () => {
-      try {
-        console.log('Initializing AdminLoginPage component...');
-        
-        // Check if already authenticated
-        const { data } = await supabase.auth.getSession();
-        if (data.session?.user?.email) {
-          console.log('User is already authenticated:', data.session.user.email);
-          const adminCheck = await isAdmin();
-          if (adminCheck) {
-            // Already authenticated as admin, redirect to admin dashboard
-            console.log('User is confirmed admin, redirecting to dashboard');
+    // Check if already authenticated as admin
+    const checkAuthStatus = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session?.user?.email) {
+        try {
+          const { data: adminData, error } = await supabase
+            .from('admin_users')
+            .select('*')
+            .eq('email', data.session.user.email)
+            .maybeSingle();
+          
+          if (adminData && !error) {
+            // Already authenticated as admin, redirect to dashboard
             navigate('/admin/dashboard');
-            return;
-          } else {
-            // Logged in but not as admin, log out
-            console.log('User is authenticated but not admin, logging out');
-            await supabase.auth.signOut();
           }
+        } catch (error) {
+          console.error('Error checking admin status:', error);
         }
-        
-        // Initialize admin account
-        setIsCreatingAdmin(true);
-        const success = await createAdminAccount();
-        setIsCreatingAdmin(false);
-        
-        if (success) {
-          toast.success('Tài khoản admin đã được khởi tạo');
-        }
-      } catch (error) {
-        console.error('Error during AdminLoginPage initialization:', error);
-        setIsCreatingAdmin(false);
-        toast.error('Lỗi khởi tạo trang đăng nhập quản trị');
       }
     };
     
-    init();
+    checkAuthStatus();
   }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage('');
     
     try {
       console.log(`Attempting to log in with: ${email}`);
       
-      // Clear any previous session first
-      await supabase.auth.signOut();
+      // Clean up the email input
+      const cleanEmail = email.trim().toLowerCase();
       
-      // Attempt to sign in
+      // Sign in with email/password
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: cleanEmail,
         password,
       });
       
       if (error) {
         console.error('Login error:', error);
+        setErrorMessage(error.message);
         throw error;
       }
       
@@ -82,22 +70,31 @@ const AdminLoginPage = () => {
         console.log('Login successful for:', data.user.email);
         
         // Check if user is an admin
-        const adminCheck = await isAdmin();
-        console.log('Admin check result:', adminCheck);
+        const { data: adminData, error: adminError } = await supabase
+          .from('admin_users')
+          .select('*')
+          .eq('email', cleanEmail)
+          .maybeSingle();
         
-        if (adminCheck) {
+        if (adminError) {
+          console.error('Error checking admin status:', adminError);
+          setErrorMessage('Lỗi kiểm tra quyền quản trị');
+          throw adminError;
+        }
+        
+        if (adminData) {
           toast.success('Đăng nhập thành công');
           navigate('/admin/dashboard');
         } else {
           // User authenticated but not authorized
           console.log('User is not authorized as admin');
           await supabase.auth.signOut();
-          toast.error('Tài khoản không có quyền quản trị');
+          setErrorMessage('Tài khoản không có quyền quản trị');
         }
       }
     } catch (error: any) {
+      toast.error('Đăng nhập thất bại');
       console.error('Error logging in:', error);
-      toast.error('Đăng nhập thất bại: ' + (error.message || 'Vui lòng kiểm tra email và mật khẩu'));
     } finally {
       setIsLoading(false);
     }
@@ -105,125 +102,125 @@ const AdminLoginPage = () => {
 
   const handleAdminReset = async () => {
     setIsLoading(true);
+    setIsCreatingAdmin(true);
+    setErrorMessage('');
     toast.info('Đang khởi tạo lại tài khoản admin...');
     
     try {
-      // Log out first
-      await supabase.auth.signOut();
-      
-      // Delete existing user (this won't work for the client, but we can try)
-      const { error: deleteError } = await supabase.auth.admin.deleteUser('admin@annamvillage.vn');
-      if (deleteError) {
-        console.log('Could not delete user (expected):', deleteError);
-      }
-      
-      // Try to sign up with admin credentials
-      const { data, error } = await supabase.auth.signUp({
+      // Try to sign up with admin credentials (this will create a new user if it doesn't exist)
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: 'admin@annamvillage.vn',
         password: 'admin',
       });
-      
-      if (error) {
-        if (error.message.includes('already registered')) {
-          // If already registered, let's try to ensure the record exists
-          const { error: upsertError } = await supabase
-            .from('admin_users')
-            .upsert([{ email: 'admin@annamvillage.vn', is_active: true }], { onConflict: 'email' });
-          
-          if (upsertError) {
-            console.error('Error updating admin record:', upsertError);
-            toast.error('Lỗi khi cập nhật bản ghi admin');
-          } else {
-            toast.success('Bản ghi admin đã được cập nhật, vui lòng đăng nhập lại');
-          }
-        } else {
-          console.error('Error resetting admin:', error);
-          toast.error('Lỗi khi khởi tạo lại tài khoản admin: ' + error.message);
-        }
-      } else if (data?.user) {
-        // Create admin record in admin_users table
-        const { error: insertError } = await supabase
-          .from('admin_users')
-          .upsert([{ email: 'admin@annamvillage.vn', is_active: true }], { onConflict: 'email' });
-        
-        if (insertError) {
-          console.error('Error creating admin record:', insertError);
-          toast.error('Lỗi khi tạo bản ghi admin trong cơ sở dữ liệu');
-        } else {
-          toast.success('Tài khoản admin đã được khởi tạo lại');
-        }
+
+      // If user exists or was created successfully
+      if (signUpError && !signUpError.message.includes('already registered')) {
+        throw signUpError;
       }
+
+      // Ensure the admin record exists in the admin_users table
+      const { error: upsertError } = await supabase
+        .from('admin_users')
+        .upsert([
+          { 
+            email: 'admin@annamvillage.vn', 
+            is_active: true 
+          }
+        ], 
+        { onConflict: 'email' });
+      
+      if (upsertError) {
+        throw upsertError;
+      }
+      
+      toast.success('Tài khoản admin đã được khởi tạo lại, vui lòng đăng nhập');
+      
+      // Set default credentials for easier login
+      setEmail('admin@annamvillage.vn');
+      setPassword('admin');
     } catch (error: any) {
-      console.error('Error resetting admin:', error);
-      toast.error('Lỗi khi khởi tạo lại tài khoản admin: ' + error.message);
+      console.error('Error resetting admin account:', error);
+      setErrorMessage('Lỗi khởi tạo tài khoản: ' + error.message);
+      toast.error('Lỗi khởi tạo tài khoản admin');
     } finally {
       setIsLoading(false);
+      setIsCreatingAdmin(false);
     }
   };
 
   return (
     <MainLayout>
-      <div className="bg-beach-50 py-12">
-        <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold mb-8 text-beach-900">Đăng Nhập Quản Trị</h1>
-          
-          <div className="max-w-md mx-auto">
-            <Card>
-              <CardHeader>
-                <CardTitle>Đăng nhập quản trị</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-2">
-                {isCreatingAdmin ? (
-                  <div className="text-center py-4">
-                    <p className="mb-2">Đang tạo tài khoản admin...</p>
+      <div className="bg-beach-50 min-h-[80vh] py-12 flex items-center justify-center">
+        <div className="container mx-auto px-4 max-w-md">
+          <Card className="shadow-lg border-t-4 border-t-beach-600">
+            <CardHeader className="space-y-1 text-center">
+              <CardTitle className="text-2xl font-bold">Đăng nhập Quản trị</CardTitle>
+              <CardDescription>Nhập thông tin đăng nhập</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isCreatingAdmin ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-beach-700 mx-auto mb-4"></div>
+                  <p>Đang khởi tạo tài khoản admin...</p>
+                </div>
+              ) : (
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email" 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="admin@annamvillage.vn"
+                      className="bg-white"
+                      required
+                    />
                   </div>
-                ) : (
-                  <form onSubmit={handleLogin} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email" 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="admin@annamvillage.vn"
-                        required
-                      />
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Mật khẩu</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="bg-white"
+                      required
+                    />
+                  </div>
+                  
+                  {errorMessage && (
+                    <div className="p-3 rounded bg-red-50 text-red-600 text-sm flex items-start gap-2">
+                      <AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
+                      <span>{errorMessage}</span>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Mật khẩu</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      Tài khoản mặc định: admin@annamvillage.vn / admin
-                    </div>
-                    <Button 
-                      type="submit" 
-                      className="w-full mt-4" 
-                      disabled={isLoading}
-                    >
-                      {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-                    </Button>
-                    <Button 
-                      type="button" 
-                      variant="outline"
-                      className="w-full mt-2" 
-                      onClick={handleAdminReset}
-                      disabled={isLoading}
-                    >
-                      Khởi tạo lại tài khoản admin
-                    </Button>
-                  </form>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                  )}
+                  
+                  <div className="text-sm text-gray-500 bg-gray-50 p-2 rounded">
+                    Tài khoản mặc định: admin@annamvillage.vn / admin
+                  </div>
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-beach-600 hover:bg-beach-700" 
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                  </Button>
+                  
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    className="w-full mt-2 border-beach-300 text-beach-700" 
+                    onClick={handleAdminReset}
+                    disabled={isLoading}
+                  >
+                    Khởi tạo lại tài khoản admin
+                  </Button>
+                </form>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </MainLayout>
