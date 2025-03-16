@@ -6,10 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { supabase } from '@/lib/supabase';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { Loader2, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { getBookingsByStatus, updateBookingStatus, getRoomTypes } from '@/api/bookingApi';
 
 interface Booking {
   id: string;
@@ -37,23 +37,11 @@ const BookingsManagement = () => {
   const fetchBookings = async () => {
     setLoading(true);
     try {
-      let query = supabase
-        .from('bookings')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const status = statusFilter !== 'all' ? statusFilter : undefined;
+      const fetchedBookings = await getBookingsByStatus(status);
       
-      if (statusFilter !== 'all') {
-        query = query.eq('status', statusFilter);
-      }
-      
-      const { data, error } = await query;
-      
-      if (error) {
-        throw error;
-      }
-      
-      console.log('Đã tìm thấy', data?.length, 'đơn đặt phòng');
-      setBookings(data || []);
+      console.log('Đã tìm thấy', fetchedBookings.length, 'đơn đặt phòng');
+      setBookings(fetchedBookings);
     } catch (error) {
       console.error('Lỗi khi lấy danh sách đặt phòng:', error);
       toast.error(language === 'vi' ? 'Không thể tải dữ liệu đặt phòng' : 'Could not load booking data');
@@ -65,14 +53,10 @@ const BookingsManagement = () => {
   // Lấy thông tin loại phòng
   const fetchRoomTypes = async () => {
     try {
-      const { data, error } = await supabase
-        .from('room_types')
-        .select('id, name');
-      
-      if (error) throw error;
+      const roomTypesData = await getRoomTypes();
       
       const roomTypeMap: {[key: string]: string} = {};
-      data?.forEach(room => {
+      roomTypesData?.forEach(room => {
         roomTypeMap[room.id] = room.name;
       });
       
@@ -90,30 +74,26 @@ const BookingsManagement = () => {
   // Cập nhật trạng thái đặt phòng
   const handleStatusChange = async (bookingId: string, newStatus: string) => {
     try {
-      const { data, error } = await supabase
-        .from('bookings')
-        .update({ status: newStatus })
-        .eq('id', bookingId)
-        .select();
+      const result = await updateBookingStatus(bookingId, newStatus);
       
-      if (error) {
-        throw error;
+      if (result.success) {
+        toast.success(
+          language === 'vi' 
+            ? `Đã cập nhật trạng thái đặt phòng thành "${newStatus}"` 
+            : `Booking status updated to "${newStatus}"`
+        );
+        
+        // Cập nhật danh sách đặt phòng
+        setBookings(prev => 
+          prev.map(booking => 
+            booking.id === bookingId 
+              ? { ...booking, status: newStatus } 
+              : booking
+          )
+        );
+      } else {
+        throw new Error(result.error as any);
       }
-      
-      toast.success(
-        language === 'vi' 
-          ? `Đã cập nhật trạng thái đặt phòng thành "${newStatus}"` 
-          : `Booking status updated to "${newStatus}"`
-      );
-      
-      // Cập nhật danh sách đặt phòng
-      setBookings(prev => 
-        prev.map(booking => 
-          booking.id === bookingId 
-            ? { ...booking, status: newStatus } 
-            : booking
-        )
-      );
     } catch (error) {
       console.error('Lỗi khi cập nhật trạng thái:', error);
       toast.error(

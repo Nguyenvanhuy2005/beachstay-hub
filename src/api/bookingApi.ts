@@ -131,6 +131,8 @@ export const getRoomTypes = async () => {
 
 export const getBookingsByStatus = async (status?: string) => {
   try {
+    console.log('Fetching bookings with status filter:', status || 'all');
+    
     let query = supabase
       .from('bookings')
       .select('*')
@@ -147,6 +149,7 @@ export const getBookingsByStatus = async (status?: string) => {
       return [];
     }
     
+    console.log('Bookings fetched:', data?.length || 0);
     return data || [];
   } catch (error) {
     console.error('Unexpected error in getBookingsByStatus:', error);
@@ -156,6 +159,8 @@ export const getBookingsByStatus = async (status?: string) => {
 
 export const updateBookingStatus = async (bookingId: string, status: string) => {
   try {
+    console.log(`Updating booking ${bookingId} status to ${status}`);
+    
     const { data, error } = await supabase
       .from('bookings')
       .update({ status })
@@ -167,6 +172,7 @@ export const updateBookingStatus = async (bookingId: string, status: string) => 
       return { success: false, error };
     }
     
+    console.log('Booking status updated successfully:', data);
     return { success: true, data };
   } catch (error) {
     console.error('Unexpected error in updateBookingStatus:', error);
