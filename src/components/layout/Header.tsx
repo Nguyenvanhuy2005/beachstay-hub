@@ -29,7 +29,7 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <span className={`font-serif text-2xl font-bold ${isScrolled ? 'text-beach-700' : 'text-white'}`}>
+            <span className={`font-display text-2xl font-bold ${isScrolled ? 'text-beach-700' : 'text-white'}`}>
               Annam<span className="text-beach-500">Village</span>
             </span>
           </Link>

@@ -28,7 +28,7 @@ const AboutSection = () => {
             <div className="inline-block mb-2 rounded bg-beach-100 px-3 py-1 text-sm font-semibold text-beach-800">
               Về Annam Village
             </div>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-gray-900 mb-6">
               Không gian nghỉ dưỡng <span className="text-beach-600">đẳng cấp</span> tại Vũng Tàu
             </h2>
             <p className="text-gray-700 mb-6">

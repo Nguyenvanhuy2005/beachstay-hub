@@ -59,7 +59,7 @@ const HeroSection = () => {
       {/* Content */}
       <div className="relative z-20 container mx-auto px-4 h-full flex flex-col justify-center">
         <div className="max-w-3xl">
-          <h1 className="text-white font-serif font-bold text-4xl md:text-5xl lg:text-6xl mb-4 tracking-tight fade-in">
+          <h1 className="text-white font-display font-bold text-4xl md:text-5xl lg:text-6xl mb-4 tracking-tight fade-in">
             {slides[currentSlide].title}
           </h1>
           <p className="text-white/90 text-xl md:text-2xl mb-8">

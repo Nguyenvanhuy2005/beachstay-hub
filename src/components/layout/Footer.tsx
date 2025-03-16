@@ -11,7 +11,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
           <div>
             <Link to="/" className="inline-block mb-4">
-              <span className="font-serif text-2xl font-bold">
+              <span className="font-display text-2xl font-bold">
                 Annam<span className="text-beach-500">Village</span>
               </span>
             </Link>
@@ -32,7 +32,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="font-serif text-lg font-semibold mb-4">Liên Kết</h3>
+            <h3 className="font-display text-lg font-semibold mb-4">Liên Kết</h3>
             <ul className="space-y-2">
               <li><Link to="/" className="text-gray-300 hover:text-beach-500 transition-colors">Trang Chủ</Link></li>
               <li><Link to="/ve-chung-toi" className="text-gray-300 hover:text-beach-500 transition-colors">Về Chúng Tôi</Link></li>
@@ -45,7 +45,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="font-serif text-lg font-semibold mb-4">Liên Hệ</h3>
+            <h3 className="font-display text-lg font-semibold mb-4">Liên Hệ</h3>
             <ul className="space-y-3">
               <li className="flex items-start">
                 <MapPin size={18} className="mr-2 mt-1 text-beach-500" />
@@ -65,7 +65,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="font-serif text-lg font-semibold mb-4">Đăng Ký Nhận Tin</h3>
+            <h3 className="font-display text-lg font-semibold mb-4">Đăng Ký Nhận Tin</h3>
             <p className="text-gray-300 mb-4">
               Đăng ký để nhận thông tin ưu đãi và tin tức mới nhất từ Annam Village.
             </p>

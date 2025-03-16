@@ -26,7 +26,7 @@ const CtaSection = () => {
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold mb-6">
+            <h2 className="font-display text-3xl md:text-4xl font-bold mb-6">
               Đặt Phòng Ngay Hôm Nay <br/>Và Nhận Ưu Đãi Đặc Biệt
             </h2>
             <p className="text-beach-100 mb-8">

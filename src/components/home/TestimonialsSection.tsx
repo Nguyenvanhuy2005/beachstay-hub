@@ -66,7 +66,7 @@ const TestimonialsSection = () => {
           <div className="inline-block mb-2 rounded bg-beach-700/50 px-3 py-1 text-sm font-semibold text-beach-100">
             Đánh Giá
           </div>
-          <h2 className="font-serif text-3xl md:text-4xl font-bold text-white mb-4">
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
             Khách Hàng Nói Gì Về Chúng Tôi
           </h2>
           <p className="text-beach-100 max-w-3xl mx-auto">
