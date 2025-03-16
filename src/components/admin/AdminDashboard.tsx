@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -12,32 +13,39 @@ import BookingsManagement from './BookingsManagement';
 import PricingManagement from './PricingManagement';
 import ContentManagement from './ContentManagement';
 import GalleryManagement from './GalleryManagement';
+import { toast } from 'sonner';
 
 const AdminDashboard = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@annamvillage.vn');
+  const [password, setPassword] = useState('admin');
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const { language } = useLanguage();
   const navigate = useNavigate();
 
   useEffect(() => {
     const checkAdminStatus = async () => {
-      const session = await supabase.auth.getSession();
-      if (session.data?.session?.user?.email) {
-        const { data: adminData, error } = await supabase
-          .from('admin_users')
-          .select('*')
-          .eq('email', session.data.session.user.email)
-          .single();
+      try {
+        const session = await supabase.auth.getSession();
+        if (session.data?.session?.user?.email) {
+          const { data: adminData, error } = await supabase
+            .from('admin_users')
+            .select('*')
+            .eq('email', session.data.session.user.email)
+            .single();
 
-        if (error) {
-          console.error('Error fetching admin data:', error);
-          setIsAdmin(false);
+          if (error) {
+            console.error('Error fetching admin data:', error);
+            setIsAdmin(false);
+          } else {
+            setIsAdmin(!!adminData);
+          }
         } else {
-          setIsAdmin(!!adminData);
+          setIsAdmin(false);
         }
-      } else {
+      } catch (error) {
+        console.error('Session check error:', error);
         setIsAdmin(false);
       }
     };
@@ -48,47 +56,116 @@ const AdminDashboard = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage('');
 
     try {
+      console.log(`Attempting to log in with: ${email}`);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
+        email: email.trim(),
         password: password,
       });
 
       if (error) {
         console.error('Sign-in error:', error);
-        alert(language === 'vi' ? 'Đăng nhập thất bại' : 'Sign-in failed');
+        setErrorMessage(error.message);
+        toast.error(language === 'vi' ? `Đăng nhập thất bại: ${error.message}` : `Sign-in failed: ${error.message}`);
       } else {
         console.log('Sign-in successful:', data);
+        
         const { data: adminData, error: adminError } = await supabase
           .from('admin_users')
           .select('*')
-          .eq('email', email)
+          .eq('email', email.trim())
           .single();
 
         if (adminError) {
           console.error('Error fetching admin data:', adminError);
           setIsAdmin(false);
+          toast.error(language === 'vi' ? 'Tài khoản không có quyền quản trị' : 'Account does not have admin privileges');
         } else {
           setIsAdmin(!!adminData);
+          toast.success(language === 'vi' ? 'Đăng nhập thành công' : 'Sign-in successful');
+          navigate('/admin/dashboard');
         }
-        navigate('/admin');
       }
+    } catch (error: any) {
+      console.error('Unexpected error during sign-in:', error);
+      setErrorMessage(error.message || 'Unexpected error occurred');
+      toast.error(language === 'vi' ? `Lỗi: ${error.message}` : `Error: ${error.message}`);
     } finally {
       setLoading(false);
     }
   };
 
   const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut();
+    try {
+      const { error } = await supabase.auth.signOut();
 
-    if (error) {
-      console.error('Sign-out error:', error);
-      alert(language === 'vi' ? 'Đăng xuất thất bại' : 'Sign-out failed');
-    } else {
-      console.log('Sign-out successful');
-      setIsAdmin(false);
-      navigate('/');
+      if (error) {
+        console.error('Sign-out error:', error);
+        toast.error(language === 'vi' ? 'Đăng xuất thất bại' : 'Sign-out failed');
+      } else {
+        console.log('Sign-out successful');
+        setIsAdmin(false);
+        toast.success(language === 'vi' ? 'Đăng xuất thành công' : 'Sign-out successful');
+        navigate('/');
+      }
+    } catch (error: any) {
+      console.error('Unexpected error during sign-out:', error);
+      toast.error(language === 'vi' ? `Lỗi: ${error.message}` : `Error: ${error.message}`);
+    }
+  };
+
+  const handleAdminReset = async () => {
+    setLoading(true);
+    toast.info(language === 'vi' ? 'Đang khởi tạo lại tài khoản admin...' : 'Resetting admin account...');
+    
+    try {
+      // Log out first
+      await supabase.auth.signOut();
+      
+      // Try to sign up with admin credentials
+      const { data, error } = await supabase.auth.signUp({
+        email: 'admin@annamvillage.vn',
+        password: 'admin',
+      });
+      
+      if (error) {
+        if (error.message.includes('already registered')) {
+          // If already registered, let's try to ensure the record exists
+          const { error: upsertError } = await supabase
+            .from('admin_users')
+            .upsert([{ email: 'admin@annamvillage.vn', is_active: true }], { onConflict: 'email' });
+          
+          if (upsertError) {
+            console.error('Error updating admin record:', upsertError);
+            toast.error(language === 'vi' ? 'Lỗi khi cập nhật bản ghi admin' : 'Error updating admin record');
+          } else {
+            toast.success(language === 'vi' ? 'Bản ghi admin đã được cập nhật, vui lòng đăng nhập lại' : 'Admin record updated, please sign in again');
+          }
+        } else {
+          console.error('Error resetting admin:', error);
+          toast.error(language === 'vi' ? `Lỗi: ${error.message}` : `Error: ${error.message}`);
+        }
+      } else if (data?.user) {
+        // Create admin record in admin_users table
+        const { error: insertError } = await supabase
+          .from('admin_users')
+          .upsert([{ email: 'admin@annamvillage.vn', is_active: true }], { onConflict: 'email' });
+        
+        if (insertError) {
+          console.error('Error creating admin record:', insertError);
+          toast.error(language === 'vi' ? 'Lỗi khi tạo bản ghi admin' : 'Error creating admin record');
+        } else {
+          toast.success(language === 'vi' ? 'Tài khoản admin đã được khởi tạo lại' : 'Admin account has been reset');
+        }
+      }
+    } catch (error: any) {
+      console.error('Error resetting admin:', error);
+      toast.error(language === 'vi' ? `Lỗi: ${error.message}` : `Error: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -202,14 +279,35 @@ const AdminDashboard = () => {
                   required
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading
-                  ? language === 'vi'
-                    ? 'Đang đăng nhập...'
-                    : 'Signing in...'
-                  : language === 'vi'
-                    ? 'Đăng nhập'
-                    : 'Sign In'}
+              
+              {errorMessage && (
+                <div className="text-sm text-red-500 mt-2">
+                  {errorMessage}
+                </div>
+              )}
+              
+              <div className="text-sm text-gray-500">
+                {language === 'vi' ? 'Tài khoản mặc định: admin@annamvillage.vn / admin' : 'Default account: admin@annamvillage.vn / admin'}
+              </div>
+              
+              <Button 
+                type="submit" 
+                className="w-full mt-4" 
+                disabled={loading}
+              >
+                {loading 
+                  ? language === 'vi' ? 'Đang đăng nhập...' : 'Signing in...' 
+                  : language === 'vi' ? 'Đăng nhập' : 'Sign In'}
+              </Button>
+              
+              <Button 
+                type="button" 
+                variant="outline"
+                className="w-full mt-2" 
+                onClick={handleAdminReset}
+                disabled={loading}
+              >
+                {language === 'vi' ? 'Khởi tạo lại tài khoản admin' : 'Reset admin account'}
               </Button>
             </form>
           </CardContent>
