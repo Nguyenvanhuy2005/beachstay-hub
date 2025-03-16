@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Users, Wifi, Coffee, Bath, Tv, Loader2, Car, Umbrella, Ban, Plane, LifeBuoy, UtensilsCrossed, ShowerHead, Bed, FlameKindling, Refrigerator } from "lucide-react";
@@ -8,8 +7,8 @@ import { supabase } from "@/lib/supabase";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { isWeekend, format } from "date-fns";
 
-// Map of amenity IDs to Lucide icons
 const iconMap: Record<string, React.ReactNode> = {
   wifi: <Wifi size={14} />,
   tv: <Tv size={14} />,
@@ -55,6 +54,9 @@ const RoomTypesSection = () => {
   const [roomTypes, setRoomTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const { language } = useLanguage();
+  const [customPrices, setCustomPrices] = useState<Record<string, number>>({});
+  const today = new Date();
+  const todayStr = format(today, 'yyyy-MM-dd');
 
   useEffect(() => {
     const fetchRoomTypes = async () => {
@@ -98,6 +100,24 @@ const RoomTypesSection = () => {
         featuredRooms = featuredRooms.slice(0, 3);
         console.log('Total rooms for homepage:', featuredRooms.length);
         setRoomTypes(featuredRooms);
+        
+        // Fetch custom prices for today for all displayed rooms
+        if (featuredRooms.length > 0) {
+          const roomIds = featuredRooms.map(room => room.id);
+          const { data: todayPrices, error: pricesError } = await supabase
+            .from('room_date_prices')
+            .select('room_type_id, price')
+            .eq('date', todayStr)
+            .in('room_type_id', roomIds);
+            
+          if (!pricesError && todayPrices) {
+            const pricesMap: Record<string, number> = {};
+            todayPrices.forEach(item => {
+              pricesMap[item.room_type_id] = item.price;
+            });
+            setCustomPrices(pricesMap);
+          }
+        }
       } catch (error) {
         console.error('Error in fetchRoomTypes:', error);
         toast.error(language === 'vi' ? 'Đã xảy ra lỗi khi tải dữ liệu' : 'Error loading data');
@@ -108,7 +128,17 @@ const RoomTypesSection = () => {
     };
 
     fetchRoomTypes();
-  }, [language]);
+  }, [language, todayStr]);
+
+  const getRoomPrice = (room) => {
+    // Check if we have a custom price for today
+    if (customPrices[room.id]) {
+      return customPrices[room.id];
+    }
+    
+    // Otherwise use weekend price for weekends or regular price
+    return isWeekend(today) ? (room.weekend_price || room.price) : room.price;
+  };
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN').format(price);
@@ -150,7 +180,6 @@ const RoomTypesSection = () => {
 
   return (
     <section className="py-20 bg-white relative overflow-hidden">
-      {/* Ocean wave effect background */}
       <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-beach-50/50 to-transparent z-0"></div>
       <div className="absolute bottom-0 left-0 right-0 h-40 ocean-wave z-0"></div>
       
@@ -241,9 +270,19 @@ const RoomTypesSection = () => {
                   <div className="flex justify-between items-center mt-6">
                     <div>
                       <span className="text-beach-700 font-bold text-xl">
-                        {formatPrice(room.price)}đ
+                        {formatPrice(getRoomPrice(room))}đ
                       </span>
                       <span className="text-gray-500 text-sm"> / {language === 'vi' ? 'đêm' : 'night'}</span>
+                      {isWeekend(today) && !customPrices[room.id] && (
+                        <span className="text-orange-500 text-xs block mt-1">
+                          {language === 'vi' ? 'Giá cuối tuần' : 'Weekend price'}
+                        </span>
+                      )}
+                      {customPrices[room.id] && (
+                        <span className="text-blue-500 text-xs block mt-1">
+                          {language === 'vi' ? 'Giá đặc biệt' : 'Special price'}
+                        </span>
+                      )}
                     </div>
                     <Link to={`/loai-phong/${room.id}`}>
                       <Button className="rounded-md border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 transition-colors">

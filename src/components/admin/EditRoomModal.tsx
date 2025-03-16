@@ -10,6 +10,7 @@ import { Loader2, Upload, X } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RoomAmenities, amenityOptions } from './RoomAmenities';
+import DatePriceManagement from './DatePriceManagement';
 
 interface EditRoomModalProps {
   open: boolean;
@@ -260,17 +261,18 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Chỉnh Sửa Phòng</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <Tabs defaultValue="basic" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="basic">Thông tin cơ bản</TabsTrigger>
               <TabsTrigger value="amenities">Tiện nghi</TabsTrigger>
               <TabsTrigger value="images">Hình ảnh</TabsTrigger>
+              <TabsTrigger value="pricing">Quản lý giá</TabsTrigger>
             </TabsList>
             
             <TabsContent value="basic" className="space-y-4 mt-4">
@@ -493,6 +495,16 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ open, onOpenChange, onRoo
                   </div>
                 )}
               </div>
+            </TabsContent>
+            
+            <TabsContent value="pricing" className="space-y-4 mt-4">
+              {roomId && (
+                <DatePriceManagement 
+                  roomId={roomId} 
+                  regularPrice={Number(price) || 0} 
+                  weekendPrice={Number(weekendPrice) || 0} 
+                />
+              )}
             </TabsContent>
           </Tabs>
           

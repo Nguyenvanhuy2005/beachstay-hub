@@ -197,6 +197,38 @@ export type Database = {
           },
         ]
       }
+      room_date_prices: {
+        Row: {
+          created_at: string | null
+          date: string
+          id: string
+          price: number
+          room_type_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          id?: string
+          price: number
+          room_type_id: string
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          id?: string
+          price?: number
+          room_type_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_date_prices_room_type_id_fkey"
+            columns: ["room_type_id"]
+            isOneToOne: false
+            referencedRelation: "room_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       room_types: {
         Row: {
           amenities: Json

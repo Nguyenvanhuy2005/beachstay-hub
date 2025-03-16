@@ -100,3 +100,74 @@ export const getAllBookedDates = async () => {
     return [];
   }
 };
+
+// Get room price for a specific date
+export const getRoomPriceForDate = async (roomTypeId: string, date: string) => {
+  try {
+    // First check if there's a custom price for this date
+    const { data: customPrice, error: customPriceError } = await supabase
+      .from('room_date_prices')
+      .select('price')
+      .eq('room_type_id', roomTypeId)
+      .eq('date', date)
+      .maybeSingle();
+      
+    if (customPriceError) {
+      console.error('Error fetching custom price:', customPriceError);
+    }
+    
+    if (customPrice) {
+      return customPrice.price;
+    }
+    
+    // If no custom price, get the regular/weekend price from room_types
+    const { data: room, error: roomError } = await supabase
+      .from('room_types')
+      .select('price, weekend_price')
+      .eq('id', roomTypeId)
+      .single();
+      
+    if (roomError) {
+      console.error('Error fetching room details:', roomError);
+      return null;
+    }
+    
+    // Check if the date is a weekend
+    const dateObj = new Date(date);
+    const day = dateObj.getDay();
+    const isWeekend = day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
+    
+    return isWeekend && room.weekend_price ? room.weekend_price : room.price;
+  } catch (error) {
+    console.error('Unexpected error in getRoomPriceForDate:', error);
+    return null;
+  }
+};
+
+// Get custom prices for a room type within a date range
+export const getCustomPricesForRoom = async (roomTypeId: string, startDate: string, endDate: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('room_date_prices')
+      .select('date, price')
+      .eq('room_type_id', roomTypeId)
+      .gte('date', startDate)
+      .lte('date', endDate);
+      
+    if (error) {
+      console.error('Error fetching custom prices:', error);
+      return {};
+    }
+    
+    // Convert array to map for easier access
+    const pricesMap: Record<string, number> = {};
+    data?.forEach(item => {
+      pricesMap[item.date] = item.price;
+    });
+    
+    return pricesMap;
+  } catch (error) {
+    console.error('Unexpected error in getCustomPricesForRoom:', error);
+    return {};
+  }
+};
