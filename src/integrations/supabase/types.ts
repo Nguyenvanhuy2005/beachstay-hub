@@ -197,6 +197,33 @@ export type Database = {
           },
         ]
       }
+      gallery_images: {
+        Row: {
+          alt: string
+          category: string
+          created_at: string | null
+          id: string
+          src: string
+          updated_at: string | null
+        }
+        Insert: {
+          alt: string
+          category: string
+          created_at?: string | null
+          id?: string
+          src: string
+          updated_at?: string | null
+        }
+        Update: {
+          alt?: string
+          category?: string
+          created_at?: string | null
+          id?: string
+          src?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       room_date_prices: {
         Row: {
           created_at: string | null
