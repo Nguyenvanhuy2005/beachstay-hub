@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -35,7 +34,8 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BookingFormData, createBooking, getRoomTypes, checkRoomAvailability } from '@/api/bookingApi';
+import { BookingFormData, createBooking, getRoomTypes } from '@/api/bookingApi';
+import { checkRoomAvailability } from '@/lib/supabase';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const bookingFormSchema = z.object({
@@ -95,7 +95,6 @@ const BookingPage = () => {
     fetchRoomTypes();
   }, []);
 
-  // Check availability when dates or room type changes
   useEffect(() => {
     const checkAvailability = async () => {
       const roomType = form.watch('roomType');
@@ -127,7 +126,6 @@ const BookingPage = () => {
   }, [form.watch('roomType'), form.watch('checkIn'), form.watch('checkOut')]);
 
   const onSubmit = async (data: BookingFormData) => {
-    // Prevent submission if room is not available
     if (availabilityStatus.checked && !availabilityStatus.available) {
       toast.error('Phòng đã hết chỗ cho ngày bạn chọn! Vui lòng chọn ngày khác hoặc loại phòng khác.');
       return;
@@ -139,7 +137,6 @@ const BookingPage = () => {
       
       if (result.success) {
         form.reset();
-        // Navigate to a success page or show success message
         setTimeout(() => {
           navigate('/booking-success', { 
             state: { bookingId: result.bookingId, bookingDetails: data } 
