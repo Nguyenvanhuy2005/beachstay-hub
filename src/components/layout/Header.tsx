@@ -29,9 +29,11 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <span className={`font-display text-2xl font-bold ${isScrolled ? 'text-beach-700' : 'text-white'}`}>
-              Annam<span className="text-beach-500">Village</span>
-            </span>
+            <img 
+              src="/lovable-uploads/af6c5cf0-46a5-42b7-9f98-01f3d252ff64.png" 
+              alt="Annam Village Logo" 
+              className="h-12 md:h-16"
+            />
           </Link>
 
           {/* Desktop Navigation */}
@@ -42,13 +44,17 @@ const Header = () => {
           {/* Contact Information */}
           <div className="hidden md:flex items-center space-x-4">
             <a 
-              href="tel:+84909123456" 
+              href="tel:+84933669154" 
               className={`flex items-center space-x-1 text-sm ${isScrolled ? 'text-beach-700' : 'text-white'}`}
             >
               <Phone size={16} />
-              <span>+84 909 123 456</span>
+              <span>0933 669 154</span>
             </a>
-            <Button size="sm" className="bg-beach-500 hover:bg-beach-600">
+            <Button 
+              size="sm" 
+              className="bg-beach-500 hover:bg-beach-600" 
+              onClick={() => window.location.href = '/dat-phong'}
+            >
               Đặt Phòng
             </Button>
           </div>
@@ -74,9 +80,9 @@ const Header = () => {
             <NavLinks isScrolled={true} />
           </nav>
           <div className="mt-4 flex flex-col space-y-2">
-            <a href="tel:+84909123456" className="flex items-center space-x-1 text-beach-700">
+            <a href="tel:+84933669154" className="flex items-center space-x-1 text-beach-700">
               <Phone size={16} />
-              <span>+84 909 123 456</span>
+              <span>0933 669 154</span>
             </a>
             <a href="mailto:info@annamvillage.vn" className="flex items-center space-x-1 text-beach-700">
               <AtSign size={16} />
@@ -84,9 +90,13 @@ const Header = () => {
             </a>
             <a href="https://maps.app.goo.gl/12345" className="flex items-center space-x-1 text-beach-700">
               <MapPin size={16} />
-              <span>Vũng Tàu, Việt Nam</span>
+              <span>234 Phan Chu Trinh, Phường 2, Vũng Tàu</span>
             </a>
-            <Button size="sm" className="bg-beach-500 hover:bg-beach-600 mt-2">
+            <Button 
+              size="sm" 
+              className="bg-beach-500 hover:bg-beach-600 mt-2"
+              onClick={() => window.location.href = '/dat-phong'}
+            >
               Đặt Phòng
             </Button>
           </div>

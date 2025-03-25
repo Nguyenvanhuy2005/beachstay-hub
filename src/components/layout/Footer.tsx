@@ -53,9 +53,11 @@ const Footer = () => {
             custom={1}
           >
             <Link to="/" className="inline-block mb-4">
-              <span className="font-display text-2xl font-bold">
-                Annam<span className="text-beach-500">Village</span>
-              </span>
+              <img 
+                src="/lovable-uploads/af6c5cf0-46a5-42b7-9f98-01f3d252ff64.png" 
+                alt="Annam Village Logo" 
+                className="h-16"
+              />
             </Link>
             <p className="text-gray-300 mb-4">
               {language === 'vi'
@@ -147,12 +149,12 @@ const Footer = () => {
               <li className="flex items-start">
                 <MapPin size={18} className="mr-2 mt-1 text-beach-500" />
                 <span className="text-gray-300">
-                  123 Đường Biển, Phường 1, TP. Vũng Tàu, Việt Nam
+                  234 Phan Chu Trinh, Phường 2, TP. Vũng Tàu, Việt Nam
                 </span>
               </li>
               <li className="flex items-center">
                 <Phone size={18} className="mr-2 text-beach-500" />
-                <a href="tel:+84909123456" className="text-gray-300 hover:text-beach-500 transition-colors">+84 909 123 456</a>
+                <a href="tel:+84933669154" className="text-gray-300 hover:text-beach-500 transition-colors">0933 669 154</a>
               </li>
               <li className="flex items-center">
                 <Mail size={18} className="mr-2 text-beach-500" />

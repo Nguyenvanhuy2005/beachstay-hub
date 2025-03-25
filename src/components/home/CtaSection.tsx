@@ -19,6 +19,10 @@ const CtaSection = () => {
     navigate('/dat-phong');
   };
 
+  const handleViewDeals = () => {
+    navigate('/loai-phong');
+  };
+
   return (
     <section className="py-20 bg-gradient-to-r from-beach-700 to-beach-600 text-white relative overflow-hidden">
       <div className="absolute top-0 right-0 w-1/3 h-full bg-beach-500/20 -skew-x-12 transform origin-top-right"></div>
@@ -45,7 +49,7 @@ const CtaSection = () => {
               <Button 
                 variant="outline" 
                 className="border-white/60 text-white hover:bg-white/10 px-8 py-6 text-lg"
-                onClick={handleFullBooking}
+                onClick={handleViewDeals}
               >
                 Xem Ưu Đãi
               </Button>

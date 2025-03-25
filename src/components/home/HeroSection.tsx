@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const slides = [
   {
@@ -26,6 +27,7 @@ const slides = [
 
 const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -34,6 +36,14 @@ const HeroSection = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  const handleBookNow = () => {
+    navigate('/dat-phong');
+  };
+
+  const handleExplore = () => {
+    navigate('/loai-phong');
+  };
 
   return (
     <section className="relative h-screen overflow-hidden">
@@ -66,10 +76,17 @@ const HeroSection = () => {
             {slides[currentSlide].subtitle}
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button className="bg-beach-500 hover:bg-beach-600 text-white font-medium px-8 py-6 text-lg">
+            <Button 
+              className="bg-beach-500 hover:bg-beach-600 text-white font-medium px-8 py-6 text-lg"
+              onClick={handleBookNow}
+            >
               Đặt Phòng Ngay
             </Button>
-            <Button variant="outline" className="bg-transparent text-white border-white hover:bg-white/10 px-8 py-6 text-lg">
+            <Button 
+              variant="outline" 
+              className="bg-transparent text-white border-white hover:bg-white/10 px-8 py-6 text-lg"
+              onClick={handleExplore}
+            >
               Khám Phá <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
