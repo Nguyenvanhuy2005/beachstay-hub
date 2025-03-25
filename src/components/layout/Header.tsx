@@ -4,10 +4,12 @@ import { Link } from "react-router-dom";
 import { Menu, X, Phone, AtSign, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -57,7 +59,7 @@ const Header = () => {
               className="bg-beach-500 hover:bg-beach-600" 
               onClick={() => window.location.href = '/dat-phong'}
             >
-              Đặt Phòng
+              {t('book_now')}
             </Button>
           </div>
 
@@ -101,7 +103,7 @@ const Header = () => {
               className="bg-beach-500 hover:bg-beach-600 mt-2"
               onClick={() => window.location.href = '/dat-phong'}
             >
-              Đặt Phòng
+              {t('book_now')}
             </Button>
           </div>
         </div>
@@ -113,26 +115,27 @@ const Header = () => {
 const NavLinks = ({ isScrolled }: { isScrolled: boolean }) => {
   const textColor = isScrolled ? "text-beach-700" : "text-white";
   const hoverColor = isScrolled ? "hover:text-beach-500" : "hover:text-beach-200";
+  const { t } = useLanguage();
   
   return (
     <>
       <Link to="/" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
-        Trang Chủ
+        {t('home')}
       </Link>
       <Link to="/ve-chung-toi" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
-        Về Chúng Tôi
+        {t('about')}
       </Link>
       <Link to="/loai-phong" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
-        Loại Phòng
+        {t('rooms')}
       </Link>
       <Link to="/dich-vu" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
-        Dịch Vụ
+        {t('services')}
       </Link>
       <Link to="/blog" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
-        Blog
+        {t('blog')}
       </Link>
       <Link to="/lien-he" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
-        Liên Hệ
+        {t('contact')}
       </Link>
     </>
   );

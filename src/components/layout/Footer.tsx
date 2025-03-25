@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Youtube, Mail, Phone, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -54,9 +53,9 @@ const Footer = () => {
           >
             <Link to="/" className="inline-block mb-4">
               <img 
-                src="/lovable-uploads/2412b734-5632-48bf-b68e-5e99e6676366.png" 
+                src="/lovable-uploads/62bdf1bb-5abe-4889-8dc6-ef7927c94009.png" 
                 alt="Annam Village Logo" 
-                className="h-16"
+                className="h-32"
               />
             </Link>
             <p className="text-gray-300 mb-4">
