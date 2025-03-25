@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label';
 import { X, Upload, Image, Loader2, RefreshCw, Plus } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { getPublicUrl } from '@/lib/supabase';
 
 interface GalleryImage {
@@ -29,8 +28,6 @@ const GalleryManagement = () => {
   const [newImageAlt, setNewImageAlt] = useState('');
   const [categories, setCategories] = useState<string[]>([]);
   const { toast } = useToast();
-  const { language } = useLanguage();
-  const isVietnamese = language === 'vi';
 
   useEffect(() => {
     fetchImages();
@@ -56,8 +53,8 @@ const GalleryManagement = () => {
     } catch (error) {
       console.error('Error fetching gallery images:', error);
       toast({
-        title: isVietnamese ? 'Lỗi tải dữ liệu' : 'Error loading data',
-        description: isVietnamese ? 'Không thể tải hình ảnh từ thư viện' : 'Could not load gallery images',
+        title: 'Lỗi tải dữ liệu',
+        description: 'Không thể tải hình ảnh từ thư viện',
         variant: 'destructive',
       });
     } finally {
@@ -71,10 +68,8 @@ const GalleryManagement = () => {
       
       if (file.size > 5 * 1024 * 1024) {
         toast({
-          title: isVietnamese ? 'Tệp quá lớn' : 'File too large',
-          description: isVietnamese 
-            ? 'Kích thước tệp không được vượt quá 5MB' 
-            : 'File size should not exceed 5MB',
+          title: 'Tệp quá lớn',
+          description: 'Kích thước tệp không được vượt quá 5MB',
           variant: 'destructive',
         });
         return;
@@ -88,10 +83,8 @@ const GalleryManagement = () => {
   const uploadImage = async () => {
     if (!selectedFile || !newImageCategory || !newImageAlt) {
       toast({
-        title: isVietnamese ? 'Thông tin không đầy đủ' : 'Missing information',
-        description: isVietnamese 
-          ? 'Vui lòng chọn ảnh, nhập mô tả và chọn danh mục' 
-          : 'Please select an image, enter a description, and select a category',
+        title: 'Thông tin không đầy đủ',
+        description: 'Vui lòng chọn ảnh, nhập mô tả và chọn danh mục',
         variant: 'destructive',
       });
       return;
@@ -135,10 +128,8 @@ const GalleryManagement = () => {
       setNewImageAlt('');
       
       toast({
-        title: isVietnamese ? 'Tải lên thành công' : 'Upload successful',
-        description: isVietnamese 
-          ? 'Hình ảnh đã được thêm vào thư viện' 
-          : 'Image has been added to the gallery',
+        title: 'Tải lên thành công',
+        description: 'Hình ảnh đã được thêm vào thư viện',
       });
       
       // Refresh images
@@ -146,10 +137,8 @@ const GalleryManagement = () => {
     } catch (error) {
       console.error('Error uploading image:', error);
       toast({
-        title: isVietnamese ? 'Lỗi tải lên' : 'Upload error',
-        description: isVietnamese 
-          ? 'Không thể tải lên hình ảnh, vui lòng thử lại sau' 
-          : 'Could not upload image, please try again later',
+        title: 'Lỗi tải lên',
+        description: 'Không thể tải lên hình ảnh, vui lòng thử lại sau',
         variant: 'destructive',
       });
     } finally {
@@ -183,10 +172,8 @@ const GalleryManagement = () => {
       }
       
       toast({
-        title: isVietnamese ? 'Xóa thành công' : 'Delete successful',
-        description: isVietnamese 
-          ? 'Hình ảnh đã được xóa khỏi thư viện' 
-          : 'Image has been removed from the gallery',
+        title: 'Xóa thành công',
+        description: 'Hình ảnh đã được xóa khỏi thư viện',
       });
       
       // Update local state
@@ -194,10 +181,8 @@ const GalleryManagement = () => {
     } catch (error) {
       console.error('Error deleting image:', error);
       toast({
-        title: isVietnamese ? 'Lỗi xóa ảnh' : 'Delete error',
-        description: isVietnamese 
-          ? 'Không thể xóa hình ảnh, vui lòng thử lại sau' 
-          : 'Could not delete image, please try again later',
+        title: 'Lỗi xóa ảnh',
+        description: 'Không thể xóa hình ảnh, vui lòng thử lại sau',
         variant: 'destructive',
       });
     }
@@ -213,9 +198,7 @@ const GalleryManagement = () => {
   const handleNewCategory = (value: string) => {
     // If the value is "new", prompt for a new category
     if (value === "new") {
-      const newCategory = prompt(
-        isVietnamese ? 'Nhập tên danh mục mới:' : 'Enter new category name:'
-      );
+      const newCategory = prompt('Nhập tên danh mục mới:');
       if (newCategory && newCategory.trim() !== '') {
         setCategories([...categories, newCategory.trim()]);
         setNewImageCategory(newCategory.trim());
@@ -228,29 +211,21 @@ const GalleryManagement = () => {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>
-          {isVietnamese ? 'Quản lý thư viện ảnh' : 'Gallery Management'}
-        </CardTitle>
+        <CardTitle>Quản lý thư viện ảnh</CardTitle>
         <CardDescription>
-          {isVietnamese 
-            ? 'Thêm, xóa và quản lý hình ảnh trong thư viện ảnh của website' 
-            : 'Add, remove, and manage images in the website gallery'}
+          Thêm, xóa và quản lý hình ảnh trong thư viện ảnh của website
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
           {/* Upload new image form */}
           <div className="bg-gray-50 p-4 rounded-lg space-y-4">
-            <h3 className="font-medium text-lg">
-              {isVietnamese ? 'Thêm ảnh mới' : 'Add new image'}
-            </h3>
+            <h3 className="font-medium text-lg">Thêm ảnh mới</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="imageUpload">
-                    {isVietnamese ? 'Chọn ảnh' : 'Select image'}
-                  </Label>
+                  <Label htmlFor="imageUpload">Chọn ảnh</Label>
                   <div className="flex items-center gap-2">
                     <Input
                       id="imageUpload"
@@ -275,24 +250,20 @@ const GalleryManagement = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="imageAlt">
-                    {isVietnamese ? 'Mô tả ảnh' : 'Image description'}
-                  </Label>
+                  <Label htmlFor="imageAlt">Mô tả ảnh</Label>
                   <Input
                     id="imageAlt"
-                    placeholder={isVietnamese ? "Nhập mô tả ảnh" : "Enter image description"}
+                    placeholder="Nhập mô tả ảnh"
                     value={newImageAlt}
                     onChange={(e) => setNewImageAlt(e.target.value)}
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="imageCategory">
-                    {isVietnamese ? 'Danh mục' : 'Category'}
-                  </Label>
+                  <Label htmlFor="imageCategory">Danh mục</Label>
                   <Select value={newImageCategory} onValueChange={handleNewCategory}>
                     <SelectTrigger>
-                      <SelectValue placeholder={isVietnamese ? "Chọn danh mục" : "Select category"} />
+                      <SelectValue placeholder="Chọn danh mục" />
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((category) => (
@@ -303,7 +274,7 @@ const GalleryManagement = () => {
                       <SelectItem value="new">
                         <span className="flex items-center gap-1">
                           <Plus className="h-3 w-3" />
-                          {isVietnamese ? 'Thêm danh mục mới' : 'Add new category'}
+                          Thêm danh mục mới
                         </span>
                       </SelectItem>
                     </SelectContent>
@@ -319,17 +290,17 @@ const GalleryManagement = () => {
                     {uploading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {isVietnamese ? 'Đang tải lên...' : 'Uploading...'}
+                        Đang tải lên...
                       </>
                     ) : (
                       <>
                         <Upload className="mr-2 h-4 w-4" />
-                        {isVietnamese ? 'Tải lên' : 'Upload'}
+                        Tải lên
                       </>
                     )}
                   </Button>
                   <Button variant="outline" onClick={clearForm}>
-                    {isVietnamese ? 'Xóa form' : 'Clear'}
+                    Xóa form
                   </Button>
                 </div>
               </div>
@@ -344,7 +315,7 @@ const GalleryManagement = () => {
                 ) : (
                   <div className="text-center text-gray-400">
                     <Image className="h-10 w-10 mx-auto mb-2" />
-                    <p>{isVietnamese ? 'Xem trước ảnh' : 'Image preview'}</p>
+                    <p>Xem trước ảnh</p>
                   </div>
                 )}
               </div>
@@ -354,9 +325,7 @@ const GalleryManagement = () => {
           {/* Gallery images list */}
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="font-medium text-lg">
-                {isVietnamese ? 'Hình ảnh trong thư viện' : 'Gallery images'}
-              </h3>
+              <h3 className="font-medium text-lg">Hình ảnh trong thư viện</h3>
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -377,11 +346,7 @@ const GalleryManagement = () => {
               </div>
             ) : images.length === 0 ? (
               <div className="text-center py-10 border rounded-md">
-                <p className="text-gray-500">
-                  {isVietnamese 
-                    ? 'Chưa có hình ảnh nào trong thư viện' 
-                    : 'No images in the gallery yet'}
-                </p>
+                <p className="text-gray-500">Chưa có hình ảnh nào trong thư viện</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

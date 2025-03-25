@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { Loader2, Save } from 'lucide-react';
@@ -20,7 +19,6 @@ interface RoomType {
 }
 
 const PricingManagement = () => {
-  const { language } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
   const [selectedRoomId, setSelectedRoomId] = useState<string>('');
@@ -51,7 +49,7 @@ const PricingManagement = () => {
       }
     } catch (error) {
       console.error('Lỗi khi tải loại phòng:', error);
-      toast.error(language === 'vi' ? 'Không thể tải loại phòng' : 'Could not load room types');
+      toast.error('Không thể tải loại phòng');
     } finally {
       setLoading(false);
     }
@@ -76,7 +74,7 @@ const PricingManagement = () => {
       const weekendPriceValue = weekendPrice ? parseFloat(weekendPrice) : regularPriceValue;
       
       if (isNaN(regularPriceValue) || isNaN(weekendPriceValue)) {
-        toast.error(language === 'vi' ? 'Giá không hợp lệ' : 'Invalid price');
+        toast.error('Giá không hợp lệ');
         return;
       }
       
@@ -99,10 +97,10 @@ const PricingManagement = () => {
         )
       );
       
-      toast.success(language === 'vi' ? 'Đã cập nhật giá cơ bản' : 'Base prices updated');
+      toast.success('Đã cập nhật giá cơ bản');
     } catch (error) {
       console.error('Lỗi khi cập nhật giá:', error);
-      toast.error(language === 'vi' ? 'Không thể cập nhật giá' : 'Could not update prices');
+      toast.error('Không thể cập nhật giá');
     } finally {
       setSaving(false);
     }
@@ -117,13 +115,9 @@ const PricingManagement = () => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>
-            {language === 'vi' ? 'Quản lý giá phòng' : 'Pricing Management'}
-          </CardTitle>
+          <CardTitle>Quản lý giá phòng</CardTitle>
           <CardDescription>
-            {language === 'vi' 
-              ? 'Quản lý giá phòng theo thời gian, mùa, dịp lễ' 
-              : 'Manage room rates by time, season, and holidays'}
+            Quản lý giá phòng theo thời gian, mùa, dịp lễ
           </CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center py-8">
@@ -137,15 +131,11 @@ const PricingManagement = () => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>
-            {language === 'vi' ? 'Quản lý giá phòng' : 'Pricing Management'}
-          </CardTitle>
+          <CardTitle>Quản lý giá phòng</CardTitle>
         </CardHeader>
         <CardContent className="py-6">
           <div className="text-center text-muted-foreground">
-            {language === 'vi' 
-              ? 'Không có loại phòng nào. Vui lòng tạo loại phòng trước.' 
-              : 'No room types available. Please create room types first.'}
+            Không có loại phòng nào. Vui lòng tạo loại phòng trước.
           </div>
         </CardContent>
       </Card>
@@ -155,26 +145,20 @@ const PricingManagement = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>
-          {language === 'vi' ? 'Quản lý giá phòng' : 'Pricing Management'}
-        </CardTitle>
+        <CardTitle>Quản lý giá phòng</CardTitle>
         <CardDescription>
-          {language === 'vi' 
-            ? 'Quản lý giá phòng theo thời gian, mùa, dịp lễ' 
-            : 'Manage room rates by time, season, and holidays'}
+          Quản lý giá phòng theo thời gian, mùa, dịp lễ
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex flex-col space-y-4">
-          <Label htmlFor="room-type">
-            {language === 'vi' ? 'Chọn loại phòng' : 'Select Room Type'}
-          </Label>
+          <Label htmlFor="room-type">Chọn loại phòng</Label>
           <Select
             value={selectedRoomId}
             onValueChange={setSelectedRoomId}
           >
             <SelectTrigger id="room-type" className="w-full max-w-md">
-              <SelectValue placeholder={language === 'vi' ? 'Chọn loại phòng' : 'Select room type'} />
+              <SelectValue placeholder="Chọn loại phòng" />
             </SelectTrigger>
             <SelectContent>
               {roomTypes.map(room => (
@@ -189,10 +173,10 @@ const PricingManagement = () => {
         <Tabs defaultValue="base-prices" className="w-full mt-4">
           <TabsList>
             <TabsTrigger value="base-prices">
-              {language === 'vi' ? 'Giá cơ bản' : 'Base Prices'}
+              Giá cơ bản
             </TabsTrigger>
             <TabsTrigger value="date-prices">
-              {language === 'vi' ? 'Giá theo ngày' : 'Date-specific Prices'}
+              Giá theo ngày
             </TabsTrigger>
           </TabsList>
           
@@ -200,7 +184,7 @@ const PricingManagement = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="regular-price">
-                  {language === 'vi' ? 'Giá ngày thường' : 'Regular Price'}
+                  Giá ngày thường
                 </Label>
                 <div className="flex items-center space-x-2">
                   <Input
@@ -215,15 +199,13 @@ const PricingManagement = () => {
                   <span className="text-muted-foreground">VND</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  {language === 'vi' 
-                    ? 'Áp dụng cho các ngày trong tuần (trừ Thứ 7)' 
-                    : 'Applied to weekdays (except Saturday)'}
+                  Áp dụng cho các ngày trong tuần (trừ Thứ 7)
                 </p>
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="weekend-price">
-                  {language === 'vi' ? 'Giá cuối tuần' : 'Weekend Price'}
+                  Giá cuối tuần
                 </Label>
                 <div className="flex items-center space-x-2">
                   <Input
@@ -238,9 +220,7 @@ const PricingManagement = () => {
                   <span className="text-muted-foreground">VND</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  {language === 'vi' 
-                    ? 'Áp dụng cho Thứ 7' 
-                    : 'Applied to Saturdays'}
+                  Áp dụng cho Thứ 7
                 </p>
               </div>
             </div>
@@ -255,7 +235,7 @@ const PricingManagement = () => {
                 ) : (
                   <Save className="mr-2 h-4 w-4" />
                 )}
-                {language === 'vi' ? 'Lưu giá cơ bản' : 'Save Base Prices'}
+                Lưu giá cơ bản
               </Button>
             </div>
           </TabsContent>

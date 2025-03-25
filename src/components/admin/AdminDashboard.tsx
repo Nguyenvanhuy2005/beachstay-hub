@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from '@/components/ui/button';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import RoomManagement from './RoomManagement';
@@ -15,7 +14,6 @@ import { toast } from 'sonner';
 const AdminDashboard = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { language } = useLanguage();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,7 +60,7 @@ const AdminDashboard = () => {
             setIsAdmin(true);
           } else {
             console.log('User is not an admin');
-            toast.error(language === 'vi' ? 'Tài khoản không có quyền quản trị' : 'Account does not have admin privileges');
+            toast.error('Tài khoản không có quyền quản trị');
             await supabase.auth.signOut();
             setIsAdmin(false);
           }
@@ -79,7 +77,7 @@ const AdminDashboard = () => {
     };
 
     checkAdminStatus();
-  }, [navigate, language]);
+  }, [navigate]);
 
   const handleSignOut = async () => {
     try {
@@ -87,15 +85,15 @@ const AdminDashboard = () => {
 
       if (error) {
         console.error('Sign-out error:', error);
-        toast.error(language === 'vi' ? 'Đăng xuất thất bại' : 'Sign-out failed');
+        toast.error('Đăng xuất thất bại');
       } else {
         console.log('Sign-out successful');
-        toast.success(language === 'vi' ? 'Đăng xuất thành công' : 'Sign-out successful');
+        toast.success('Đăng xuất thành công');
         navigate('/admin');
       }
     } catch (error: any) {
       console.error('Unexpected error during sign-out:', error);
-      toast.error(language === 'vi' ? `Lỗi: ${error.message}` : `Error: ${error.message}`);
+      toast.error(`Lỗi: ${error.message}`);
     }
   };
 
@@ -103,7 +101,7 @@ const AdminDashboard = () => {
     return (
       <div className="container mx-auto py-8 px-4 text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-beach-700 mx-auto"></div>
-        <p className="mt-4">{language === 'vi' ? 'Đang tải...' : 'Loading...'}</p>
+        <p className="mt-4">Đang tải...</p>
       </div>
     );
   }
@@ -116,26 +114,26 @@ const AdminDashboard = () => {
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold">
-          {language === 'vi' ? 'Chào mừng đến trang quản trị' : 'Welcome to Admin Dashboard'}
+          Chào mừng đến trang quản trị
         </h1>
         <Button onClick={handleSignOut} variant="outline" className="gap-2">
-          <span>{language === 'vi' ? 'Đăng xuất' : 'Sign Out'}</span>
+          <span>Đăng xuất</span>
         </Button>
       </div>
       
       <Tabs defaultValue="bookings" className="w-full">
         <TabsList className="grid grid-cols-4">
           <TabsTrigger value="rooms">
-            {language === 'vi' ? 'Quản lý phòng' : 'Room Management'}
+            Quản lý phòng
           </TabsTrigger>
           <TabsTrigger value="bookings">
-            {language === 'vi' ? 'Đặt phòng' : 'Bookings'}
+            Đặt phòng
           </TabsTrigger>
           <TabsTrigger value="content">
-            {language === 'vi' ? 'Nội dung' : 'Content'}
+            Nội dung
           </TabsTrigger>
           <TabsTrigger value="gallery">
-            {language === 'vi' ? 'Thư viện ảnh' : 'Gallery'}
+            Thư viện ảnh
           </TabsTrigger>
         </TabsList>
         

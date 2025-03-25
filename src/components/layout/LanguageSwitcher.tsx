@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 import { Globe } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 type LanguageSwitcherProps = {
   className?: string;
@@ -11,6 +12,13 @@ type LanguageSwitcherProps = {
 
 const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className }) => {
   const { language, toggleLanguage } = useLanguage();
+  const location = useLocation();
+  const isAdminRoute = location.pathname.includes('/admin');
+
+  // Don't show language switcher in admin routes
+  if (isAdminRoute) {
+    return null;
+  }
 
   return (
     <div className={cn("flex items-center", className)}>
