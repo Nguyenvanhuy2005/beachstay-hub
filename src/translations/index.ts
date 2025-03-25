@@ -53,6 +53,13 @@ export const translations = {
     'view_more_images': 'Xem Thêm Hình Ảnh',
     'all': 'Tất Cả',
     
+    // Gallery Categories
+    'pool': 'Hồ Bơi',
+    'bedroom': 'Phòng Ngủ',
+    'living_room': 'Phòng Khách',
+    'dining_room': 'Phòng Ăn',
+    'exterior': 'Ngoại Thất',
+    
     // Testimonials Section
     'testimonials': 'Đánh Giá',
     'testimonials_title': 'Khách Hàng Nói Gì Về Chúng Tôi',
@@ -142,6 +149,13 @@ export const translations = {
     'gallery_desc': 'View the elegant living spaces and modern amenities at Annam Village through our carefully curated collection of images.',
     'view_more_images': 'View More Images',
     'all': 'All',
+    
+    // Gallery Categories
+    'pool': 'Pool',
+    'bedroom': 'Bedroom',
+    'living_room': 'Living Room',
+    'dining_room': 'Dining Room',
+    'exterior': 'Exterior',
     
     // Testimonials Section
     'testimonials': 'Testimonials',

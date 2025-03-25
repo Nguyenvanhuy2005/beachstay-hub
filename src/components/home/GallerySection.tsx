@@ -92,15 +92,13 @@ interface GalleryImage {
 }
 
 const GallerySection = () => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [loadingImages, setLoadingImages] = useState(true);
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [error, setError] = useState(false);
   const { toast } = useToast();
-  
-  const isVietnamese = language === 'vi';
 
   useEffect(() => {
     fetchGalleryImages();
@@ -164,10 +162,8 @@ const GallerySection = () => {
       setCategories(uniqueCategories);
       
       toast({
-        title: isVietnamese ? 'Lỗi tải dữ liệu' : 'Error loading data',
-        description: isVietnamese 
-          ? 'Không thể tải hình ảnh thư viện từ máy chủ, đang sử dụng dữ liệu dự phòng' 
-          : 'Could not load gallery images from server, using fallback data',
+        title: t('error_loading_data'),
+        description: t('error_loading_gallery'),
         variant: 'destructive',
       });
     } finally {
@@ -206,15 +202,13 @@ const GallerySection = () => {
         <AnimationWrapper direction="up" duration={0.8} once={true}>
           <div className="text-center mb-12">
             <div className="inline-block mb-2 rounded bg-beach-100 px-3 py-1 text-sm font-semibold text-beach-800">
-              {isVietnamese ? 'Thư Viện Ảnh' : 'Photo Gallery'}
+              {t('gallery')}
             </div>
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              {isVietnamese ? 'Khám Phá Annam Village Qua Hình Ảnh' : 'Discover Annam Village Through Images'}
+              {t('discover_images')}
             </h2>
             <p className="text-gray-700 max-w-3xl mx-auto">
-              {isVietnamese 
-                ? 'Ngắm nhìn không gian sống đẳng cấp và tiện nghi hiện đại tại Annam Village qua bộ sưu tập hình ảnh được tuyển chọn kỹ lưỡng.'
-                : 'View the elegant living spaces and modern amenities at Annam Village through our carefully curated collection of images.'}
+              {t('gallery_desc')}
             </p>
           </div>
         </AnimationWrapper>
@@ -235,7 +229,7 @@ const GallerySection = () => {
                   }
                   onClick={() => setSelectedCategory('all')}
                 >
-                  {isVietnamese ? 'Tất Cả' : 'All'}
+                  {t('all')}
                 </Button>
                 
                 {categories.map((category) => (
@@ -294,7 +288,7 @@ const GallerySection = () => {
                   className="border-beach-200 text-beach-800 hover:bg-beach-100"
                 >
                   <RefreshCw className="mr-2 h-4 w-4" />
-                  {isVietnamese ? 'Thử lại' : 'Try Again'}
+                  {t('try_again')}
                 </Button>
               </div>
             )}
@@ -304,7 +298,7 @@ const GallerySection = () => {
                 <Button asChild className="bg-transparent border-2 border-beach-700 text-beach-700 hover:bg-beach-50 px-8 py-6">
                   <a href="#" className="inline-flex items-center">
                     <Camera className="mr-2 h-5 w-5" />
-                    {isVietnamese ? 'Xem Thêm Hình Ảnh' : 'View More Images'}
+                    {t('view_more_images')}
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </a>
                 </Button>
