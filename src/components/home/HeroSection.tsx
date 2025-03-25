@@ -3,31 +3,33 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const slides = [
   {
     id: 1,
     image: "/lovable-uploads/842f894d-4d09-4b7b-9de4-e68c7d1e2e30.png",
-    title: "Không Gian Bình Yên",
-    subtitle: "Nơi hòa mình vào thiên nhiên và thư giãn tuyệt đối",
+    titleKey: "peaceful_space",
+    subtitleKey: "peaceful_space_desc",
   },
   {
     id: 2,
     image: "/lovable-uploads/3de4ca25-b7f7-4567-8e8a-de3b9ef3e8ab.png",
-    title: "Trải Nghiệm Sang Trọng",
-    subtitle: "Cùng thiết kế độc đáo kết hợp hiện đại và truyền thống",
+    titleKey: "luxury_experience",
+    subtitleKey: "luxury_experience_desc",
   },
   {
     id: 3,
     image: "/lovable-uploads/447ed5f1-0675-492c-8437-bb1fdf09ab86.png",
-    title: "Tiện Nghi Đẳng Cấp",
-    subtitle: "Phòng nghỉ sang trọng với đầy đủ tiện nghi hiện đại",
+    titleKey: "premium_amenities",
+    subtitleKey: "premium_amenities_desc",
   },
 ];
 
 const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -59,7 +61,7 @@ const HeroSection = () => {
             <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/40 z-10" />
             <img
               src={slide.image}
-              alt={slide.title}
+              alt={t(slide.titleKey)}
               className="object-cover w-full h-full"
             />
           </div>
@@ -70,24 +72,24 @@ const HeroSection = () => {
       <div className="relative z-20 container mx-auto px-4 h-full flex flex-col justify-center">
         <div className="max-w-3xl">
           <h1 className="text-white font-display font-bold text-4xl md:text-5xl lg:text-6xl mb-4 tracking-tight fade-in">
-            {slides[currentSlide].title}
+            {t(slides[currentSlide].titleKey)}
           </h1>
           <p className="text-white/90 text-xl md:text-2xl mb-8">
-            {slides[currentSlide].subtitle}
+            {t(slides[currentSlide].subtitleKey)}
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button 
               className="bg-beach-500 hover:bg-beach-600 text-white font-medium px-8 py-6 text-lg"
               onClick={handleBookNow}
             >
-              Đặt Phòng Ngay
+              {t('book_now_action')}
             </Button>
             <Button 
               variant="outline" 
               className="bg-transparent text-white border-white hover:bg-white/10 px-8 py-6 text-lg"
               onClick={handleExplore}
             >
-              Khám Phá <ArrowRight className="ml-2 h-5 w-5" />
+              {t('explore')} <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
         </div>

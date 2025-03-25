@@ -91,6 +91,16 @@ const translations = {
     'please_fill_all': 'Vui lòng điền đầy đủ thông tin đặt phòng!',
     'booking_success': 'Yêu cầu đặt phòng đã được gửi thành công!',
     'try_again': 'Thử lại',
+    
+    // HeroSection 
+    'premium_amenities': 'Tiện Nghi Đẳng Cấp',
+    'premium_amenities_desc': 'Phòng nghỉ sang trọng với đầy đủ tiện nghi hiện đại',
+    'peaceful_space': 'Không Gian Bình Yên',
+    'peaceful_space_desc': 'Nơi hòa mình vào thiên nhiên và thư giãn tuyệt đối',
+    'luxury_experience': 'Trải Nghiệm Sang Trọng',
+    'luxury_experience_desc': 'Cùng thiết kế độc đáo kết hợp hiện đại và truyền thống',
+    'book_now_action': 'Đặt Phòng Ngay',
+    'explore': 'Khám Phá',
   },
   en: {
     // Navigation
@@ -171,6 +181,16 @@ const translations = {
     'please_fill_all': 'Please fill in all booking information!',
     'booking_success': 'Booking request has been sent successfully!',
     'try_again': 'Try Again',
+    
+    // HeroSection
+    'premium_amenities': 'Premium Amenities',
+    'premium_amenities_desc': 'Luxurious rooms with all modern amenities',
+    'peaceful_space': 'Peaceful Space',
+    'peaceful_space_desc': 'Where you can immerse yourself in nature and relax completely',
+    'luxury_experience': 'Luxury Experience',
+    'luxury_experience_desc': 'With unique design combining modern and traditional elements',
+    'book_now_action': 'Book Now',
+    'explore': 'Explore',
   }
 };
 
