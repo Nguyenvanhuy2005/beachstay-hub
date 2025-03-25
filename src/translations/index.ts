@@ -121,7 +121,7 @@ export const translations = {
       subtotal: "Tạm tính",
       discount: "Giảm giá",
       taxes: "Thuế",
-      total: "Tổng cộng",
+      totalSum: "Tổng cộng",
       payNow: "Thanh toán ngay",
       paymentMethod: "Phương thức thanh toán",
       creditCard: "Thẻ tín dụng",
@@ -134,7 +134,7 @@ export const translations = {
       bookingStatus: "Trạng thái đặt phòng",
       confirmBooking: "Xác nhận đặt phòng",
       cancelBooking: "Hủy đặt phòng",
-      modifyBooking: "Sửa đặt phòng",
+      modifyBooking: "Sửa đổi đặt phòng",
       bookingConfirmed: "Đặt phòng đã được xác nhận",
       bookingCanceled: "Đặt phòng đã bị hủy",
       bookingModified: "Đặt phòng đã được sửa đổi",
@@ -466,3 +466,7 @@ export const translations = {
     }
   }
 };
+
+// Define TypeScript types for language and translations
+export type Language = 'vi' | 'en';
+export type TranslationKey = string;
