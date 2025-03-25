@@ -49,7 +49,6 @@ const translations = {
     
     // About Section
     'about_annam': 'Về Annam Village',
-    'luxury_retreat': 'Không gian nghỉ dưỡng đẳng cấp tại Vũng Tàu',
     'about_description': 'Annam Village là chuỗi biệt thự, căn hộ cho thuê ngắn ngày tại thành phố biển Vũng Tàu. Với thiết kế độc đáo kết hợp giữa kiến trúc hiện đại và nét đẹp truyền thống, chúng tôi mang đến cho bạn không gian nghỉ dưỡng lý tưởng, nơi hòa mình vào thiên nhiên và thư giãn tuyệt đối.',
     'villa_description': 'Mỗi căn biệt thự đều được thiết kế tỉ mỉ với đầy đủ tiện nghi hiện đại, không gian xanh, hồ bơi riêng và dịch vụ chuyên nghiệp, đảm bảo mang đến trải nghiệm nghỉ dưỡng khó quên cho bạn và người thân.',
     'learn_more': 'Tìm Hiểu Thêm',
@@ -130,7 +129,6 @@ const translations = {
     
     // About Section
     'about_annam': 'About Annam Village',
-    'luxury_retreat': 'Luxury retreat space in Vung Tau',
     'about_description': 'Annam Village is a chain of villas and apartments for short-term rental in the coastal city of Vung Tau. With a unique design combining modern architecture and traditional beauty, we bring you an ideal retreat space where you can immerse yourself in nature and relax completely.',
     'villa_description': 'Each villa is meticulously designed with all modern amenities, green spaces, private pools, and professional services, ensuring an unforgettable vacation experience for you and your loved ones.',
     'learn_more': 'Learn More',
