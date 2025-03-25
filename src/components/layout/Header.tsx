@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X, Phone, AtSign, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -30,7 +31,7 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <img 
-              src="/lovable-uploads/af6c5cf0-46a5-42b7-9f98-01f3d252ff64.png" 
+              src="/lovable-uploads/a7992fa3-09c9-4cba-9b30-ef420f9cf194.png" 
               alt="Annam Village Logo" 
               className="h-12 md:h-16"
             />
@@ -41,7 +42,7 @@ const Header = () => {
             <NavLinks isScrolled={isScrolled} />
           </nav>
 
-          {/* Contact Information */}
+          {/* Contact Information and Language Switcher */}
           <div className="hidden md:flex items-center space-x-4">
             <a 
               href="tel:+84933669154" 
@@ -50,6 +51,7 @@ const Header = () => {
               <Phone size={16} />
               <span>0933 669 154</span>
             </a>
+            <LanguageSwitcher className={isScrolled ? "text-beach-700" : "text-white"} />
             <Button 
               size="sm" 
               className="bg-beach-500 hover:bg-beach-600" 
@@ -60,16 +62,18 @@ const Header = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <button 
-            className="md:hidden" 
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? (
-              <X className={isScrolled ? "text-beach-700" : "text-white"} />
-            ) : (
-              <Menu className={isScrolled ? "text-beach-700" : "text-white"} />
-            )}
-          </button>
+          <div className="md:hidden flex items-center space-x-2">
+            <LanguageSwitcher className={isScrolled ? "text-beach-700" : "text-white"} />
+            <button 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? (
+                <X className={isScrolled ? "text-beach-700" : "text-white"} />
+              ) : (
+                <Menu className={isScrolled ? "text-beach-700" : "text-white"} />
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
