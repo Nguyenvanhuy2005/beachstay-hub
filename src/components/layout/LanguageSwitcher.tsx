@@ -13,9 +13,10 @@ type LanguageSwitcherProps = {
 const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className }) => {
   const { language, toggleLanguage } = useLanguage();
   const location = useLocation();
-  
-  // Kiểm tra nếu là trang admin thì không hiển thị
-  if (location.pathname.includes('/admin')) {
+  const isAdminRoute = location.pathname.includes('/admin');
+
+  // Don't show language switcher in admin routes
+  if (isAdminRoute) {
     return null;
   }
 
@@ -24,9 +25,9 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className }) => {
       <Button
         variant="ghost"
         size="sm"
-        className="relative text-sm font-medium p-0 flex items-center gap-1 hover:bg-transparent"
+        className="relative text-sm font-medium p-0 flex items-center gap-1"
         onClick={toggleLanguage}
-        aria-label="Chuyển ngôn ngữ"
+        aria-label="Change language"
       >
         <Globe size={16} className="mr-1" />
         <span className={`transition-opacity duration-200 ${language === 'vi' ? 'opacity-100 font-bold' : 'opacity-50'}`}>
