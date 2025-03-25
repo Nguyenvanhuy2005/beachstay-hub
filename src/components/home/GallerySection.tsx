@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Camera, Loader2, RefreshCw } from 'lucide-react';
@@ -12,46 +13,82 @@ const fallbackImages = [
   {
     id: 'fallback-1',
     src: '/lovable-uploads/595dc250-29ec-4d1d-873b-d34aecdba712.png',
-    alt: 'Khu vực hồ bơi ngoài trời',
-    category: 'Hồ Bơi'
+    alt: {
+      vi: 'Khu vực hồ bơi ngoài trời',
+      en: 'Outdoor pool area'
+    },
+    category: {
+      vi: 'Hồ Bơi',
+      en: 'Pool'
+    }
   },
   {
     id: 'fallback-2',
     src: '/lovable-uploads/21668da3-408e-4c55-845e-d0812b05e091.png', 
-    alt: 'Phòng ngủ sang trọng với tầm nhìn ra hồ bơi',
-    category: 'Phòng Ngủ'
+    alt: {
+      vi: 'Phòng ngủ sang trọng với tầm nhìn ra hồ bơi',
+      en: 'Luxurious bedroom with pool view'
+    },
+    category: {
+      vi: 'Phòng Ngủ',
+      en: 'Bedroom'
+    }
   },
   {
     id: 'fallback-3',
     src: '/lovable-uploads/3de4ca25-b7f7-4567-8e8a-de3b9ef3e8ab.png',
-    alt: 'Không gian phòng khách thoáng đãng',
-    category: 'Phòng Khách'
+    alt: {
+      vi: 'Không gian phòng khách thoáng đãng',
+      en: 'Spacious living room area'
+    },
+    category: {
+      vi: 'Phòng Khách',
+      en: 'Living Room'
+    }
   },
   {
     id: 'fallback-4',
     src: '/lovable-uploads/447ed5f1-0675-492c-8437-bb1fdf09ab86.png',
-    alt: 'Phòng ăn và bếp đầy đủ tiện nghi',
-    category: 'Phòng Ăn'
+    alt: {
+      vi: 'Phòng ăn và bếp đầy đủ tiện nghi',
+      en: 'Fully equipped dining and kitchen area'
+    },
+    category: {
+      vi: 'Phòng Ăn',
+      en: 'Dining Room'
+    }
   },
   {
     id: 'fallback-5',
     src: '/lovable-uploads/dd828878-82ae-4104-959b-b8793c180d89.png',
-    alt: 'Phòng ngủ với thiết kế hiện đại',
-    category: 'Phòng Ngủ'
+    alt: {
+      vi: 'Phòng ngủ với thiết kế hiện đại',
+      en: 'Bedroom with modern design'
+    },
+    category: {
+      vi: 'Phòng Ngủ',
+      en: 'Bedroom'
+    }
   },
   {
     id: 'fallback-6',
     src: '/lovable-uploads/570e7af9-b072-46c1-a4b0-b982c09d1df4.png',
-    alt: 'Khu vực lối vào villa',
-    category: 'Ngoại Thất'
+    alt: {
+      vi: 'Khu vực lối vào villa',
+      en: 'Villa entrance area'
+    },
+    category: {
+      vi: 'Ngoại Thất',
+      en: 'Exterior'
+    }
   }
 ];
 
 interface GalleryImage {
   id: string;
   src: string;
-  alt: string;
-  category: string;
+  alt: string | { vi: string; en: string };
+  category: string | { vi: string; en: string };
 }
 
 const GallerySection = () => {
@@ -87,12 +124,26 @@ const GallerySection = () => {
         setGalleryImages(data);
         
         // Extract unique categories
-        const uniqueCategories = [...new Set(data.map(img => img.category))];
+        const uniqueCategories = [...new Set(data.map(img => {
+          if (typeof img.category === 'object') {
+            return img.category[language] || img.category.vi;
+          }
+          return img.category;
+        }))];
+        
         setCategories(uniqueCategories);
       } else {
         // If no images in database, use fallback images
         setGalleryImages(fallbackImages);
-        const uniqueCategories = [...new Set(fallbackImages.map(img => img.category))];
+        
+        // Extract unique categories from fallback images
+        const uniqueCategories = [...new Set(fallbackImages.map(img => {
+          if (typeof img.category === 'object') {
+            return img.category[language] || img.category.vi;
+          }
+          return img.category;
+        }))];
+        
         setCategories(uniqueCategories);
       }
     } catch (err) {
@@ -101,7 +152,15 @@ const GallerySection = () => {
       
       // Use fallback images on error
       setGalleryImages(fallbackImages);
-      const uniqueCategories = [...new Set(fallbackImages.map(img => img.category))];
+      
+      // Extract unique categories from fallback images
+      const uniqueCategories = [...new Set(fallbackImages.map(img => {
+        if (typeof img.category === 'object') {
+          return img.category[language] || img.category.vi;
+        }
+        return img.category;
+      }))];
+      
       setCategories(uniqueCategories);
       
       toast({
@@ -116,9 +175,28 @@ const GallerySection = () => {
     }
   };
 
+  // Helper function to get the localized alt text
+  const getLocalizedAlt = (alt: string | { vi: string; en: string }) => {
+    if (typeof alt === 'object') {
+      return alt[language] || alt.vi;
+    }
+    return alt;
+  };
+
+  // Helper function to get the localized category
+  const getLocalizedCategory = (category: string | { vi: string; en: string }) => {
+    if (typeof category === 'object') {
+      return category[language] || category.vi;
+    }
+    return category;
+  };
+
   const filteredImages = selectedCategory === 'all'
     ? galleryImages
-    : galleryImages.filter(image => image.category === selectedCategory);
+    : galleryImages.filter(image => {
+        const imageCategory = getLocalizedCategory(image.category);
+        return imageCategory === selectedCategory;
+      });
 
   return (
     <section className="py-20 bg-beach-50 relative overflow-hidden">
@@ -192,7 +270,7 @@ const GallerySection = () => {
                     <div className="h-72 overflow-hidden">
                       <img 
                         src={image.src} 
-                        alt={image.alt}
+                        alt={getLocalizedAlt(image.alt)}
                         className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                         onError={(e) => {
                           e.currentTarget.src = "/placeholder.svg";
@@ -200,8 +278,8 @@ const GallerySection = () => {
                       />
                     </div>
                     <div className="p-4">
-                      <h3 className="font-medium text-gray-900">{image.alt}</h3>
-                      <p className="text-sm text-gray-500">{image.category}</p>
+                      <h3 className="font-medium text-gray-900">{getLocalizedAlt(image.alt)}</h3>
+                      <p className="text-sm text-gray-500">{getLocalizedCategory(image.category)}</p>
                     </div>
                   </motion.div>
                 </AnimationWrapper>

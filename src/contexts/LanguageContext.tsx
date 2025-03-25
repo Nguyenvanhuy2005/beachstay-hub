@@ -53,6 +53,45 @@ const translations = {
     'about_description': 'Annam Village là chuỗi biệt thự, căn hộ cho thuê ngắn ngày tại thành phố biển Vũng Tàu. Với thiết kế độc đáo kết hợp giữa kiến trúc hiện đại và nét đẹp truyền thống, chúng tôi mang đến cho bạn không gian nghỉ dưỡng lý tưởng, nơi hòa mình vào thiên nhiên và thư giãn tuyệt đối.',
     'villa_description': 'Mỗi căn biệt thự đều được thiết kế tỉ mỉ với đầy đủ tiện nghi hiện đại, không gian xanh, hồ bơi riêng và dịch vụ chuyên nghiệp, đảm bảo mang đến trải nghiệm nghỉ dưỡng khó quên cho bạn và người thân.',
     'learn_more': 'Tìm Hiểu Thêm',
+    
+    // Gallery Section
+    'gallery': 'Thư Viện Ảnh',
+    'discover_images': 'Khám Phá Annam Village Qua Hình Ảnh',
+    'gallery_desc': 'Ngắm nhìn không gian sống đẳng cấp và tiện nghi hiện đại tại Annam Village qua bộ sưu tập hình ảnh được tuyển chọn kỹ lưỡng.',
+    'view_more_images': 'Xem Thêm Hình Ảnh',
+    'all': 'Tất Cả',
+    
+    // Testimonials Section
+    'testimonials': 'Đánh Giá',
+    'testimonials_title': 'Khách Hàng Nói Gì Về Chúng Tôi',
+    'testimonials_desc': 'Hãy xem khách hàng đã trải nghiệm dịch vụ của chúng tôi nói gì về Annam Village.',
+    'customer': 'Khách Hàng',
+    
+    // Quick Booking Form
+    'quick_booking': 'Đặt Phòng Nhanh',
+    'full_name': 'Họ và tên',
+    'enter_name': 'Nhập họ và tên',
+    'email_address': 'Địa chỉ email',
+    'enter_email': 'Nhập địa chỉ email',
+    'phone_number': 'Số điện thoại',
+    'enter_phone': 'Nhập số điện thoại',
+    'room_type': 'Loại phòng',
+    'select_room': 'Chọn loại phòng',
+    'standard_room': 'Phòng Tiêu Chuẩn',
+    'deluxe_room': 'Phòng Deluxe',
+    'suite_room': 'Phòng Suite',
+    'villa': 'Biệt Thự',
+    'select_date': 'Chọn ngày ở',
+    'select_checkin_out': 'Chọn ngày nhận và trả phòng',
+    'submit_request': 'Gửi Yêu Cầu',
+    'detailed_booking': 'Đặt phòng chi tiết hơn',
+    
+    // Error and Success Messages
+    'error_loading_data': 'Lỗi tải dữ liệu',
+    'error_loading_gallery': 'Không thể tải hình ảnh thư viện từ máy chủ, đang sử dụng dữ liệu dự phòng',
+    'please_fill_all': 'Vui lòng điền đầy đủ thông tin đặt phòng!',
+    'booking_success': 'Yêu cầu đặt phòng đã được gửi thành công!',
+    'try_again': 'Thử lại',
   },
   en: {
     // Navigation
@@ -95,6 +134,45 @@ const translations = {
     'about_description': 'Annam Village is a chain of villas and apartments for short-term rental in the coastal city of Vung Tau. With a unique design combining modern architecture and traditional beauty, we bring you an ideal retreat space where you can immerse yourself in nature and relax completely.',
     'villa_description': 'Each villa is meticulously designed with all modern amenities, green spaces, private pools, and professional services, ensuring an unforgettable vacation experience for you and your loved ones.',
     'learn_more': 'Learn More',
+    
+    // Gallery Section
+    'gallery': 'Photo Gallery',
+    'discover_images': 'Discover Annam Village Through Images',
+    'gallery_desc': 'View the elegant living spaces and modern amenities at Annam Village through our carefully curated collection of images.',
+    'view_more_images': 'View More Images',
+    'all': 'All',
+    
+    // Testimonials Section
+    'testimonials': 'Testimonials',
+    'testimonials_title': 'What Our Guests Say About Us',
+    'testimonials_desc': 'See what guests who have experienced our service say about Annam Village.',
+    'customer': 'Customer',
+    
+    // Quick Booking Form
+    'quick_booking': 'Quick Booking',
+    'full_name': 'Full Name',
+    'enter_name': 'Enter your full name',
+    'email_address': 'Email Address',
+    'enter_email': 'Enter your email address',
+    'phone_number': 'Phone Number',
+    'enter_phone': 'Enter your phone number',
+    'room_type': 'Room Type',
+    'select_room': 'Select room type',
+    'standard_room': 'Standard Room',
+    'deluxe_room': 'Deluxe Room',
+    'suite_room': 'Suite Room',
+    'villa': 'Villa',
+    'select_date': 'Select Stay Date',
+    'select_checkin_out': 'Select check-in and check-out dates',
+    'submit_request': 'Submit Request',
+    'detailed_booking': 'Make a more detailed booking',
+    
+    // Error and Success Messages
+    'error_loading_data': 'Error loading data',
+    'error_loading_gallery': 'Could not load gallery images from server, using fallback data',
+    'please_fill_all': 'Please fill in all booking information!',
+    'booking_success': 'Booking request has been sent successfully!',
+    'try_again': 'Try Again',
   }
 };
 
