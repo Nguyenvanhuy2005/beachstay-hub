@@ -19,13 +19,14 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className }) => {
         size="sm"
         className="relative text-sm font-medium p-0 flex items-center gap-1"
         onClick={toggleLanguage}
+        aria-label="Change language"
       >
-        <Globe size={16} />
-        <span className={`transition-opacity duration-200 ${language === 'vi' ? 'opacity-100' : 'opacity-50'}`}>
+        <Globe size={16} className="mr-1" />
+        <span className={`transition-opacity duration-200 ${language === 'vi' ? 'opacity-100 font-bold' : 'opacity-50'}`}>
           VI
         </span>
         <span className="mx-1">/</span>
-        <span className={`transition-opacity duration-200 ${language === 'en' ? 'opacity-100' : 'opacity-50'}`}>
+        <span className={`transition-opacity duration-200 ${language === 'en' ? 'opacity-100 font-bold' : 'opacity-50'}`}>
           EN
         </span>
       </Button>

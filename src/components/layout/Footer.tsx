@@ -9,7 +9,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 const Footer = () => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [email, setEmail] = useState("");
 
   const handleSubscribe = (e: React.FormEvent) => {
@@ -54,7 +54,7 @@ const Footer = () => {
           >
             <Link to="/" className="inline-block mb-4">
               <img 
-                src="/lovable-uploads/af6c5cf0-46a5-42b7-9f98-01f3d252ff64.png" 
+                src="/lovable-uploads/2412b734-5632-48bf-b68e-5e99e6676366.png" 
                 alt="Annam Village Logo" 
                 className="h-16"
               />
@@ -102,36 +102,36 @@ const Footer = () => {
             viewport={{ once: true }}
             custom={2}
           >
-            <h3 className="font-display text-lg font-semibold mb-4">{language === 'vi' ? 'Liên Kết' : 'Links'}</h3>
+            <h3 className="font-display text-lg font-semibold mb-4">{t('links')}</h3>
             <ul className="space-y-2">
               <li>
                 <Link to="/" className="text-gray-300 hover:text-beach-500 transition-colors inline-block">
-                  {language === 'vi' ? 'Trang Chủ' : 'Home'}
+                  {t('home')}
                 </Link>
               </li>
               <li>
                 <Link to="/ve-chung-toi" className="text-gray-300 hover:text-beach-500 transition-colors inline-block">
-                  {language === 'vi' ? 'Về Chúng Tôi' : 'About Us'}
+                  {t('about')}
                 </Link>
               </li>
               <li>
                 <Link to="/loai-phong" className="text-gray-300 hover:text-beach-500 transition-colors inline-block">
-                  {language === 'vi' ? 'Loại Phòng' : 'Room Types'}
+                  {t('rooms')}
                 </Link>
               </li>
               <li>
                 <Link to="/dich-vu" className="text-gray-300 hover:text-beach-500 transition-colors inline-block">
-                  {language === 'vi' ? 'Dịch Vụ' : 'Services'}
+                  {t('services')}
                 </Link>
               </li>
               <li>
                 <Link to="/blog" className="text-gray-300 hover:text-beach-500 transition-colors inline-block">
-                  {language === 'vi' ? 'Blog' : 'Blog'}
+                  {t('blog')}
                 </Link>
               </li>
               <li>
                 <Link to="/lien-he" className="text-gray-300 hover:text-beach-500 transition-colors inline-block">
-                  {language === 'vi' ? 'Liên Hệ' : 'Contact'}
+                  {t('contact')}
                 </Link>
               </li>
             </ul>
@@ -144,7 +144,7 @@ const Footer = () => {
             viewport={{ once: true }}
             custom={3}
           >
-            <h3 className="font-display text-lg font-semibold mb-4">{language === 'vi' ? 'Liên Hệ' : 'Contact'}</h3>
+            <h3 className="font-display text-lg font-semibold mb-4">{t('contact')}</h3>
             <ul className="space-y-3">
               <li className="flex items-start">
                 <MapPin size={18} className="mr-2 mt-1 text-beach-500" />
@@ -171,17 +171,15 @@ const Footer = () => {
             custom={4}
           >
             <h3 className="font-display text-lg font-semibold mb-4">
-              {language === 'vi' ? 'Đăng Ký Nhận Tin' : 'Subscribe'}
+              {t('subscribe')}
             </h3>
             <p className="text-gray-300 mb-4">
-              {language === 'vi'
-                ? 'Đăng ký để nhận thông tin ưu đãi và tin tức mới nhất từ Annam Village.'
-                : 'Subscribe to receive promotions and latest news from Annam Village.'}
+              {t('subscribe_desc')}
             </p>
             <form onSubmit={handleSubscribe} className="flex flex-col space-y-2">
               <Input
                 type="email"
-                placeholder={language === 'vi' ? 'Email của bạn' : 'Your email'}
+                placeholder={t('your_email')}
                 className="bg-beach-800 border-beach-700 focus:border-beach-500 text-white"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -190,7 +188,7 @@ const Footer = () => {
                 type="submit"
                 className="bg-beach-500 hover:bg-beach-600 transition-all transform hover:scale-105 duration-300"
               >
-                {language === 'vi' ? 'Đăng Ký' : 'Subscribe'}
+                {t('subscribe_btn')}
               </Button>
             </form>
           </motion.div>
@@ -199,23 +197,23 @@ const Footer = () => {
         <div className="border-t border-beach-800 pt-6 mt-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              &copy; {new Date().getFullYear()} Annam Village. {language === 'vi' ? 'Tất cả quyền được bảo lưu.' : 'All rights reserved.'}
+              &copy; {new Date().getFullYear()} Annam Village. {t('all_rights')}
             </p>
             <div className="mt-4 md:mt-0">
               <ul className="flex space-x-4 text-sm text-gray-400">
                 <li>
                   <Link to="/dieu-khoan" className="hover:text-beach-500 transition-colors">
-                    {language === 'vi' ? 'Điều Khoản' : 'Terms'}
+                    {t('terms')}
                   </Link>
                 </li>
                 <li>
                   <Link to="/bao-mat" className="hover:text-beach-500 transition-colors">
-                    {language === 'vi' ? 'Bảo Mật' : 'Privacy'}
+                    {t('privacy')}
                   </Link>
                 </li>
                 <li>
                   <Link to="/cookie" className="hover:text-beach-500 transition-colors">
-                    {language === 'vi' ? 'Cookie' : 'Cookies'}
+                    {t('cookies')}
                   </Link>
                 </li>
               </ul>
