@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Youtube, Mail, Phone, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -102,36 +101,36 @@ const Footer = () => {
             viewport={{ once: true }}
             custom={2}
           >
-            <h3 className="font-display text-lg font-semibold mb-4">{t('common.links')}</h3>
+            <h3 className="font-display text-lg font-semibold mb-4">{t('links')}</h3>
             <ul className="space-y-2">
               <li>
                 <Link to="/" className="text-gray-300 hover:text-beach-500 transition-colors inline-block">
-                  {t('common.home')}
+                  {t('home')}
                 </Link>
               </li>
               <li>
                 <Link to="/ve-chung-toi" className="text-gray-300 hover:text-beach-500 transition-colors inline-block">
-                  {t('common.aboutUs')}
+                  {t('about')}
                 </Link>
               </li>
               <li>
                 <Link to="/loai-phong" className="text-gray-300 hover:text-beach-500 transition-colors inline-block">
-                  {t('common.ourRooms')}
+                  {t('rooms')}
                 </Link>
               </li>
               <li>
                 <Link to="/dich-vu" className="text-gray-300 hover:text-beach-500 transition-colors inline-block">
-                  {t('common.services')}
+                  {t('services')}
                 </Link>
               </li>
               <li>
                 <Link to="/blog" className="text-gray-300 hover:text-beach-500 transition-colors inline-block">
-                  {t('common.blog')}
+                  {t('blog')}
                 </Link>
               </li>
               <li>
                 <Link to="/lien-he" className="text-gray-300 hover:text-beach-500 transition-colors inline-block">
-                  {t('common.contactUs')}
+                  {t('contact')}
                 </Link>
               </li>
             </ul>
@@ -144,7 +143,7 @@ const Footer = () => {
             viewport={{ once: true }}
             custom={3}
           >
-            <h3 className="font-display text-lg font-semibold mb-4">{t('common.contactUs')}</h3>
+            <h3 className="font-display text-lg font-semibold mb-4">{t('contact')}</h3>
             <ul className="space-y-3">
               <li className="flex items-start">
                 <MapPin size={18} className="mr-2 mt-1 text-beach-500" />
@@ -171,17 +170,15 @@ const Footer = () => {
             custom={4}
           >
             <h3 className="font-display text-lg font-semibold mb-4">
-              {t('common.subscribeToNewsletter')}
+              {t('subscribe')}
             </h3>
             <p className="text-gray-300 mb-4">
-              {language === 'vi' 
-                ? 'Đăng ký nhận thông tin mới nhất về khuyến mãi và sự kiện'
-                : 'Subscribe to receive the latest promotions and events'}
+              {t('subscribe_desc')}
             </p>
             <form onSubmit={handleSubscribe} className="flex flex-col space-y-2">
               <Input
                 type="email"
-                placeholder={t('common.enterYourEmail')}
+                placeholder={t('your_email')}
                 className="bg-beach-800 border-beach-700 focus:border-beach-500 text-white"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -190,7 +187,7 @@ const Footer = () => {
                 type="submit"
                 className="bg-beach-500 hover:bg-beach-600 transition-all transform hover:scale-105 duration-300"
               >
-                {t('common.subscribe')}
+                {t('subscribe_btn')}
               </Button>
             </form>
           </motion.div>
@@ -199,23 +196,23 @@ const Footer = () => {
         <div className="border-t border-beach-800 pt-6 mt-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              &copy; {new Date().getFullYear()} Annam Village. {t('common.copyright')}
+              &copy; {new Date().getFullYear()} Annam Village. {t('all_rights')}
             </p>
             <div className="mt-4 md:mt-0">
               <ul className="flex space-x-4 text-sm text-gray-400">
                 <li>
                   <Link to="/dieu-khoan" className="hover:text-beach-500 transition-colors">
-                    {t('common.terms')}
+                    {t('terms')}
                   </Link>
                 </li>
                 <li>
                   <Link to="/bao-mat" className="hover:text-beach-500 transition-colors">
-                    {t('common.privacy')}
+                    {t('privacy')}
                   </Link>
                 </li>
                 <li>
                   <Link to="/cookie" className="hover:text-beach-500 transition-colors">
-                    {t('common.cookies')}
+                    {t('cookies')}
                   </Link>
                 </li>
               </ul>

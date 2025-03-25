@@ -59,7 +59,7 @@ const Header = () => {
               className="bg-beach-500 hover:bg-beach-600" 
               onClick={() => window.location.href = '/dat-phong'}
             >
-              {t('common.bookNow')}
+              {t('book_now')}
             </Button>
           </div>
 
@@ -103,7 +103,7 @@ const Header = () => {
               className="bg-beach-500 hover:bg-beach-600 mt-2"
               onClick={() => window.location.href = '/dat-phong'}
             >
-              {t('common.bookNow')}
+              {t('book_now')}
             </Button>
           </div>
         </div>
@@ -120,22 +120,22 @@ const NavLinks = ({ isScrolled }: { isScrolled: boolean }) => {
   return (
     <>
       <Link to="/" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
-        {t('common.home')}
+        {t('home')}
       </Link>
       <Link to="/ve-chung-toi" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
-        {t('common.aboutUs')}
+        {t('about')}
       </Link>
       <Link to="/loai-phong" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
-        {t('common.ourRooms')}
+        {t('rooms')}
       </Link>
       <Link to="/dich-vu" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
-        {t('common.services')}
+        {t('services')}
       </Link>
       <Link to="/blog" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
-        {t('common.blog')}
+        {t('blog')}
       </Link>
       <Link to="/lien-he" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
-        {t('common.contactUs')}
+        {t('contact')}
       </Link>
     </>
   );
