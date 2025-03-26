@@ -1,12 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import AdminDashboard from '@/components/admin/AdminDashboard';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Settings, User, ShieldCheck, Bell, Home } from 'lucide-react';
+import { LogOut, Settings, Bell, Home, Key, ShieldCheck, User } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,14 +16,71 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link } from 'react-router-dom';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast.success('Đã đăng xuất');
     navigate('/admin');
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError('');
+    
+    if (newPassword.length < 6) {
+      setPasswordError('Mật khẩu mới phải có ít nhất 6 ký tự');
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Mật khẩu xác nhận không khớp');
+      return;
+    }
+    
+    try {
+      setIsChangingPassword(true);
+      
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+      
+      if (error) {
+        console.error('Lỗi đổi mật khẩu:', error);
+        setPasswordError(error.message);
+        return;
+      }
+      
+      toast.success('Đổi mật khẩu thành công');
+      setIsPasswordDialogOpen(false);
+      setOldPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error: any) {
+      console.error('Lỗi đổi mật khẩu:', error);
+      setPasswordError(error.message);
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   return (
@@ -94,12 +151,62 @@ const AdminDashboardPage = () => {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Tài khoản của bạn</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <User className="h-4 w-4 mr-2" /> Hồ sơ cá nhân
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Settings className="h-4 w-4 mr-2" /> Cài đặt
-                  </DropdownMenuItem>
+                  <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+                    <DialogTrigger asChild>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <Settings className="h-4 w-4 mr-2" /> Cài đặt
+                      </DropdownMenuItem>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>Đổi mật khẩu</DialogTitle>
+                        <DialogDescription>
+                          Cập nhật mật khẩu mới cho tài khoản của bạn
+                        </DialogDescription>
+                      </DialogHeader>
+                      <form onSubmit={handleChangePassword}>
+                        <div className="grid gap-4 py-4">
+                          <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="new-password" className="text-right">
+                              Mật khẩu mới
+                            </Label>
+                            <Input
+                              id="new-password"
+                              type="password"
+                              value={newPassword}
+                              onChange={(e) => setNewPassword(e.target.value)}
+                              className="col-span-3"
+                              required
+                              minLength={6}
+                            />
+                          </div>
+                          <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="confirm-password" className="text-right">
+                              Xác nhận
+                            </Label>
+                            <Input
+                              id="confirm-password"
+                              type="password"
+                              value={confirmPassword}
+                              onChange={(e) => setConfirmPassword(e.target.value)}
+                              className="col-span-3"
+                              required
+                            />
+                          </div>
+                          {passwordError && (
+                            <div className="col-span-4 text-sm text-red-500">
+                              {passwordError}
+                            </div>
+                          )}
+                        </div>
+                        <DialogFooter>
+                          <Button type="submit" disabled={isChangingPassword}>
+                            {isChangingPassword ? "Đang xử lý..." : "Lưu thay đổi"}
+                          </Button>
+                        </DialogFooter>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="h-4 w-4 mr-2" /> Đăng xuất
