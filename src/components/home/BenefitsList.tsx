@@ -10,8 +10,8 @@ const BenefitsList: React.FC<BenefitsListProps> = ({ benefits }) => {
     <ul className="space-y-3 mb-8">
       {benefits.map((benefit, index) => (
         <li key={index} className="flex items-center">
-          <div className="bg-beach-100/20 rounded-full p-1 mr-3">
-            <Check className="h-4 w-4 text-beach-100" />
+          <div className="bg-olive-100/20 rounded-full p-1 mr-3">
+            <Check className="h-4 w-4 text-olive-100" />
           </div>
           <span>{benefit}</span>
         </li>

@@ -79,7 +79,7 @@ const HeroSection = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button 
-              className="bg-beach-500 hover:bg-beach-600 text-white font-medium px-8 py-6 text-lg"
+              className="bg-olive-600 hover:bg-olive-700 text-white font-medium px-8 py-6 text-lg"
               onClick={handleBookNow}
             >
               {t('book_now_action')}
@@ -103,7 +103,7 @@ const HeroSection = () => {
               key={index}
               onClick={() => setCurrentSlide(index)}
               className={`w-3 h-3 rounded-full ${
-                index === currentSlide ? "bg-beach-500" : "bg-white/50"
+                index === currentSlide ? "bg-terra-600" : "bg-white/50"
               }`}
             />
           ))}

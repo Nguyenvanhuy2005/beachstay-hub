@@ -7,79 +7,88 @@
  
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 224 71.4% 4.1%;
+    --background: 0 0% 100%; /* White background */
+    --foreground: 21 40% 54%; /* #c07653 text color */
 
     --card: 0 0% 100%;
-    --card-foreground: 224 71.4% 4.1%;
+    --card-foreground: 21 40% 54%; /* #c07653 text color */
  
     --popover: 0 0% 100%;
-    --popover-foreground: 224 71.4% 4.1%;
+    --popover-foreground: 21 40% 54%; /* #c07653 text color */
  
-    --primary: 220.9 39.3% 11%;
-    --primary-foreground: 210 20% 98%;
+    --primary: 90 16% 42%; /* #6c7560 primary color */
+    --primary-foreground: 0 0% 100%; /* White text on primary */
  
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 220.9 39.3% 11%;
+    --secondary: 90 8% 95%;
+    --secondary-foreground: 90 16% 42%; /* #6c7560 */
  
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
+    --muted: 90 8% 95%;
+    --muted-foreground: 90 10% 45%;
  
-    --accent: 220 14.3% 95.9%;
-    --accent-foreground: 220.9 39.3% 11%;
+    --accent: 90 8% 95%;
+    --accent-foreground: 90 16% 42%; /* #6c7560 */
  
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 20% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 224 71.4% 4.1%;
+    --border: 90 10% 80%;
+    --input: 90 10% 80%;
+    --ring: 90 16% 42%; /* #6c7560 */
  
     --radius: 0.5rem;
 
-    /* Beach theme colors */
-    --beach-50: 196 75% 97%;
-    --beach-100: 196 75% 92%;
-    --beach-200: 196 75% 85%;
-    --beach-300: 196 75% 75%;
-    --beach-400: 196 75% 65%;
-    --beach-500: 196 75% 55%;
-    --beach-600: 196 75% 45%;
-    --beach-700: 196 75% 35%;
-    --beach-800: 196 75% 25%;
-    --beach-900: 196 75% 20%;
+    /* Use olive and terra as our primary theme colors */
+    --olive-50: 90 15% 95%;
+    --olive-100: 90 15% 90%;
+    --olive-200: 90 15% 80%;
+    --olive-300: 90 15% 70%;
+    --olive-400: 90 15% 60%;
+    --olive-500: 90 15% 50%;
+    --olive-600: 90 16% 42%; /* #6c7560 */
+    --olive-700: 90 16% 35%;
+    --olive-800: 90 16% 25%;
+    --olive-900: 90 16% 15%;
 
-    --coral-500: 16 85% 55%;
+    --terra-50: 21 60% 97%;
+    --terra-100: 21 60% 94%;
+    --terra-200: 21 60% 90%;
+    --terra-300: 21 60% 80%;
+    --terra-400: 21 60% 70%;
+    --terra-500: 21 50% 60%;
+    --terra-600: 21 40% 54%; /* #c07653 */
+    --terra-700: 21 40% 44%;
+    --terra-800: 21 40% 34%;
+    --terra-900: 21 40% 24%;
   }
  
   .dark {
-    --background: 224 71.4% 4.1%;
-    --foreground: 210 20% 98%;
+    --background: 90 16% 15%;
+    --foreground: 0 0% 98%;
  
-    --card: 224 71.4% 4.1%;
-    --card-foreground: 210 20% 98%;
+    --card: 90 16% 15%;
+    --card-foreground: 0 0% 98%;
  
-    --popover: 224 71.4% 4.1%;
-    --popover-foreground: 210 20% 98%;
+    --popover: 90 16% 15%;
+    --popover-foreground: 0 0% 98%;
  
-    --primary: 210 20% 98%;
-    --primary-foreground: 220.9 39.3% 11%;
+    --primary: 90 16% 42%; /* Keep the same primary color */
+    --primary-foreground: 0 0% 98%;
  
-    --secondary: 215 27.9% 16.9%;
-    --secondary-foreground: 210 20% 98%;
+    --secondary: 90 12% 25%;
+    --secondary-foreground: 0 0% 98%;
  
-    --muted: 215 27.9% 16.9%;
-    --muted-foreground: 217.9 10.6% 64.9%;
+    --muted: 90 12% 25%;
+    --muted-foreground: 90 10% 70%;
  
-    --accent: 215 27.9% 16.9%;
-    --accent-foreground: 210 20% 98%;
+    --accent: 90 12% 25%;
+    --accent-foreground: 0 0% 98%;
  
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 20% 98%;
+    --destructive-foreground: 0 0% 98%;
  
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
-    --ring: 216 12.2% 83.9%;
+    --border: 90 12% 25%;
+    --input: 90 12% 25%;
+    --ring: 0 0% 83.9%;
   }
 }
  

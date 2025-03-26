@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -66,6 +65,30 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				olive: {
+					50: '#f3f4f1',
+					100: '#e7e9e3',
+					200: '#d0d4c8',
+					300: '#b8bfac',
+					400: '#a1aa90',
+					500: '#8a9575',
+					600: '#6c7560',
+					700: '#565e4d',
+					800: '#41483a',
+					900: '#2b3127',
+				},
+				terra: {
+					50: '#fcf6f3',
+					100: '#f9ede7',
+					200: '#f3dbcf',
+					300: '#ecc9b8',
+					400: '#e5b7a0',
+					500: '#d69a7c',
+					600: '#c07653',
+					700: '#9a5e42',
+					800: '#734632',
+					900: '#4d2e21',
 				},
 				beach: {
 					50: '#E0F7FF',

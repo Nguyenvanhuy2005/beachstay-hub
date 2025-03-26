@@ -4,15 +4,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 const RoomsManagement = () => {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Quản lý phòng</CardTitle>
-        <CardDescription>
+    <Card className="border-olive-200">
+      <CardHeader className="bg-olive-50">
+        <CardTitle className="text-olive-800">Quản lý phòng</CardTitle>
+        <CardDescription className="text-olive-600">
           Quản lý danh sách phòng, thêm, sửa, xóa phòng
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <p className="text-muted-foreground">
+      <CardContent className="pt-6">
+        <p className="text-terra-600">
           Tính năng này đang được phát triển.
         </p>
       </CardContent>
