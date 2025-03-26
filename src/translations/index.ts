@@ -1,4 +1,29 @@
 
+// Type definitions
+export type Language = 'vi' | 'en';
+
+export type TranslationKey = 
+  | 'hero_title' | 'hero_subtitle' | 'hero_booking_button' | 'hero_explore_button'
+  | 'home' | 'about' | 'rooms' | 'services' | 'blog' | 'contact'
+  | 'book_now' | 'learn_more' | 'view_all' | 'view_details'
+  | 'about_title' | 'about_subtitle' | 'about_description'
+  | 'room_types_title' | 'room_types_subtitle'
+  | 'amenities_title' | 'amenities_subtitle'
+  | 'testimonials_title' | 'testimonials_subtitle'
+  | 'gallery_title' | 'gallery_subtitle'
+  | 'cta_title' | 'cta_subtitle' | 'cta_description'
+  | 'links' | 'subscribe' | 'subscribe_desc' | 'your_email' | 'subscribe_btn' | 'all_rights' | 'terms' | 'privacy' | 'cookies'
+  | 'our_story' | 'our_mission' | 'our_vision' | 'our_values' | 'our_team'
+  | 'filter_by' | 'price_range' | 'guests' | 'amenities' | 'view' | 'apply_filter' | 'reset_filter' | 'from_price' | 'per_night'
+  | 'spa_wellness' | 'restaurant' | 'activities'
+  | 'latest_posts' | 'categories' | 'popular_tags' | 'search_placeholder'
+  | 'get_in_touch' | 'address' | 'phone' | 'email' | 'form_name' | 'form_email' | 'form_subject' | 'form_message' | 'form_submit'
+  | 'booking_title' | 'check_in' | 'check_out' | 'adults' | 'children' | 'select_room' | 'guest_info' | 'payment_info'
+  | 'name' | 'phone_number' | 'special_requests' | 'payment_method' | 'credit_card' | 'bank_transfer' | 'confirm_booking'
+  | 'booking_summary' | 'total_nights' | 'room_price' | 'taxes_fees' | 'total_price'
+  | 'admin_title' | 'dashboard' | 'bookings' | 'customers' | 'reports' | 'settings' | 'logout'
+  | 'error_title' | 'error_description' | 'back_to_home';
+
 const viTranslations = {
   // Home page
   hero_title: "Annam Village Vũng Tàu",
@@ -124,7 +149,6 @@ const viTranslations = {
   admin_title: "Quản Trị",
   dashboard: "Bảng Điều Khiển",
   bookings: "Đặt Phòng",
-  rooms: "Phòng",
   customers: "Khách Hàng",
   reports: "Báo Cáo",
   settings: "Cài Đặt",
@@ -271,6 +295,12 @@ const enTranslations = {
   error_title: "Page Not Found",
   error_description: "The page you are looking for does not exist or has been moved.",
   back_to_home: "Back to Home"
+};
+
+// Create a combined translations object with language as the key
+export const translations = {
+  vi: viTranslations,
+  en: enTranslations
 };
 
 export { viTranslations, enTranslations };
