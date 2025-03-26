@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Youtube, Mail, Phone, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -39,8 +40,8 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-beach-900 text-white pt-16 pb-8 relative overflow-hidden">
-      <div className="ocean-wave absolute bottom-0 left-0 right-0 h-16"></div>
+    <footer className="bg-olive-800 text-white pt-16 pb-8 relative overflow-hidden">
+      <div className="wave-pattern absolute bottom-0 left-0 right-0 h-16 opacity-10"></div>
       
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
@@ -68,7 +69,7 @@ const Footer = () => {
                 href="https://facebook.com" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="text-white hover:text-beach-500 transition-colors transform hover:scale-110 duration-300"
+                className="text-white hover:text-terra-300 transition-colors transform hover:scale-110 duration-300"
                 whileHover={{ y: -3 }}
               >
                 <Facebook size={20} />
@@ -77,7 +78,7 @@ const Footer = () => {
                 href="https://instagram.com" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="text-white hover:text-beach-500 transition-colors transform hover:scale-110 duration-300"
+                className="text-white hover:text-terra-300 transition-colors transform hover:scale-110 duration-300"
                 whileHover={{ y: -3 }}
               >
                 <Instagram size={20} />
@@ -86,7 +87,7 @@ const Footer = () => {
                 href="https://youtube.com" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="text-white hover:text-beach-500 transition-colors transform hover:scale-110 duration-300"
+                className="text-white hover:text-terra-300 transition-colors transform hover:scale-110 duration-300"
                 whileHover={{ y: -3 }}
               >
                 <Youtube size={20} />
@@ -104,32 +105,32 @@ const Footer = () => {
             <h3 className="font-display text-lg font-semibold mb-4">{t('links')}</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-gray-300 hover:text-beach-500 transition-colors inline-block">
+                <Link to="/" className="text-gray-300 hover:text-terra-300 transition-colors inline-block">
                   {t('home')}
                 </Link>
               </li>
               <li>
-                <Link to="/ve-chung-toi" className="text-gray-300 hover:text-beach-500 transition-colors inline-block">
+                <Link to="/ve-chung-toi" className="text-gray-300 hover:text-terra-300 transition-colors inline-block">
                   {t('about')}
                 </Link>
               </li>
               <li>
-                <Link to="/loai-phong" className="text-gray-300 hover:text-beach-500 transition-colors inline-block">
+                <Link to="/loai-phong" className="text-gray-300 hover:text-terra-300 transition-colors inline-block">
                   {t('rooms')}
                 </Link>
               </li>
               <li>
-                <Link to="/dich-vu" className="text-gray-300 hover:text-beach-500 transition-colors inline-block">
+                <Link to="/dich-vu" className="text-gray-300 hover:text-terra-300 transition-colors inline-block">
                   {t('services')}
                 </Link>
               </li>
               <li>
-                <Link to="/blog" className="text-gray-300 hover:text-beach-500 transition-colors inline-block">
+                <Link to="/blog" className="text-gray-300 hover:text-terra-300 transition-colors inline-block">
                   {t('blog')}
                 </Link>
               </li>
               <li>
-                <Link to="/lien-he" className="text-gray-300 hover:text-beach-500 transition-colors inline-block">
+                <Link to="/lien-he" className="text-gray-300 hover:text-terra-300 transition-colors inline-block">
                   {t('contact')}
                 </Link>
               </li>
@@ -146,18 +147,18 @@ const Footer = () => {
             <h3 className="font-display text-lg font-semibold mb-4">{t('contact')}</h3>
             <ul className="space-y-3">
               <li className="flex items-start">
-                <MapPin size={18} className="mr-2 mt-1 text-beach-500" />
+                <MapPin size={18} className="mr-2 mt-1 text-terra-400" />
                 <span className="text-gray-300">
                   234 Phan Chu Trinh, Phường 2, TP. Vũng Tàu, Việt Nam
                 </span>
               </li>
               <li className="flex items-center">
-                <Phone size={18} className="mr-2 text-beach-500" />
-                <a href="tel:+84933669154" className="text-gray-300 hover:text-beach-500 transition-colors">0933 669 154</a>
+                <Phone size={18} className="mr-2 text-terra-400" />
+                <a href="tel:+84933669154" className="text-gray-300 hover:text-terra-300 transition-colors">0933 669 154</a>
               </li>
               <li className="flex items-center">
-                <Mail size={18} className="mr-2 text-beach-500" />
-                <a href="mailto:info@annamvillage.vn" className="text-gray-300 hover:text-beach-500 transition-colors">info@annamvillage.vn</a>
+                <Mail size={18} className="mr-2 text-terra-400" />
+                <a href="mailto:info@annamvillage.vn" className="text-gray-300 hover:text-terra-300 transition-colors">info@annamvillage.vn</a>
               </li>
             </ul>
           </motion.div>
@@ -179,13 +180,13 @@ const Footer = () => {
               <Input
                 type="email"
                 placeholder={t('your_email')}
-                className="bg-beach-800 border-beach-700 focus:border-beach-500 text-white"
+                className="bg-olive-700 border-olive-600 focus:border-terra-400 text-white"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
               <Button 
                 type="submit"
-                className="bg-beach-500 hover:bg-beach-600 transition-all transform hover:scale-105 duration-300"
+                className="bg-terra-600 hover:bg-terra-700 transition-all transform hover:scale-105 duration-300"
               >
                 {t('subscribe_btn')}
               </Button>
@@ -193,7 +194,7 @@ const Footer = () => {
           </motion.div>
         </div>
 
-        <div className="border-t border-beach-800 pt-6 mt-6">
+        <div className="border-t border-olive-700 pt-6 mt-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
               &copy; {new Date().getFullYear()} Annam Village. {t('all_rights')}
@@ -201,17 +202,17 @@ const Footer = () => {
             <div className="mt-4 md:mt-0">
               <ul className="flex space-x-4 text-sm text-gray-400">
                 <li>
-                  <Link to="/dieu-khoan" className="hover:text-beach-500 transition-colors">
+                  <Link to="/dieu-khoan" className="hover:text-terra-300 transition-colors">
                     {t('terms')}
                   </Link>
                 </li>
                 <li>
-                  <Link to="/bao-mat" className="hover:text-beach-500 transition-colors">
+                  <Link to="/bao-mat" className="hover:text-terra-300 transition-colors">
                     {t('privacy')}
                   </Link>
                 </li>
                 <li>
-                  <Link to="/cookie" className="hover:text-beach-500 transition-colors">
+                  <Link to="/cookie" className="hover:text-terra-300 transition-colors">
                     {t('cookies')}
                   </Link>
                 </li>

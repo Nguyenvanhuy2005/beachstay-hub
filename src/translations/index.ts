@@ -1,202 +1,276 @@
 
-export type Language = 'vi' | 'en';
-
-export type TranslationKey = keyof typeof translations.en | keyof typeof translations.vi;
-
-// Define translations
-export const translations = {
-  vi: {
-    // Navigation
-    'home': 'Trang Chủ',
-    'about': 'Về Chúng Tôi',
-    'rooms': 'Loại Phòng',
-    'services': 'Dịch Vụ',
-    'blog': 'Blog',
-    'contact': 'Liên Hệ',
-    'book_now': 'Đặt Phòng',
-    
-    // CTA Section
-    'book_today': 'Đặt Phòng Ngay Hôm Nay',
-    'special_offers': 'Và Nhận Ưu Đãi Đặc Biệt',
-    'book_direct': 'Đặt phòng trực tiếp trên website chính thức của chúng tôi để nhận được giá tốt nhất cùng nhiều ưu đãi hấp dẫn chỉ dành riêng cho khách hàng đặt phòng online.',
-    'book_now_btn': 'Đặt Phòng Ngay',
-    'view_offers': 'Xem Ưu Đãi',
-    
-    // Benefits
-    'best_price': 'Giá tốt nhất đảm bảo',
-    'exclusive_offers': 'Ưu đãi độc quyền chỉ có trên website',
-    'quick_booking': 'Đặt phòng nhanh chóng, dễ dàng',
-    'free_cancel': 'Hủy miễn phí trước 7 ngày',
-    'secure_payment': 'Thanh toán an toàn, bảo mật',
-    
-    // Footer
-    'links': 'Liên Kết',
-    'subscribe': 'Đăng Ký Nhận Tin',
-    'subscribe_desc': 'Đăng ký để nhận thông tin ưu đãi và tin tức mới nhất từ Annam Village.',
-    'your_email': 'Email của bạn',
-    'subscribe_btn': 'Đăng Ký',
-    'all_rights': 'Tất cả quyền được bảo lưu.',
-    'terms': 'Điều Khoản',
-    'privacy': 'Bảo Mật',
-    'cookies': 'Cookie',
-    
-    // About Section
-    'about_annam': 'Về Annam Village',
-    'about_description': 'Annam Village là chuỗi biệt thự, căn hộ cho thuê ngắn ngày tại thành phố biển Vũng Tàu. Với thiết kế độc đáo kết hợp giữa kiến trúc hiện đại và nét đẹp truyền thống, chúng tôi mang đến cho bạn không gian nghỉ dưỡng lý tưởng, nơi hòa mình vào thiên nhiên và thư giãn tuyệt đối.',
-    'villa_description': 'Mỗi căn biệt thự đều được thiết kế tỉ mỉ với đầy đủ tiện nghi hiện đại, không gian xanh, hồ bơi riêng và dịch vụ chuyên nghiệp, đảm bảo mang đến trải nghiệm nghỉ dưỡng khó quên cho bạn và người thân.',
-    'learn_more': 'Tìm Hiểu Thêm',
-    
-    // Gallery Section
-    'gallery': 'Thư Viện Ảnh',
-    'discover_images': 'Khám Phá Annam Village Qua Hình Ảnh',
-    'gallery_desc': 'Ngắm nhìn không gian sống đẳng cấp và tiện nghi hiện đại tại Annam Village qua bộ sưu tập hình ảnh được tuyển chọn kỹ lưỡng.',
-    'view_more_images': 'Xem Thêm Hình Ảnh',
-    'all': 'Tất Cả',
-    
-    // Gallery Categories
-    'pool': 'Hồ Bơi',
-    'bedroom': 'Phòng Ngủ',
-    'living_room': 'Phòng Khách',
-    'dining_room': 'Phòng Ăn',
-    'exterior': 'Ngoại Thất',
-    
-    // Testimonials Section
-    'testimonials': 'Đánh Giá',
-    'testimonials_title': 'Khách Hàng Nói Gì Về Chúng Tôi',
-    'testimonials_desc': 'Hãy xem khách hàng đã trải nghiệm dịch vụ của chúng tôi nói gì về Annam Village.',
-    'customer': 'Khách Hàng',
-    
-    // Quick Booking Form
-    'quick_booking': 'Đặt Phòng Nhanh',
-    'full_name': 'Họ và tên',
-    'enter_name': 'Nhập họ và tên',
-    'email_address': 'Địa chỉ email',
-    'enter_email': 'Nhập địa chỉ email',
-    'phone_number': 'Số điện thoại',
-    'enter_phone': 'Nhập số điện thoại',
-    'room_type': 'Loại phòng',
-    'select_room': 'Chọn loại phòng',
-    'standard_room': 'Phòng Tiêu Chuẩn',
-    'deluxe_room': 'Phòng Deluxe',
-    'suite_room': 'Phòng Suite',
-    'villa': 'Biệt Thự',
-    'select_date': 'Chọn ngày ở',
-    'select_checkin_out': 'Chọn ngày nhận và trả phòng',
-    'submit_request': 'Gửi Yêu Cầu',
-    'detailed_booking': 'Đặt phòng chi tiết hơn',
-    
-    // Error and Success Messages
-    'error_loading_data': 'Lỗi tải dữ liệu',
-    'error_loading_gallery': 'Không thể tải hình ảnh thư viện từ máy chủ, đang sử dụng dữ liệu dự phòng',
-    'please_fill_all': 'Vui lòng điền đầy đủ thông tin đặt phòng!',
-    'booking_success': 'Yêu cầu đặt phòng đã được gửi thành công!',
-    'try_again': 'Thử lại',
-    
-    // HeroSection 
-    'premium_amenities': 'Tiện Nghi Đẳng Cấp',
-    'premium_amenities_desc': 'Phòng nghỉ sang trọng với đầy đủ tiện nghi hiện đại',
-    'peaceful_space': 'Không Gian Bình Yên',
-    'peaceful_space_desc': 'Nơi hòa mình vào thiên nhiên và thư giãn tuyệt đối',
-    'luxury_experience': 'Trải Nghiệm Sang Trọng',
-    'luxury_experience_desc': 'Cùng thiết kế độc đáo kết hợp hiện đại và truyền thống',
-    'book_now_action': 'Đặt Phòng Ngay',
-    'explore': 'Khám Phá',
-  },
-  en: {
-    // Navigation
-    'home': 'Home',
-    'about': 'About Us',
-    'rooms': 'Room Types',
-    'services': 'Services',
-    'blog': 'Blog',
-    'contact': 'Contact',
-    'book_now': 'Book Now',
-    
-    // CTA Section
-    'book_today': 'Book Your Stay Today',
-    'special_offers': 'And Get Special Offers',
-    'book_direct': 'Book directly on our official website to get the best price and many attractive offers exclusively for online booking customers.',
-    'book_now_btn': 'Book Now',
-    'view_offers': 'View Offers',
-    
-    // Benefits
-    'best_price': 'Best price guarantee',
-    'exclusive_offers': 'Exclusive offers only on our website',
-    'quick_booking': 'Quick and easy booking',
-    'free_cancel': 'Free cancellation before 7 days',
-    'secure_payment': 'Secure payment',
-    
-    // Footer
-    'links': 'Links',
-    'subscribe': 'Subscribe',
-    'subscribe_desc': 'Subscribe to receive promotions and latest news from Annam Village.',
-    'your_email': 'Your email',
-    'subscribe_btn': 'Subscribe',
-    'all_rights': 'All rights reserved.',
-    'terms': 'Terms',
-    'privacy': 'Privacy',
-    'cookies': 'Cookies',
-    
-    // About Section
-    'about_annam': 'About Annam Village',
-    'about_description': 'Annam Village is a chain of villas and apartments for short-term rental in the coastal city of Vung Tau. With a unique design combining modern architecture and traditional beauty, we bring you an ideal retreat space where you can immerse yourself in nature and relax completely.',
-    'villa_description': 'Each villa is meticulously designed with all modern amenities, green spaces, private pools, and professional services, ensuring an unforgettable vacation experience for you and your loved ones.',
-    'learn_more': 'Learn More',
-    
-    // Gallery Section
-    'gallery': 'Photo Gallery',
-    'discover_images': 'Discover Annam Village Through Images',
-    'gallery_desc': 'View the elegant living spaces and modern amenities at Annam Village through our carefully curated collection of images.',
-    'view_more_images': 'View More Images',
-    'all': 'All',
-    
-    // Gallery Categories
-    'pool': 'Pool',
-    'bedroom': 'Bedroom',
-    'living_room': 'Living Room',
-    'dining_room': 'Dining Room',
-    'exterior': 'Exterior',
-    
-    // Testimonials Section
-    'testimonials': 'Testimonials',
-    'testimonials_title': 'What Our Guests Say About Us',
-    'testimonials_desc': 'See what guests who have experienced our service say about Annam Village.',
-    'customer': 'Customer',
-    
-    // Quick Booking Form
-    'quick_booking': 'Quick Booking',
-    'full_name': 'Full Name',
-    'enter_name': 'Enter your full name',
-    'email_address': 'Email Address',
-    'enter_email': 'Enter your email address',
-    'phone_number': 'Phone Number',
-    'enter_phone': 'Enter your phone number',
-    'room_type': 'Room Type',
-    'select_room': 'Select room type',
-    'standard_room': 'Standard Room',
-    'deluxe_room': 'Deluxe Room',
-    'suite_room': 'Suite Room',
-    'villa': 'Villa',
-    'select_date': 'Select Stay Date',
-    'select_checkin_out': 'Select check-in and check-out dates',
-    'submit_request': 'Submit Request',
-    'detailed_booking': 'Make a more detailed booking',
-    
-    // Error and Success Messages
-    'error_loading_data': 'Error loading data',
-    'error_loading_gallery': 'Could not load gallery images from server, using fallback data',
-    'please_fill_all': 'Please fill in all booking information!',
-    'booking_success': 'Booking request has been sent successfully!',
-    'try_again': 'Try Again',
-    
-    // HeroSection
-    'premium_amenities': 'Premium Amenities',
-    'premium_amenities_desc': 'Luxurious rooms with all modern amenities',
-    'peaceful_space': 'Peaceful Space',
-    'peaceful_space_desc': 'Where you can immerse yourself in nature and relax completely',
-    'luxury_experience': 'Luxury Experience',
-    'luxury_experience_desc': 'With unique design combining modern and traditional elements',
-    'book_now_action': 'Book Now',
-    'explore': 'Explore',
-  }
+const viTranslations = {
+  // Home page
+  hero_title: "Annam Village Vũng Tàu",
+  hero_subtitle: "Trải nghiệm không gian nghỉ dưỡng đẳng cấp bên bờ biển",
+  hero_booking_button: "Đặt Phòng Ngay",
+  hero_explore_button: "Khám Phá Dịch Vụ",
+  
+  // Navigation
+  home: "Trang Chủ",
+  about: "Về Chúng Tôi",
+  rooms: "Loại Phòng",
+  services: "Dịch Vụ",
+  blog: "Blog",
+  contact: "Liên Hệ",
+  
+  // Common buttons
+  book_now: "Đặt Phòng",
+  learn_more: "Tìm Hiểu Thêm",
+  view_all: "Xem Tất Cả",
+  view_details: "Xem Chi Tiết",
+  
+  // About section
+  about_title: "Về Annam Village",
+  about_subtitle: "Không gian nghỉ dưỡng sang trọng bên bờ biển",
+  about_description: "Annam Village là một khu nghỉ dưỡng ven biển sang trọng tại Vũng Tàu, mang đến trải nghiệm độc đáo với kiến trúc đương đại pha trộn nét đẹp truyền thống Việt Nam. Tọa lạc tại vị trí đắc địa, mỗi phòng nghỉ đều có tầm nhìn tuyệt đẹp ra biển và được thiết kế tinh tế với các tiện nghi hiện đại, mang đến không gian sống tiện nghi và đẳng cấp.",
+  
+  // Room types section
+  room_types_title: "Loại Phòng",
+  room_types_subtitle: "Không gian nghỉ dưỡng đa dạng",
+  
+  // Amenities section
+  amenities_title: "Tiện Nghi & Dịch Vụ",
+  amenities_subtitle: "Trải nghiệm sang trọng và tiện nghi",
+  
+  // Testimonials section
+  testimonials_title: "Đánh Giá Từ Khách Hàng",
+  testimonials_subtitle: "Khách hàng nói gì về chúng tôi",
+  
+  // Gallery section
+  gallery_title: "Thư Viện Ảnh",
+  gallery_subtitle: "Khám phá vẻ đẹp của Annam Village",
+  
+  // CTA section
+  cta_title: "Đặt Phòng Ngay Hôm Nay",
+  cta_subtitle: "Và Nhận Ưu Đãi Đặc Biệt",
+  cta_description: "Đặt phòng trực tiếp trên website chính thức của chúng tôi để nhận được giá tốt nhất cùng nhiều ưu đãi hấp dẫn chỉ dành riêng cho khách hàng đặt phòng online.",
+  
+  // Footer
+  links: "Liên Kết",
+  contact: "Liên Hệ",
+  subscribe: "Đăng Ký Nhận Tin",
+  subscribe_desc: "Đăng ký để nhận thông tin ưu đãi mới nhất từ chúng tôi",
+  your_email: "Email của bạn",
+  subscribe_btn: "Đăng Ký",
+  all_rights: "Tất cả các quyền được bảo lưu",
+  terms: "Điều Khoản",
+  privacy: "Chính Sách Bảo Mật",
+  cookies: "Cookies",
+  
+  // About page
+  our_story: "Câu Chuyện Của Chúng Tôi",
+  our_mission: "Sứ Mệnh",
+  our_vision: "Tầm Nhìn",
+  our_values: "Giá Trị Cốt Lõi",
+  our_team: "Đội Ngũ Của Chúng Tôi",
+  
+  // Room types page
+  filter_by: "Lọc Theo",
+  price_range: "Khoảng Giá",
+  guests: "Số Khách",
+  amenities: "Tiện Nghi",
+  view: "Tầm Nhìn",
+  apply_filter: "Áp Dụng",
+  reset_filter: "Đặt Lại",
+  from_price: "Từ",
+  per_night: "/đêm",
+  
+  // Services page
+  spa_wellness: "Spa & Sức Khỏe",
+  restaurant: "Nhà Hàng",
+  activities: "Hoạt Động",
+  
+  // Blog page
+  latest_posts: "Bài Viết Mới Nhất",
+  categories: "Danh Mục",
+  popular_tags: "Thẻ Phổ Biến",
+  search_placeholder: "Tìm kiếm bài viết...",
+  
+  // Contact page
+  get_in_touch: "Liên Hệ Với Chúng Tôi",
+  address: "Địa Chỉ",
+  phone: "Điện Thoại",
+  email: "Email",
+  form_name: "Họ Tên",
+  form_email: "Email",
+  form_subject: "Tiêu Đề",
+  form_message: "Nội Dung",
+  form_submit: "Gửi",
+  
+  // Booking page
+  booking_title: "Đặt Phòng",
+  check_in: "Nhận Phòng",
+  check_out: "Trả Phòng",
+  adults: "Người Lớn",
+  children: "Trẻ Em",
+  select_room: "Chọn Phòng",
+  guest_info: "Thông Tin Khách Hàng",
+  payment_info: "Thông Tin Thanh Toán",
+  name: "Họ Tên",
+  phone_number: "Số Điện Thoại",
+  special_requests: "Yêu Cầu Đặc Biệt",
+  payment_method: "Phương Thức Thanh Toán",
+  credit_card: "Thẻ Tín Dụng",
+  bank_transfer: "Chuyển Khoản",
+  confirm_booking: "Xác Nhận Đặt Phòng",
+  booking_summary: "Thông Tin Đặt Phòng",
+  total_nights: "Tổng Số Đêm",
+  room_price: "Giá Phòng",
+  taxes_fees: "Thuế & Phí",
+  total_price: "Tổng Cộng",
+  
+  // Admin
+  admin_title: "Quản Trị",
+  dashboard: "Bảng Điều Khiển",
+  bookings: "Đặt Phòng",
+  rooms: "Phòng",
+  customers: "Khách Hàng",
+  reports: "Báo Cáo",
+  settings: "Cài Đặt",
+  logout: "Đăng Xuất",
+  
+  // Error page
+  error_title: "Không Tìm Thấy Trang",
+  error_description: "Trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển.",
+  back_to_home: "Về Trang Chủ"
 };
+
+const enTranslations = {
+  // Home page
+  hero_title: "Annam Village Vung Tau",
+  hero_subtitle: "Experience luxury beachfront living",
+  hero_booking_button: "Book Now",
+  hero_explore_button: "Explore Services",
+  
+  // Navigation
+  home: "Home",
+  about: "About",
+  rooms: "Rooms",
+  services: "Services",
+  blog: "Blog",
+  contact: "Contact",
+  
+  // Common buttons
+  book_now: "Book Now",
+  learn_more: "Learn More",
+  view_all: "View All",
+  view_details: "View Details",
+  
+  // About section
+  about_title: "About Annam Village",
+  about_subtitle: "Luxury beachfront resort",
+  about_description: "Annam Village is a luxurious beachfront resort in Vung Tau that offers a unique experience with contemporary architecture blended with traditional Vietnamese beauty. Located in a prime location, each accommodation has stunning sea views and is elegantly designed with modern amenities, providing a comfortable and sophisticated living space.",
+  
+  // Room types section
+  room_types_title: "Room Types",
+  room_types_subtitle: "Diverse accommodation options",
+  
+  // Amenities section
+  amenities_title: "Amenities & Services",
+  amenities_subtitle: "Luxury and convenience experience",
+  
+  // Testimonials section
+  testimonials_title: "Guest Testimonials",
+  testimonials_subtitle: "What our guests say about us",
+  
+  // Gallery section
+  gallery_title: "Gallery",
+  gallery_subtitle: "Explore the beauty of Annam Village",
+  
+  // CTA section
+  cta_title: "Book Your Stay Today",
+  cta_subtitle: "And Get Special Offers",
+  cta_description: "Book directly on our official website to get the best price and many attractive offers exclusively for online booking customers.",
+  
+  // Footer
+  links: "Links",
+  contact: "Contact",
+  subscribe: "Subscribe",
+  subscribe_desc: "Subscribe to receive our latest offers",
+  your_email: "Your email",
+  subscribe_btn: "Subscribe",
+  all_rights: "All rights reserved",
+  terms: "Terms",
+  privacy: "Privacy Policy",
+  cookies: "Cookies",
+  
+  // About page
+  our_story: "Our Story",
+  our_mission: "Our Mission",
+  our_vision: "Our Vision",
+  our_values: "Our Values",
+  our_team: "Our Team",
+  
+  // Room types page
+  filter_by: "Filter By",
+  price_range: "Price Range",
+  guests: "Guests",
+  amenities: "Amenities",
+  view: "View",
+  apply_filter: "Apply",
+  reset_filter: "Reset",
+  from_price: "From",
+  per_night: "/night",
+  
+  // Services page
+  spa_wellness: "Spa & Wellness",
+  restaurant: "Restaurant",
+  activities: "Activities",
+  
+  // Blog page
+  latest_posts: "Latest Posts",
+  categories: "Categories",
+  popular_tags: "Popular Tags",
+  search_placeholder: "Search posts...",
+  
+  // Contact page
+  get_in_touch: "Get In Touch",
+  address: "Address",
+  phone: "Phone",
+  email: "Email",
+  form_name: "Name",
+  form_email: "Email",
+  form_subject: "Subject",
+  form_message: "Message",
+  form_submit: "Submit",
+  
+  // Booking page
+  booking_title: "Booking",
+  check_in: "Check In",
+  check_out: "Check Out",
+  adults: "Adults",
+  children: "Children",
+  select_room: "Select Room",
+  guest_info: "Guest Information",
+  payment_info: "Payment Information",
+  name: "Full Name",
+  phone_number: "Phone Number",
+  special_requests: "Special Requests",
+  payment_method: "Payment Method",
+  credit_card: "Credit Card",
+  bank_transfer: "Bank Transfer",
+  confirm_booking: "Confirm Booking",
+  booking_summary: "Booking Summary",
+  total_nights: "Total Nights",
+  room_price: "Room Price",
+  taxes_fees: "Taxes & Fees",
+  total_price: "Total Price",
+  
+  // Admin
+  admin_title: "Admin",
+  dashboard: "Dashboard",
+  bookings: "Bookings",
+  rooms: "Rooms",
+  customers: "Customers",
+  reports: "Reports",
+  settings: "Settings",
+  logout: "Logout",
+  
+  // Error page
+  error_title: "Page Not Found",
+  error_description: "The page you are looking for does not exist or has been moved.",
+  back_to_home: "Back to Home"
+};
+
+export { viTranslations, enTranslations };

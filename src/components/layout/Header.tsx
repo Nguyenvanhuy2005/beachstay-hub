@@ -114,7 +114,7 @@ const Header = () => {
 
 const NavLinks = ({ isScrolled }: { isScrolled: boolean }) => {
   const textColor = isScrolled ? "text-olive-600" : "text-white";
-  const hoverColor = isScrolled ? "hover:text-terra-600" : "hover:text-olive-200";
+  const hoverColor = isScrolled ? "hover:text-terra-600" : "hover:text-terra-200";
   const { t } = useLanguage();
   
   return (
