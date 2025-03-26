@@ -22,7 +22,9 @@ export type TranslationKey =
   | 'name' | 'phone_number' | 'special_requests' | 'payment_method' | 'credit_card' | 'bank_transfer' | 'confirm_booking'
   | 'booking_summary' | 'total_nights' | 'room_price' | 'taxes_fees' | 'total_price'
   | 'admin_title' | 'dashboard' | 'bookings' | 'customers' | 'reports' | 'settings' | 'logout'
-  | 'error_title' | 'error_description' | 'back_to_home';
+  | 'error_title' | 'error_description' | 'back_to_home'
+  | 'book_now_action' | 'explore' | 'peaceful_space' | 'peaceful_space_desc' | 'luxury_experience' 
+  | 'luxury_experience_desc' | 'premium_amenities' | 'premium_amenities_desc';
 
 const viTranslations = {
   // Home page
@@ -41,9 +43,19 @@ const viTranslations = {
   
   // Common buttons
   book_now: "Đặt Phòng",
+  book_now_action: "Đặt Phòng Ngay",
+  explore: "Khám Phá",
   learn_more: "Tìm Hiểu Thêm",
   view_all: "Xem Tất Cả",
   view_details: "Xem Chi Tiết",
+  
+  // Hero section
+  peaceful_space: "Không Gian Yên Bình",
+  peaceful_space_desc: "Tận hưởng kỳ nghỉ trong không gian yên bình tại Annam Village",
+  luxury_experience: "Trải Nghiệm Đẳng Cấp",
+  luxury_experience_desc: "Dịch vụ 5 sao và tiện nghi cao cấp cho kỳ nghỉ hoàn hảo",
+  premium_amenities: "Tiện Nghi Cao Cấp",
+  premium_amenities_desc: "Hồ bơi, nhà hàng, spa và nhiều tiện ích đẳng cấp",
   
   // About section
   about_title: "Về Annam Village",
@@ -73,7 +85,6 @@ const viTranslations = {
   
   // Footer
   links: "Liên Kết",
-  contact: "Liên Hệ",
   subscribe: "Đăng Ký Nhận Tin",
   subscribe_desc: "Đăng ký để nhận thông tin ưu đãi mới nhất từ chúng tôi",
   your_email: "Email của bạn",
@@ -177,9 +188,19 @@ const enTranslations = {
   
   // Common buttons
   book_now: "Book Now",
+  book_now_action: "Book Now",
+  explore: "Explore",
   learn_more: "Learn More",
   view_all: "View All",
   view_details: "View Details",
+  
+  // Hero section
+  peaceful_space: "Peaceful Space",
+  peaceful_space_desc: "Enjoy your vacation in a peaceful atmosphere at Annam Village",
+  luxury_experience: "Luxury Experience",
+  luxury_experience_desc: "5-star service and premium amenities for a perfect getaway",
+  premium_amenities: "Premium Amenities",
+  premium_amenities_desc: "Swimming pool, restaurant, spa and many more luxurious facilities",
   
   // About section
   about_title: "About Annam Village",
@@ -285,7 +306,6 @@ const enTranslations = {
   admin_title: "Admin",
   dashboard: "Dashboard",
   bookings: "Bookings",
-  rooms: "Rooms",
   customers: "Customers",
   reports: "Reports",
   settings: "Settings",
