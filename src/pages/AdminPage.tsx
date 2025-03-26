@@ -1,12 +1,13 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
-import AdminLoginPage from './AdminLoginPage';
 import AdminDashboardPage from './AdminDashboardPage';
+import { toast } from 'sonner';
 
 const AdminPage = () => {
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -18,14 +19,23 @@ const AdminPage = () => {
         if (error) {
           console.error('Session check error:', error);
           setIsAuthenticated(false);
+          setIsLoading(false);
           return;
         }
         
         console.log('Session data:', data);
-        setIsAuthenticated(!!data.session?.user);
+        const isLoggedIn = !!data.session?.user;
+        setIsAuthenticated(isLoggedIn);
+        
+        if (!isLoggedIn) {
+          toast.error('Vui lòng đăng nhập để truy cập trang quản trị');
+          navigate('/admin/login');
+        }
       } catch (error) {
         console.error('Unexpected error during session check:', error);
         setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
       }
     };
     
@@ -33,7 +43,12 @@ const AdminPage = () => {
     
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('Auth state changed:', event, session);
-      setIsAuthenticated(!!session?.user);
+      const isLoggedIn = !!session?.user;
+      setIsAuthenticated(isLoggedIn);
+      
+      if (event === 'SIGNED_OUT') {
+        navigate('/admin/login');
+      }
     });
     
     return () => {
@@ -42,7 +57,7 @@ const AdminPage = () => {
   }, [navigate]);
 
   // Show loading state while checking authentication
-  if (isAuthenticated === null) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-beach-700"></div>
@@ -50,8 +65,8 @@ const AdminPage = () => {
     );
   }
 
-  // If authenticated, show dashboard, otherwise show login
-  return isAuthenticated ? <AdminDashboardPage /> : <AdminLoginPage />;
+  // If authenticated, show dashboard, otherwise redirect to login
+  return isAuthenticated ? <AdminDashboardPage /> : <Navigate to="/admin/login" />;
 };
 
 export default AdminPage;

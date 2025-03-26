@@ -26,7 +26,9 @@ export type TranslationKey =
   | 'book_now_action' | 'explore' | 'peaceful_space' | 'peaceful_space_desc' | 'luxury_experience' 
   | 'luxury_experience_desc' | 'premium_amenities' | 'premium_amenities_desc'
   | 'gallery' | 'discover_images' | 'gallery_desc' | 'view_more_images' | 'all'
-  | 'about_annam' | 'villa_description' | 'error_loading_data' | 'error_loading_gallery' | 'try_again';
+  | 'about_annam' | 'villa_description' | 'error_loading_data' | 'error_loading_gallery' | 'try_again'
+  | 'admin_login' | 'password' | 'login' | 'forgot_password' | 'back_to_login' | 'reset_password'
+  | 'reset_password_sent' | 'admin_note' | 'login_error' | 'signing_in' | 'send_reset';
 
 const viTranslations: Record<TranslationKey, string> = {
   // Home page
@@ -173,6 +175,19 @@ const viTranslations: Record<TranslationKey, string> = {
   reports: "Báo Cáo",
   settings: "Cài Đặt",
   logout: "Đăng Xuất",
+
+  // Admin Login
+  admin_login: "Đăng Nhập Quản Trị",
+  password: "Mật Khẩu",
+  login: "Đăng Nhập",
+  forgot_password: "Quên Mật Khẩu?",
+  back_to_login: "Quay Lại Đăng Nhập",
+  reset_password: "Đặt Lại Mật Khẩu",
+  reset_password_sent: "Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư của bạn.",
+  admin_note: "Tài khoản admin mặc định: admin@annamvillage.vn",
+  login_error: "Email hoặc mật khẩu không đúng. Vui lòng thử lại.",
+  signing_in: "Đang đăng nhập...",
+  send_reset: "Gửi yêu cầu đặt lại mật khẩu",
   
   // Error page
   error_title: "Không Tìm Thấy Trang",
@@ -330,6 +345,19 @@ const enTranslations: Record<TranslationKey, string> = {
   reports: "Reports",
   settings: "Settings",
   logout: "Logout",
+
+  // Admin Login
+  admin_login: "Admin Login",
+  password: "Password",
+  login: "Login",
+  forgot_password: "Forgot Password?",
+  back_to_login: "Back to Login",
+  reset_password: "Reset Password",
+  reset_password_sent: "Password reset email has been sent. Please check your inbox.",
+  admin_note: "Default admin account: admin@annamvillage.vn",
+  login_error: "Invalid email or password. Please try again.",
+  signing_in: "Signing in...",
+  send_reset: "Send Reset Request",
   
   // Error page
   error_title: "Page Not Found",
@@ -343,9 +371,9 @@ const enTranslations: Record<TranslationKey, string> = {
 };
 
 // Create a combined translations object
-export const translations = {
+const translations = {
   vi: viTranslations,
   en: enTranslations
 };
 
-export { viTranslations, enTranslations };
+export { translations, viTranslations, enTranslations };

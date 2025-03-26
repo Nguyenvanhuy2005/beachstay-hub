@@ -17,6 +17,7 @@ import ContactPage from "@/pages/ContactPage";
 import BookingPage from "@/pages/BookingPage";
 import BookingSuccessPage from "@/pages/BookingSuccessPage";
 import AdminPage from "@/pages/AdminPage";
+import AdminLoginPage from "@/pages/AdminLoginPage";
 import TermsPage from "@/pages/TermsPage";
 import PrivacyPage from "@/pages/PrivacyPage";
 import CookiePage from "@/pages/CookiePage";
@@ -78,6 +79,7 @@ const App = () => {
               <Route path="/booking-success" element={<BookingSuccessPage />} />
               <Route path="/blog" element={<BlogPage />} />
               <Route path="/blog/:slug" element={<BlogPostPage />} />
+              <Route path="/admin/login" element={<AdminLoginPage />} />
               <Route path="/admin/*" element={<AdminPage />} />
               <Route path="/dieu-khoan" element={<TermsPage />} />
               <Route path="/terms" element={<TermsPage />} />

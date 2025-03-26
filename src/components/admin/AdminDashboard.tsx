@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -10,8 +10,11 @@ import BookingsManagement from './BookingsManagement';
 import ContentManagement from './ContentManagement';
 import GalleryManagement from './GalleryManagement';
 import { toast } from 'sonner';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { LogOut } from 'lucide-react';
 
 const AdminDashboard = () => {
+  const { t } = useLanguage();
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -25,6 +28,7 @@ const AdminDashboard = () => {
           console.error('Session error:', sessionError);
           setIsAdmin(false);
           setLoading(false);
+          navigate('/admin/login');
           return;
         }
         
@@ -32,6 +36,7 @@ const AdminDashboard = () => {
           console.log('No session found');
           setIsAdmin(false);
           setLoading(false);
+          navigate('/admin/login');
           return;
         }
         
@@ -55,6 +60,7 @@ const AdminDashboard = () => {
           if (error) {
             console.error('Error fetching admin data:', error);
             setIsAdmin(false);
+            navigate('/admin/login');
           } else if (adminData) {
             console.log('Admin data found:', adminData);
             setIsAdmin(true);
@@ -63,14 +69,17 @@ const AdminDashboard = () => {
             toast.error('Tài khoản không có quyền quản trị');
             await supabase.auth.signOut();
             setIsAdmin(false);
+            navigate('/admin/login');
           }
         } else {
           console.log('No user email found');
           setIsAdmin(false);
+          navigate('/admin/login');
         }
       } catch (error) {
         console.error('Session check error:', error);
         setIsAdmin(false);
+        navigate('/admin/login');
       } finally {
         setLoading(false);
       }
@@ -89,7 +98,7 @@ const AdminDashboard = () => {
       } else {
         console.log('Sign-out successful');
         toast.success('Đăng xuất thành công');
-        navigate('/admin');
+        navigate('/admin/login');
       }
     } catch (error: any) {
       console.error('Unexpected error during sign-out:', error);
@@ -117,7 +126,8 @@ const AdminDashboard = () => {
           Chào mừng đến trang quản trị
         </h1>
         <Button onClick={handleSignOut} variant="outline" className="gap-2">
-          <span>Đăng xuất</span>
+          <LogOut className="w-4 h-4" />
+          <span>{t('logout')}</span>
         </Button>
       </div>
       
