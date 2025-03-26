@@ -31,7 +31,7 @@ async function sendEmail(emailData: EmailData) {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "onboarding@resend.dev", // Use Resend's default email address instead of custom domain
+        from: "Annam Village <no-reply@booking.annamvillage.com>", // Sử dụng domain mới đã xác minh
         to: [emailData.to],
         subject: emailData.subject,
         html: emailData.html,
