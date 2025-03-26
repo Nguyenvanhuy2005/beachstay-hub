@@ -24,9 +24,11 @@ export type TranslationKey =
   | 'admin_title' | 'dashboard' | 'bookings' | 'customers' | 'reports' | 'settings' | 'logout'
   | 'error_title' | 'error_description' | 'back_to_home'
   | 'book_now_action' | 'explore' | 'peaceful_space' | 'peaceful_space_desc' | 'luxury_experience' 
-  | 'luxury_experience_desc' | 'premium_amenities' | 'premium_amenities_desc';
+  | 'luxury_experience_desc' | 'premium_amenities' | 'premium_amenities_desc'
+  | 'gallery' | 'discover_images' | 'gallery_desc' | 'view_more_images' | 'all'
+  | 'about_annam' | 'villa_description' | 'error_loading_data' | 'error_loading_gallery' | 'try_again';
 
-const viTranslations = {
+const viTranslations: Record<TranslationKey, string> = {
   // Home page
   hero_title: "Annam Village Vũng Tàu",
   hero_subtitle: "Trải nghiệm không gian nghỉ dưỡng đẳng cấp bên bờ biển",
@@ -61,6 +63,8 @@ const viTranslations = {
   about_title: "Về Annam Village",
   about_subtitle: "Không gian nghỉ dưỡng sang trọng bên bờ biển",
   about_description: "Annam Village là một khu nghỉ dưỡng ven biển sang trọng tại Vũng Tàu, mang đến trải nghiệm độc đáo với kiến trúc đương đại pha trộn nét đẹp truyền thống Việt Nam. Tọa lạc tại vị trí đắc địa, mỗi phòng nghỉ đều có tầm nhìn tuyệt đẹp ra biển và được thiết kế tinh tế với các tiện nghi hiện đại, mang đến không gian sống tiện nghi và đẳng cấp.",
+  about_annam: "Về Annam Village",
+  villa_description: "Mỗi villa được thiết kế với không gian mở, ánh sáng tự nhiên và các tiện nghi hiện đại, kết hợp với những điểm nhấn truyền thống Việt Nam để tạo nên trải nghiệm lưu trú đẳng cấp.",
   
   // Room types section
   room_types_title: "Loại Phòng",
@@ -77,6 +81,11 @@ const viTranslations = {
   // Gallery section
   gallery_title: "Thư Viện Ảnh",
   gallery_subtitle: "Khám phá vẻ đẹp của Annam Village",
+  gallery: "Thư Viện Ảnh",
+  discover_images: "Khám Phá Hình Ảnh",
+  gallery_desc: "Ngắm nhìn không gian và thiết kế sang trọng của Annam Village qua bộ sưu tập hình ảnh",
+  view_more_images: "Xem Thêm Hình Ảnh",
+  all: "Tất Cả",
   
   // CTA section
   cta_title: "Đặt Phòng Ngay Hôm Nay",
@@ -168,10 +177,15 @@ const viTranslations = {
   // Error page
   error_title: "Không Tìm Thấy Trang",
   error_description: "Trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển.",
-  back_to_home: "Về Trang Chủ"
+  back_to_home: "Về Trang Chủ",
+  
+  // Error messages
+  error_loading_data: "Lỗi tải dữ liệu",
+  error_loading_gallery: "Không thể tải thư viện ảnh. Vui lòng thử lại sau.",
+  try_again: "Thử Lại"
 };
 
-const enTranslations = {
+const enTranslations: Record<TranslationKey, string> = {
   // Home page
   hero_title: "Annam Village Vung Tau",
   hero_subtitle: "Experience luxury beachfront living",
@@ -206,6 +220,8 @@ const enTranslations = {
   about_title: "About Annam Village",
   about_subtitle: "Luxury beachfront resort",
   about_description: "Annam Village is a luxurious beachfront resort in Vung Tau that offers a unique experience with contemporary architecture blended with traditional Vietnamese beauty. Located in a prime location, each accommodation has stunning sea views and is elegantly designed with modern amenities, providing a comfortable and sophisticated living space.",
+  about_annam: "About Annam Village",
+  villa_description: "Each villa is designed with open spaces, natural light and modern amenities, combined with traditional Vietnamese accents to create a luxurious staying experience.",
   
   // Room types section
   room_types_title: "Room Types",
@@ -222,6 +238,11 @@ const enTranslations = {
   // Gallery section
   gallery_title: "Gallery",
   gallery_subtitle: "Explore the beauty of Annam Village",
+  gallery: "Gallery",
+  discover_images: "Discover Images",
+  gallery_desc: "Explore the luxurious spaces and elegant design of Annam Village through our collection of images",
+  view_more_images: "View More Images",
+  all: "All",
   
   // CTA section
   cta_title: "Book Your Stay Today",
@@ -230,7 +251,6 @@ const enTranslations = {
   
   // Footer
   links: "Links",
-  contact: "Contact",
   subscribe: "Subscribe",
   subscribe_desc: "Subscribe to receive our latest offers",
   your_email: "Your email",
@@ -314,10 +334,15 @@ const enTranslations = {
   // Error page
   error_title: "Page Not Found",
   error_description: "The page you are looking for does not exist or has been moved.",
-  back_to_home: "Back to Home"
+  back_to_home: "Back to Home",
+  
+  // Error messages
+  error_loading_data: "Error Loading Data",
+  error_loading_gallery: "Could not load gallery images. Please try again later.",
+  try_again: "Try Again"
 };
 
-// Create a combined translations object with language as the key
+// Create a combined translations object
 export const translations = {
   vi: viTranslations,
   en: enTranslations
