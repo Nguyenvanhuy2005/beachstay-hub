@@ -33,7 +33,7 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <img 
-              src="/lovable-uploads/2c4dee9b-8cbb-48bb-bfe1-e6cce76af016.png" 
+              src="/lovable-uploads/favicon.png" 
               alt="Annam Village Logo" 
               className="h-12 md:h-16"
             />
