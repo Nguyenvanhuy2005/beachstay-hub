@@ -54,7 +54,7 @@ const Footer = () => {
           >
             <Link to="/" className="inline-block mb-4">
               <img 
-                src="/lovable-uploads/62bdf1bb-5abe-4889-8dc6-ef7927c94009.png" 
+                src="/lovable-uploads/logo-trang.png" 
                 alt="Annam Village Logo" 
                 className="h-32"
               />
