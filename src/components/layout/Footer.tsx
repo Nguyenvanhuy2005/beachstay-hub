@@ -66,7 +66,7 @@ const Footer = () => {
             </p>
             <div className="flex space-x-4 mt-6">
               <motion.a 
-                href="https://facebook.com" 
+                href="https://facebook.com/111530511968486" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="text-white hover:text-terra-300 transition-colors transform hover:scale-110 duration-300"
@@ -75,7 +75,7 @@ const Footer = () => {
                 <Facebook size={20} />
               </motion.a>
               <motion.a 
-                href="https://instagram.com" 
+                href="https://www.instagram.com/a.nvillage_official/" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="text-white hover:text-terra-300 transition-colors transform hover:scale-110 duration-300"
