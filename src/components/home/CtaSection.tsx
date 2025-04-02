@@ -38,7 +38,7 @@ const CtaSection = () => {
               <Button className="bg-white text-olive-700 hover:bg-olive-50 px-8 py-6 text-lg font-medium" onClick={handleFullBooking}>
                 {language === 'vi' ? 'Đặt Phòng Ngay' : 'Book Now'}
               </Button>
-              <Button variant="outline" onClick={handleViewDeals} className="border-white/60 hover:bg-white/10 px-8 py-6 text-lg text-zinc-50">
+              <Button variant="outline" onClick={handleViewDeals} className="border-white/60 px-8 py-6 text-lg bg-gray-900 hover:bg-gray-800 text-slate-50">
                 {language === 'vi' ? 'Xem Ưu Đãi' : 'View Offers'}
               </Button>
             </div>
