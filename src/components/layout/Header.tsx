@@ -22,7 +22,7 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img src="/lovable-uploads/a7992fa3-09c9-4cba-9b30-ef420f9cf194.png" alt="Annam Village Logo" className="h-15 md:h-20" />
+            <img src="/lovable-uploads/a7992fa3-09c9-4cba-9b30-ef420f9cf194.png" alt="Annam Village Logo" className="h-13 md:h-17" />
           </Link>
 
           {/* Desktop Navigation */}
