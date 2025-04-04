@@ -139,7 +139,7 @@ const Footer = () => {
             </p>
             <form onSubmit={handleSubscribe} className="flex flex-col space-y-2">
               <Input type="email" placeholder={t('your_email')} className="bg-olive-700 border-olive-600 focus:border-terra-400 text-white" value={email} onChange={e => setEmail(e.target.value)} />
-              <Button type="submit" className="bg-terra-600 hover:bg-terra-700 transition-all transform hover:scale-105 duration-300 text-slate-50">
+              <Button type="submit" className="bg-terra-600 hover:bg-terra-700 transition-all transform hover:scale-105 duration-300 text-slate-50 bg-gray-900 hover:bg-gray-800">
                 {t('subscribe_btn')}
               </Button>
             </form>
