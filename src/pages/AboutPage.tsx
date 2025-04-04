@@ -18,7 +18,7 @@ const AboutPage = () => {
         </div>
         
         <div className="relative z-20 container mx-auto px-4 py-20 md:py-32">
-          <motion.h1 className="font-serif text-4xl md:text-5xl font-bold mb-4" initial={{
+          <motion.h1 initial={{
           opacity: 0,
           y: 20
         }} animate={{
@@ -26,7 +26,7 @@ const AboutPage = () => {
           y: 0
         }} transition={{
           duration: 0.5
-        }}>
+        }} className="font-display text-4xl md:text-5xl font-bold mb-4">
             {language === 'vi' ? 'Về Chúng Tôi' : 'About Us'}
           </motion.h1>
           <motion.p className="text-beach-100 max-w-3xl text-lg mb-8" initial={{
