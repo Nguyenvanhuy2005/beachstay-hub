@@ -204,7 +204,7 @@ const RoomTypesPage = () => {
                   <Card className="overflow-hidden h-full flex flex-col hover:shadow-md transition-shadow">
                     <div className="h-60 overflow-hidden relative">
                       <img src={room.image_url} alt={getRoomName(room)} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
-                      {room.is_popular && <Badge className="absolute top-3 right-3 bg-coral-500">
+                      {room.is_popular && <Badge className="absolute top-3 right-3 bg-coral-500 bg-[#747911]">
                           {language === 'vi' ? 'Phổ biến' : 'Popular'}
                         </Badge>}
                       {room.remainingRooms !== undefined && <Badge className="absolute top-3 left-3 bg-beach-600">
@@ -247,7 +247,7 @@ const RoomTypesPage = () => {
       </section>
       
       <section className="py-16 md:py-24 bg-white">
-        <div className="container mx-auto px-4 text-center">
+        <div className="container mx-auto px-4 text-center bg-slate-100">
           <h2 className="font-display text-3xl font-bold mb-6 text-beach-900">
             {language === 'vi' ? 'Cần Hỗ Trợ Chọn Phòng?' : 'Need Help Choosing a Room?'}
           </h2>
