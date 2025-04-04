@@ -197,7 +197,7 @@ const RoomDetailPage = () => {
       </div>
       
       <div className="container mx-auto px-4 py-16">
-        <div className="flex flex-wrap gap-4 mb-8 items-center">
+        <div className="">
           <Button asChild className="rounded-md border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 transition-colors">
             <Link to="/loai-phong">
               <ChevronLeft className="mr-2 h-4 w-4" />
@@ -205,10 +205,7 @@ const RoomDetailPage = () => {
             </Link>
           </Button>
           <Button asChild className="bg-beach-600 hover:bg-beach-700 text-white">
-            <Link to="/dat-phong">
-              <Calendar className="mr-2 h-4 w-4" />
-              {language === 'vi' ? 'Đặt Phòng Ngay' : 'Book Now'}
-            </Link>
+            
           </Button>
         </div>
         
