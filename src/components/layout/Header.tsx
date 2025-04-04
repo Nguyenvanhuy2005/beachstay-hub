@@ -90,9 +90,9 @@ const Header = () => {
               <Phone size={16} />
               <span>0933 669 154</span>
             </a>
-            <a href="mailto:info@annamvillage.vn" className="flex items-center space-x-1 text-olive-600">
+            <a href="mailto:annamvillage.vn@gmail.com" className="flex items-center space-x-1 text-olive-600">
               <AtSign size={16} />
-              <span>info@annamvillage.vn</span>
+              <span>annamvillage.vn@gmail.com</span>
             </a>
             <a href="https://maps.app.goo.gl/12345" className="flex items-center space-x-1 text-olive-600">
               <MapPin size={16} />
