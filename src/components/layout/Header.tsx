@@ -88,22 +88,22 @@ const NavLinks = ({
     t
   } = useLanguage();
   return <>
-      <Link to="/" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
+      <Link to="/" className="">
         {t('home')}
       </Link>
-      <Link to="/ve-chung-toi" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
+      <Link to="/ve-chung-toi" className="">
         {t('about')}
       </Link>
-      <Link to="/loai-phong" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
+      <Link to="/loai-phong" className="">
         {t('rooms')}
       </Link>
-      <Link to="/dich-vu" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
+      <Link to="/dich-vu" className="">
         {t('services')}
       </Link>
-      <Link to="/blog" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
+      <Link to="/blog" className="">
         {t('blog')}
       </Link>
-      <Link to="/lien-he" className={`${textColor} ${hoverColor} transition-colors duration-200`}>
+      <Link to="/lien-he" className="">
         {t('contact')}
       </Link>
     </>;
