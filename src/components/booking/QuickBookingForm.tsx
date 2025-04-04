@@ -109,7 +109,7 @@ const QuickBookingForm: React.FC<QuickBookingFormProps> = ({
           </Popover>
         </div>
         
-        <Button type="submit" className="w-full bg-beach-600 hover:bg-beach-700 py-6">
+        <Button type="submit" className="w-full bg-beach-600 hover:bg-beach-700 py-6 bg-[gree-900] hover:bg-[[gree-800] bg-green-900 hover:bg-green-800">
           {isVietnamese ? 'Gửi Yêu Cầu' : 'Submit Request'}
         </Button>
       </form>
