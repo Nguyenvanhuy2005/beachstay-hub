@@ -48,15 +48,15 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-4">
             <a 
               href="tel:+84933669154" 
-              className={`flex items-center space-x-1 text-sm ${isScrolled ? 'text-olive-600' : 'text-white'}`}
+              className={`flex items-center space-x-1 text-sm ${isScrolled ? 'text-primary' : 'text-white'}`}
             >
               <Phone size={16} />
               <span>0933 669 154</span>
             </a>
-            <LanguageSwitcher className={isScrolled ? "text-olive-600" : "text-white"} />
+            <LanguageSwitcher className={isScrolled ? "text-primary" : "text-white"} />
             <Button 
               size="sm" 
-              className="bg-terra-600 hover:bg-terra-700 text-white" 
+              className="bg-primary hover:bg-green-800 text-white" 
               onClick={() => window.location.href = '/dat-phong'}
             >
               {t('book_now')}
@@ -65,14 +65,14 @@ const Header = () => {
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center space-x-2">
-            <LanguageSwitcher className={isScrolled ? "text-olive-600" : "text-white"} />
+            <LanguageSwitcher className={isScrolled ? "text-primary" : "text-white"} />
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? (
-                <X className={isScrolled ? "text-olive-600" : "text-white"} />
+                <X className={isScrolled ? "text-primary" : "text-white"} />
               ) : (
-                <Menu className={isScrolled ? "text-olive-600" : "text-white"} />
+                <Menu className={isScrolled ? "text-primary" : "text-white"} />
               )}
             </button>
           </div>
@@ -81,26 +81,26 @@ const Header = () => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-white mt-2 py-4 px-6 shadow-md">
+        <div className="md:hidden bg-neutral mt-2 py-4 px-6 shadow-md">
           <nav className="flex flex-col space-y-4">
             <NavLinks isScrolled={true} />
           </nav>
           <div className="mt-4 flex flex-col space-y-2">
-            <a href="tel:+84933669154" className="flex items-center space-x-1 text-olive-600">
+            <a href="tel:+84933669154" className="flex items-center space-x-1 text-primary">
               <Phone size={16} />
               <span>0933 669 154</span>
             </a>
-            <a href="mailto:annamvillage.vn@gmail.com" className="flex items-center space-x-1 text-olive-600">
+            <a href="mailto:annamvillage.vn@gmail.com" className="flex items-center space-x-1 text-primary">
               <AtSign size={16} />
               <span>annamvillage.vn@gmail.com</span>
             </a>
-            <a href="https://maps.app.goo.gl/12345" className="flex items-center space-x-1 text-olive-600">
+            <a href="https://maps.app.goo.gl/12345" className="flex items-center space-x-1 text-primary">
               <MapPin size={16} />
               <span>234 Phan Chu Trinh, Phường 2, Vũng Tàu</span>
             </a>
             <Button 
               size="sm" 
-              className="bg-terra-600 hover:bg-terra-700 mt-2 text-white"
+              className="bg-primary hover:bg-green-800 mt-2 text-white"
               onClick={() => window.location.href = '/dat-phong'}
             >
               {t('book_now')}
@@ -113,8 +113,8 @@ const Header = () => {
 };
 
 const NavLinks = ({ isScrolled }: { isScrolled: boolean }) => {
-  const textColor = isScrolled ? "text-olive-600" : "text-white";
-  const hoverColor = isScrolled ? "hover:text-terra-600" : "hover:text-terra-200";
+  const textColor = isScrolled ? "text-primary" : "text-white";
+  const hoverColor = isScrolled ? "hover:text-secondary" : "hover:text-accent";
   const { t } = useLanguage();
   
   return (

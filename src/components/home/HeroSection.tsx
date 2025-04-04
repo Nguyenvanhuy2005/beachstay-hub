@@ -71,7 +71,7 @@ const HeroSection = () => {
       {/* Content */}
       <div className="relative z-20 container mx-auto px-4 h-full flex flex-col justify-center">
         <div className="max-w-3xl">
-          <h1 className="text-white font-display font-bold text-4xl md:text-5xl lg:text-6xl mb-4 tracking-tight fade-in">
+          <h1 className="text-white font-sans font-bold text-4xl md:text-5xl lg:text-6xl mb-4 tracking-tight fade-in">
             {t(slides[currentSlide].titleKey)}
           </h1>
           <p className="text-white/90 text-xl md:text-2xl mb-8">
@@ -79,7 +79,7 @@ const HeroSection = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button 
-              className="bg-olive-600 hover:bg-olive-700 text-white font-medium px-8 py-6 text-lg"
+              className="bg-primary hover:bg-green-800 text-white font-medium px-8 py-6 text-lg"
               onClick={handleBookNow}
             >
               {t('book_now_action')}
@@ -103,7 +103,7 @@ const HeroSection = () => {
               key={index}
               onClick={() => setCurrentSlide(index)}
               className={`w-3 h-3 rounded-full ${
-                index === currentSlide ? "bg-terra-600" : "bg-white/50"
+                index === currentSlide ? "bg-primary" : "bg-white/50"
               }`}
             />
           ))}

@@ -19,10 +19,16 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ['Open Sans', 'system-ui'],
-				display: ['Montserrat', 'system-ui',],
+				sans: ['Open Sans', 'Arial', 'system-ui', 'sans-serif'],
+				display: ['Open Sans', 'Arial', 'system-ui', 'sans-serif'],
 			},
 			colors: {
+				primary: '#137252', // Dark green
+				secondary: '#b7e1cd', // Light green
+				background: '#edf6f9', // Light blue-gray
+				accent: '#fff4c5', // Light yellow
+				neutral: '#fffff0', // Off-white
+
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
@@ -66,65 +72,53 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				olive: {
-					50: '#f3f4f1',
-					100: '#e7e9e3',
-					200: '#d0d4c8',
-					300: '#b8bfac',
-					400: '#a1aa90',
-					500: '#8a9575',
-					600: '#6c7560',
-					700: '#565e4d',
-					800: '#41483a',
-					900: '#2b3127',
+				green: {
+					50: '#e6f2ed',
+					100: '#cce6dc',
+					200: '#b3d9ca',
+					300: '#99ccb9',
+					400: '#80bfa7',
+					500: '#66b396',
+					600: '#4da684',
+					700: '#339973',
+					800: '#1a8c61',
+					900: '#137252', // Base color
 				},
-				terra: {
-					50: '#fcf6f3',
-					100: '#f9ede7',
-					200: '#f3dbcf',
-					300: '#ecc9b8',
-					400: '#e5b7a0',
-					500: '#d69a7c',
-					600: '#c07653',
-					700: '#9a5e42',
-					800: '#734632',
-					900: '#4d2e21',
+				mint: {
+					50: '#f4fbf8',
+					100: '#e8f7f1',
+					200: '#dcf3e9',
+					300: '#d0efe2',
+					400: '#c4ebdb',
+					500: '#b7e1cd', // Base color
+					600: '#9ad7bc',
+					700: '#7dcdac',
+					800: '#60c39b',
+					900: '#43b98b',
 				},
-				beach: {
-					50: '#E0F7FF',
-					100: '#C0EEFF',
-					200: '#81DEFF',
-					300: '#42CDFF',
-					400: '#03BCFF',
-					500: '#0099D6',
-					600: '#007AB0',
-					700: '#005C85',
-					800: '#003D59',
-					900: '#001F2E',
+				cream: {
+					50: '#fffff8',
+					100: '#fffff5',
+					200: '#fffff2',
+					300: '#fffff0', // Base color
+					400: '#fffceb',
+					500: '#fff9e6',
+					600: '#fff6e0',
+					700: '#fff4c5', // Base color
+					800: '#fff1c0',
+					900: '#ffeebc',
 				},
-				sand: {
-					50: '#FEF7ED',
-					100: '#FEEFD7',
-					200: '#FDDFAF',
-					300: '#FBCF87',
-					400: '#F9BF5F',
-					500: '#F8AF37',
-					600: '#E9920C',
-					700: '#B77209',
-					800: '#7F5006',
-					900: '#462C03',
-				},
-				coral: {
-					50: '#FFF1F0',
-					100: '#FFE2E0',
-					200: '#FFC5C1',
-					300: '#FFA8A2',
-					400: '#FF8B83',
-					500: '#FF6E64',
-					600: '#FF5147',
-					700: '#FF352A',
-					800: '#FF180C',
-					900: '#EB0A00',
+				pale: {
+					50: '#fbfcfd',
+					100: '#f7f9fb',
+					200: '#f3f7f9',
+					300: '#eff4f7',
+					400: '#edf6f9', // Base color
+					500: '#e6f0f4',
+					600: '#dfe9ee',
+					700: '#d8e3e9',
+					800: '#d1dce3',
+					900: '#cad6de',
 				}
 			},
 			borderRadius: {

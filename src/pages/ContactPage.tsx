@@ -25,21 +25,21 @@ const ContactPage = () => {
 
   const contactInfo = [
     {
-      icon: <MapPin className="h-10 w-10 text-terra-600" />,
+      icon: <MapPin className="h-10 w-10 text-primary" />,
       title: isEnglish ? "Address" : "Địa chỉ",
       content: "234 Phan Chu Trinh, Phường 2, Vũng Tàu, Vietnam",
       link: "https://maps.app.goo.gl/12345",
       action: isEnglish ? "View on Maps" : "Xem trên bản đồ"
     },
     {
-      icon: <Phone className="h-10 w-10 text-terra-600" />,
+      icon: <Phone className="h-10 w-10 text-primary" />,
       title: "WhatsApp",
       content: "+84 93 366 91 54",
       link: "https://wa.me/84933669154",
       action: isEnglish ? "Chat on WhatsApp" : "Chat qua WhatsApp"
     },
     {
-      icon: <AtSign className="h-10 w-10 text-terra-600" />,
+      icon: <AtSign className="h-10 w-10 text-primary" />,
       title: "Email",
       content: "annamvillage.vn@gmail.com",
       link: "mailto:annamvillage.vn@gmail.com",
@@ -71,7 +71,7 @@ const ContactPage = () => {
 
   return (
     <MainLayout>
-      <div className="bg-beach-50 py-20">
+      <div className="bg-background py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <motion.div 
@@ -80,7 +80,7 @@ const ContactPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-4">
+              <h1 className="text-3xl md:text-4xl font-bold text-primary mb-4">
                 {isEnglish ? "Contact Us" : "Liên Hệ Với Chúng Tôi"}
               </h1>
               <p className="text-gray-600 max-w-3xl mx-auto">
@@ -94,19 +94,19 @@ const ContactPage = () => {
               {contactInfo.map((item, index) => (
                 <motion.div
                   key={index}
-                  className="bg-white p-6 rounded-xl shadow-md text-center flex flex-col items-center"
+                  className="bg-neutral p-6 rounded-xl shadow-md text-center flex flex-col items-center"
                   variants={fadeIn}
                   initial="initial"
                   animate="animate"
                   custom={index}
                 >
                   <div className="mb-4">{item.icon}</div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">{item.title}</h3>
+                  <h3 className="text-xl font-bold text-primary mb-2">{item.title}</h3>
                   <p className="text-gray-600 mb-4">{item.content}</p>
                   <Button 
                     asChild
                     variant="outline" 
-                    className="border-terra-500 text-terra-600 hover:bg-terra-50"
+                    className="border-primary text-primary hover:bg-secondary"
                   >
                     <a href={item.link} target="_blank" rel="noopener noreferrer">
                       {item.action}
@@ -117,12 +117,12 @@ const ContactPage = () => {
             </div>
 
             <motion.div 
-              className="bg-white p-8 rounded-xl shadow-lg"
+              className="bg-neutral p-8 rounded-xl shadow-lg"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.5 }}
             >
-              <h2 className="text-2xl font-bold text-center mb-6">
+              <h2 className="text-2xl font-bold text-center mb-6 text-primary">
                 {isEnglish ? "Follow Us" : "Theo Dõi Chúng Tôi"}
               </h2>
               
@@ -133,11 +133,11 @@ const ContactPage = () => {
                     href={social.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center space-x-2 bg-gray-50 hover:bg-gray-100 p-4 rounded-lg transition-colors"
+                    className="flex items-center space-x-2 bg-background hover:bg-secondary p-4 rounded-lg transition-colors"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <span className="text-terra-600">{social.icon}</span>
+                    <span className="text-primary">{social.icon}</span>
                     <span className="font-medium">{social.name}</span>
                   </motion.a>
                 ))}
@@ -146,7 +146,7 @@ const ContactPage = () => {
               <div className="mt-8 text-center">
                 <Button
                   asChild
-                  className="bg-terra-600 hover:bg-terra-700"
+                  className="bg-primary hover:bg-green-800"
                 >
                   <Link to="/dat-phong">
                     {isEnglish ? "Book Your Stay Now" : "Đặt Phòng Ngay"}

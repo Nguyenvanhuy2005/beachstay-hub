@@ -37,7 +37,7 @@ const NotFound = () => {
       <div className="container mx-auto py-24 md:py-32 px-4">
         <div className="max-w-3xl mx-auto text-center">
           <motion.h1 
-            className="text-6xl font-serif font-bold text-beach-900 mb-6"
+            className="text-6xl font-sans font-bold text-primary mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -46,7 +46,7 @@ const NotFound = () => {
           </motion.h1>
           
           <motion.h2 
-            className="text-3xl font-serif font-semibold text-beach-800 mb-6"
+            className="text-3xl font-sans font-semibold text-primary mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
@@ -55,7 +55,7 @@ const NotFound = () => {
           </motion.h2>
           
           <motion.p 
-            className="text-lg text-beach-700 mb-8"
+            className="text-lg text-gray-600 mb-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -70,7 +70,7 @@ const NotFound = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <Button asChild className="bg-beach-600 hover:bg-beach-700">
+            <Button asChild className="bg-primary hover:bg-green-800">
               <Link to="/">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 {language === "vi" ? "Quay Lại Trang Chủ" : "Back to Home"}

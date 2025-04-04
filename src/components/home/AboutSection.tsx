@@ -8,7 +8,7 @@ const AboutSection = () => {
   const isVietnamese = language === 'vi';
 
   return (
-    <section className="py-20 bg-gradient-to-b from-white to-beach-50">
+    <section className="py-20 bg-gradient-to-b from-white to-background">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-col md:flex-row items-center gap-12">
           <div className="md:w-1/2">
@@ -29,14 +29,14 @@ const AboutSection = () => {
           </div>
           
           <div className="md:w-1/2">
-            <div className="inline-block mb-2 rounded bg-beach-100 px-3 py-1 text-sm font-semibold text-beach-800">
+            <div className="inline-block mb-2 rounded bg-secondary px-3 py-1 text-sm font-semibold text-primary">
               {t('about_annam')}
             </div>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            <h2 className="font-sans text-3xl md:text-4xl font-bold text-gray-900 mb-6">
               {isVietnamese ? (
-                <>Không gian nghỉ dưỡng <span className="text-beach-600">đẳng cấp</span> tại Vũng Tàu</>
+                <>Không gian nghỉ dưỡng <span className="text-primary">đẳng cấp</span> tại Vũng Tàu</>
               ) : (
-                <>Luxury <span className="text-beach-600">retreat space</span> in Vung Tau</>
+                <>Luxury <span className="text-primary">retreat space</span> in Vung Tau</>
               )}
             </h2>
             <p className="text-gray-700 mb-6">
@@ -45,7 +45,7 @@ const AboutSection = () => {
             <p className="text-gray-700 mb-8">
               {t('villa_description')}
             </p>
-            <Button className="bg-beach-600 hover:bg-beach-700 text-white px-8 py-6">
+            <Button className="bg-primary hover:bg-green-800 text-white px-8 py-6">
               {t('learn_more')} <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
