@@ -33,8 +33,8 @@ const Header = () => {
           {/* Contact Information and Language Switcher */}
           <div className="hidden md:flex items-center space-x-4">
             <a href="tel:+84933669154" className={`flex items-center space-x-1 text-sm ${isScrolled ? 'text-primary' : 'text-white'}`}>
-              <Phone size={16} />
-              <span>0933 669 154</span>
+              
+              <span className="text-[gree-900] text-green-900 font-bold">0933 669 154</span>
             </a>
             <LanguageSwitcher className={isScrolled ? "text-primary" : "text-white"} />
             <Button size="sm" className="bg-primary hover:bg-green-800 text-white" onClick={() => window.location.href = '/dat-phong'}>

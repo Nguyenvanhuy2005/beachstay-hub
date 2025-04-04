@@ -1,17 +1,19 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 import { Globe } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-
 type LanguageSwitcherProps = {
   className?: string;
 };
-
-const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className }) => {
-  const { language, toggleLanguage } = useLanguage();
+const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
+  className
+}) => {
+  const {
+    language,
+    toggleLanguage
+  } = useLanguage();
   const location = useLocation();
   const isAdminRoute = location.pathname.includes('/admin');
 
@@ -19,18 +21,10 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className }) => {
   if (isAdminRoute) {
     return null;
   }
-
-  return (
-    <div className={cn("flex items-center", className)}>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="relative text-sm font-medium p-0 flex items-center gap-1"
-        onClick={toggleLanguage}
-        aria-label="Change language"
-      >
+  return <div className={cn("flex items-center", className)}>
+      <Button variant="ghost" size="sm" onClick={toggleLanguage} aria-label="Change language" className="relative text-sm font-medium p-0 flex items-center gap-1 text-green-900">
         <Globe size={16} className="mr-1" />
-        <span className={`transition-opacity duration-200 ${language === 'vi' ? 'opacity-100 font-bold' : 'opacity-50'}`}>
+        <span className="">
           VI
         </span>
         <span className="mx-1">/</span>
@@ -38,8 +32,6 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className }) => {
           EN
         </span>
       </Button>
-    </div>
-  );
+    </div>;
 };
-
 export default LanguageSwitcher;
