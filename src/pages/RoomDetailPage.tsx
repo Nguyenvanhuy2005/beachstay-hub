@@ -218,7 +218,7 @@ const RoomDetailPage = () => {
       }} transition={{
         duration: 0.6
       }}>
-          <h2 className="font-display text-2xl font-bold mb-6 text-beach-900">
+          <h2 className="font-display text-2xl font-bold mb-6 text-beach-900 py-[10px]">
             {language === 'vi' ? 'Hình Ảnh Phòng' : 'Room Gallery'}
           </h2>
           
