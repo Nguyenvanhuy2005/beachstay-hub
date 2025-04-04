@@ -139,7 +139,7 @@ const ServicesPage = () => {
           }} viewport={{
             once: true
           }}>
-              <h2 className="font-serif text-3xl font-bold mb-6 text-beach-900">
+              <h2 className="font-display text-3xl font-bold mb-6 text-beach-900">
                 {language === 'vi' ? 'Dịch Vụ Ẩm Thực Đẳng Cấp' : 'Premium Dining Services'}
               </h2>
               <p className="text-beach-800 mb-4">
@@ -173,15 +173,15 @@ const ServicesPage = () => {
       </section>
       
       {/* CTA Section */}
-      <section className="py-16 md:py-24 bg-beach-700 text-white">
+      <section className="py-16 md:py-24 bg-beach-700 text-white bg-[#012801]">
         <div className="container mx-auto px-4 text-center">
-          <motion.h2 className="font-serif text-3xl md:text-4xl font-bold mb-6" initial={{
+          <motion.h2 initial={{
           opacity: 0
         }} whileInView={{
           opacity: 1
         }} viewport={{
           once: true
-        }}>
+        }} className="font-display text-3xl md:text-4xl font-bold mb-6">
             {language === 'vi' ? 'Cần Hỗ Trợ Thêm?' : 'Need More Assistance?'}
           </motion.h2>
           <motion.p className="text-beach-100 max-w-2xl mx-auto mb-8 text-lg" initial={{
