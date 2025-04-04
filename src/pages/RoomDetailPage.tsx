@@ -353,7 +353,7 @@ const RoomDetailPage = () => {
         }} transition={{
           duration: 0.6
         }}>
-            <div className="bg-beach-50 p-6 rounded-lg border border-beach-100 sticky top-24">
+            <div className="bg-beach-50 p-6 border border-beach-100 sticky top-24 rounded-lg">
               <h3 className="font-display text-xl font-bold mb-4 text-beach-900">{language === 'vi' ? 'Tóm Tắt' : 'Summary'}</h3>
               
               <div className="space-y-4 mb-6">
