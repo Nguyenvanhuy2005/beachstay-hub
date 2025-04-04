@@ -318,11 +318,11 @@ const RoomDetailPage = () => {
         }} transition={{
           duration: 0.6
         }}>
-            <h2 className="font-serif text-2xl font-bold mb-6 text-beach-900">{language === 'vi' ? 'Mô Tả' : 'Description'}</h2>
+            <h2 className="font-display text-2xl font-bold mb-6 text-beach-900">{language === 'vi' ? 'Mô Tả' : 'Description'}</h2>
             <p className="text-beach-800 leading-relaxed mb-8">{getDescription()}</p>
             
             {getAddress() && <div className="mb-8">
-                <h3 className="font-serif text-xl font-bold mb-4 text-beach-900">{language === 'vi' ? 'Địa Chỉ' : 'Address'}</h3>
+                <h3 className="font-display text-xl font-bold mb-4 text-beach-900">{language === 'vi' ? 'Địa Chỉ' : 'Address'}</h3>
                 <a href={getGoogleMapsUrl()} target="_blank" rel="noopener noreferrer" className="flex items-center text-beach-800 hover:text-beach-600 group transition-colors">
                   <MapPin className="h-5 w-5 mr-2 text-beach-600" />
                   <span>{getAddress()}</span>
@@ -331,7 +331,7 @@ const RoomDetailPage = () => {
               </div>}
             
             <div>
-              <h3 className="font-serif text-xl font-bold mb-4 text-beach-900">{language === 'vi' ? 'Tiện Nghi Phòng' : 'Room Amenities'}</h3>
+              <h3 className="font-display text-xl font-bold mb-4 text-beach-900">{language === 'vi' ? 'Tiện Nghi Phòng' : 'Room Amenities'}</h3>
               
               {roomType.amenities && Array.isArray(roomType.amenities) ? <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {roomType.amenities.map((amenity, index) => <li key={index} className="flex items-center gap-2 text-beach-700">
@@ -354,7 +354,7 @@ const RoomDetailPage = () => {
           duration: 0.6
         }}>
             <div className="bg-beach-50 p-6 rounded-lg border border-beach-100 sticky top-24">
-              <h3 className="font-serif text-xl font-bold mb-4 text-beach-900">{language === 'vi' ? 'Tóm Tắt' : 'Summary'}</h3>
+              <h3 className="font-display text-xl font-bold mb-4 text-beach-900">{language === 'vi' ? 'Tóm Tắt' : 'Summary'}</h3>
               
               <div className="space-y-4 mb-6">
                 <div>
