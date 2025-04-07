@@ -1,3 +1,4 @@
+
 // Type definitions
 export type Language = 'vi' | 'en';
 
@@ -7,7 +8,7 @@ export type TranslationKey =
   | 'book_now' | 'learn_more' | 'view_all' | 'view_details'
   | 'about_title' | 'about_subtitle' | 'about_description'
   | 'room_types_title' | 'room_types_subtitle'
-  | 'amenities_title' | 'amenities_subtitle'
+  | 'amenities_title' | 'amenities_subtitle' | 'amenities_intro'
   | 'testimonials_title' | 'testimonials_subtitle'
   | 'gallery_title' | 'gallery_subtitle'
   | 'cta_title' | 'cta_subtitle' | 'cta_description'
@@ -29,7 +30,7 @@ export type TranslationKey =
   | 'admin_login' | 'password' | 'login' | 'forgot_password' | 'back_to_login' | 'reset_password'
   | 'reset_password_sent' | 'admin_note' | 'login_error' | 'signing_in' | 'send_reset'
   | 'core_values' | 'dedication' | 'dedication_desc' | 'wisdom' | 'wisdom_desc' | 'nature' | 'nature_desc'
-  | 'amenities_intro' | 'amenity_pool' | 'amenity_pool_desc' | 'amenity_kitchen' | 'amenity_kitchen_desc'
+  | 'amenity_pool' | 'amenity_pool_desc' | 'amenity_kitchen' | 'amenity_kitchen_desc'
   | 'amenity_wifi' | 'amenity_wifi_desc' | 'amenity_food_guide' | 'amenity_food_guide_desc'
   | 'amenity_bicycle' | 'amenity_bicycle_desc' | 'amenity_open_space' | 'amenity_open_space_desc';
 
@@ -76,6 +77,7 @@ const viTranslations: Record<TranslationKey, string> = {
   // Amenities section
   amenities_title: "Dịch vụ & tiện ích",
   amenities_subtitle: "Luôn chăm chút từng trải nghiệm nhỏ nhặt, để mỗi khoảnh khắc tại AnNam đều trở nên dễ chịu và trọn vẹn nhất với du khách.",
+  amenities_intro: "Luôn chăm chút từng trải nghiệm nhỏ nhặt, để mỗi khoảnh khắc tại AnNam đều trở nên dễ chịu và trọn vẹn nhất với du khách.",
   
   // New amenities translations
   amenity_pool: "Hồ bơi",
@@ -269,6 +271,7 @@ const enTranslations: Record<TranslationKey, string> = {
   // Amenities section
   amenities_title: "Services & Amenities",
   amenities_subtitle: "Always attentive to every small experience, making each moment at AnNam pleasant and complete for our guests.",
+  amenities_intro: "Always attentive to every small experience, making each moment at AnNam pleasant and complete for our guests.",
   
   // New amenities translations
   amenity_pool: "Swimming Pool",
