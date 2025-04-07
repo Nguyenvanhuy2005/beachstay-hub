@@ -20,7 +20,7 @@ const slides = [
   },
   {
     id: 3,
-    image: "/lovable-uploads/5075ccfe-742f-4147-a0c4-7d2c00807201.png",
+    image: "/lovable-uploads/db85018b5cdeef80b6cf.jpg",
     titleKey: "premium_amenities",
     subtitleKey: "premium_amenities_desc",
   },
