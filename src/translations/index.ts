@@ -1,4 +1,3 @@
-
 // Type definitions
 export type Language = 'vi' | 'en';
 
@@ -64,9 +63,9 @@ const viTranslations: Record<TranslationKey, string> = {
   // About section
   about_title: "Về Annam Village",
   about_subtitle: "Không gian nghỉ dưỡng sang trọng bên bờ biển",
-  about_description: "Annam Village là một khu nghỉ dưỡng ven biển sang trọng tại Vũng Tàu, mang đến trải nghiệm độc đáo với kiến trúc đương đại pha trộn nét đẹp truyền thống Việt Nam. Tọa lạc tại vị trí đắc địa, mỗi phòng nghỉ đều có tầm nhìn tuyệt đẹp ra biển và được thiết kế tinh tế với các tiện nghi hiện đại, mang đến không gian sống tiện nghi và đẳng cấp.",
+  about_description: "Villa AnNam - Nơi kiến trúc #XanhHóa từng trải nghiệm nghỉ dưỡng. Lấy cảm hứng từ kiến trúc Sinh Khí Hậu - nơi con người thật sự chan hòa cùng thiên nhiên, từng căn villa tại AnNam được thiết kế để bạn tìm thấy sự bình yên — vừa đủ riêng tư để an trú, vừa đủ cởi mở để tâm hồn được tắm mát cùng gió, nắng và biển trời Vũng Tàu.",
   about_annam: "Về Annam Village",
-  villa_description: "Mỗi villa được thiết kế với không gian mở, ánh sáng tự nhiên và các tiện nghi hiện đại, kết hợp với những điểm nhấn truyền thống Việt Nam để tạo nên trải nghiệm lưu trú đẳng cấp.",
+  villa_description: "Ở AnNam, mỗi căn villa không chỉ là một chốn nghỉ chân — mà là một khoảng lặng rất riêng, đủ xanh để chở che, đủ gió để làm dịu tâm hồn, và đủ nắng để sưởi ấm những khoảnh khắc tưởng chừng bình thường nhất. Từ căn villa rộng rãi dành cho nhóm bạn đông người, đến không gian riêng tư cho những cặp đôi cần khoảng lặng - AnNam vẫn giữ nguyên một tinh thần: \"Xanh hóa từng trải nghiệm nghỉ dưỡng, để du khách ghé lại đều có thể thở thật sâu, sống thật chậm và lắng mình lại giữa miền gió mát.\"",
   
   // Room types section
   room_types_title: "Loại Phòng",
@@ -234,9 +233,9 @@ const enTranslations: Record<TranslationKey, string> = {
   // About section
   about_title: "About Annam Village",
   about_subtitle: "Luxury beachfront resort",
-  about_description: "Annam Village is a luxurious beachfront resort in Vung Tau that offers a unique experience with contemporary architecture blended with traditional Vietnamese beauty. Located in a prime location, each accommodation has stunning sea views and is elegantly designed with modern amenities, providing a comfortable and sophisticated living space.",
+  about_description: "Villa AnNam - Where architecture #Greenifies every vacation experience. Inspired by Bioclimatic Architecture - where humans truly commune with nature, each villa at AnNam is designed for you to find peace — private enough for sanctuary, yet open enough for your soul to bathe in the wind, sun, and coastal horizon of Vung Tau.",
   about_annam: "About Annam Village",
-  villa_description: "Each villa is designed with open spaces, natural light and modern amenities, combined with traditional Vietnamese accents to create a luxurious staying experience.",
+  villa_description: "At AnNam, each villa is not just a place to stay — but a very personal retreat, green enough to shelter, breezy enough to soothe the soul, and sunny enough to warm life's seemingly ordinary moments. From spacious villas for large groups of friends, to private spaces for couples seeking solitude - AnNam maintains one spirit: \"Greenifying every vacation experience, so visitors can breathe deeply, live slowly, and immerse themselves in the gentle breeze.\"",
   
   // Room types section
   room_types_title: "Room Types",
