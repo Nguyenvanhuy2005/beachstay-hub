@@ -151,8 +151,8 @@ const BlogPostPage = () => {
   const getMetaDescription = () => {
     if (!post) return '';
     return language === 'vi'
-      ? (post.meta_description || post.excerpt || `Đọc bài viết ${post.title} tại Annam Village`)
-      : (post.meta_description_en || post.excerpt_en || `Read ${post.title_en} at Annam Village`);
+      ? (post.meta_description || post.excerpt || `Đọc bài viết ${post.title} tại An Nam Village`)
+      : (post.meta_description_en || post.excerpt_en || `Read ${post.title_en} at An Nam Village`);
   };
 
   const handleSharePost = () => {
@@ -175,7 +175,7 @@ const BlogPostPage = () => {
     return (
       <MainLayout>
         <Helmet>
-          <title>{language === 'vi' ? 'Đang tải...' : 'Loading...'} | Annam Village</title>
+          <title>{language === 'vi' ? 'Đang tải...' : 'Loading...'} | An Nam Village</title>
         </Helmet>
         <div className="container mx-auto px-4 py-20 flex justify-center items-center">
           <Loader2 className="h-10 w-10 animate-spin text-beach-600" />
@@ -188,7 +188,7 @@ const BlogPostPage = () => {
     return (
       <MainLayout>
         <Helmet>
-          <title>{language === 'vi' ? 'Không tìm thấy bài viết' : 'Post Not Found'} | Annam Village</title>
+          <title>{language === 'vi' ? 'Không tìm thấy bài viết' : 'Post Not Found'} | An Nam Village</title>
           <meta 
             name="description" 
             content={language === 'vi' 
@@ -247,7 +247,7 @@ const BlogPostPage = () => {
   return (
     <MainLayout>
       <Helmet>
-        <title>{getMetaTitle()} | Annam Village</title>
+        <title>{getMetaTitle()} | An Nam Village</title>
         <meta name="description" content={getMetaDescription()} />
         {post.keywords && <meta name="keywords" content={language === 'vi' ? post.keywords : post.keywords_en} />}
         <meta property="og:title" content={getMetaTitle()} />

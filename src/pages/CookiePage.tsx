@@ -179,7 +179,7 @@ const CookiePage = () => {
                   
                   <h2 className="font-display text-2xl text-beach-800 mb-6">Liên hệ</h2>
                   <p className="mb-6">
-                    Nếu bạn có bất kỳ câu hỏi nào về cách chúng tôi sử dụng cookie, vui lòng liên hệ với chúng tôi qua email tại privacy@annamvillage.vn hoặc qua số điện thoại +84 909 123 456.
+                    Nếu bạn có bất kỳ câu hỏi nào về cách chúng tôi sử dụng cookie, vui lòng liên hệ với chúng tôi qua email tại annamvillage.vn@gmail.com hoặc qua số điện thoại +84 909 123 456.
                   </p>
                 </>
               ) : (

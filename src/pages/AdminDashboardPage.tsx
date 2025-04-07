@@ -91,7 +91,7 @@ const AdminDashboardPage = () => {
           <div className="container mx-auto px-4 flex justify-between items-center">
             <div className="flex items-center">
               <ShieldCheck className="h-6 w-6 mr-2 text-beach-700" />
-              <h1 className="text-xl font-bold text-beach-900">Annam Village Admin</h1>
+              <h1 className="text-xl font-bold text-beach-900">An Nam Village Admin</h1>
             </div>
             
             <div className="flex items-center gap-4">

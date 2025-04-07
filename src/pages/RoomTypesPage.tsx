@@ -148,7 +148,7 @@ const RoomTypesPage = () => {
           duration: 0.5,
           delay: 0.2
         }}>
-            {language === 'vi' ? 'Khám phá các lựa chọn phòng nghỉ sang trọng tại Annam Village, được thiết kế để đáp ứng mọi nhu cầu của bạn.' : 'Explore our luxurious accommodation options at Annam Village, designed to meet all your needs.'}
+            {language === 'vi' ? 'Khám phá các lựa chọn phòng nghỉ sang trọng tại An Nam Village, được thiết kế để đáp ứng mọi nhu cầu của bạn.' : 'Explore our luxurious accommodation options at An Nam Village, designed to meet all your needs.'}
           </motion.p>
         </div>
       </div>

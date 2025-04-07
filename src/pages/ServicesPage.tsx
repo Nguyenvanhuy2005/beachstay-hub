@@ -100,7 +100,7 @@ const ServicesPage = () => {
           duration: 0.5,
           delay: 0.2
         }}>
-            {language === 'vi' ? 'Khám phá các dịch vụ cao cấp tại Annam Village, được thiết kế để nâng tầm trải nghiệm kỳ nghỉ của bạn.' : 'Explore premium services at Annam Village, designed to elevate your vacation experience.'}
+            {language === 'vi' ? 'Khám phá các dịch vụ cao cấp tại An Nam Village, được thiết kế để nâng tầm trải nghiệm kỳ nghỉ của bạn.' : 'Explore premium services at An Nam Village, designed to elevate your vacation experience.'}
           </motion.p>
         </div>
       </div>
@@ -143,7 +143,7 @@ const ServicesPage = () => {
                 {language === 'vi' ? 'Dịch Vụ Ẩm Thực Đẳng Cấp' : 'Premium Dining Services'}
               </h2>
               <p className="text-beach-800 mb-4">
-                {language === 'vi' ? 'Tại Annam Village, chúng tôi tự hào mang đến trải nghiệm ẩm thực độc đáo với nhà hàng phục vụ các món Việt Nam và quốc tế, được chế biến từ những nguyên liệu tươi ngon nhất.' : 'At Annam Village, we are proud to bring a unique culinary experience with a restaurant serving Vietnamese and international dishes, prepared from the freshest ingredients.'}
+                {language === 'vi' ? 'Tại An Nam Village, chúng tôi tự hào mang đến trải nghiệm ẩm thực độc đáo với nhà hàng phục vụ các món Việt Nam và quốc tế, được chế biến từ những nguyên liệu tươi ngon nhất.' : 'At An Nam Village, we are proud to bring a unique culinary experience with a restaurant serving Vietnamese and international dishes, prepared from the freshest ingredients.'}
               </p>
               <p className="text-beach-800 mb-6">
                 {language === 'vi' ? 'Đội ngũ đầu bếp giàu kinh nghiệm của chúng tôi sẵn sàng chiều lòng khách hàng với các món ăn đặc biệt theo yêu cầu, phục vụ ngay tại phòng của bạn hoặc trong không gian lãng mạn trên bãi biển.' : 'Our experienced team of chefs is ready to please customers with special dishes on request, served right in your room or in a romantic space on the beach.'}

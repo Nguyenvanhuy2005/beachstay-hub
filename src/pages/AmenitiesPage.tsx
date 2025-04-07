@@ -177,8 +177,8 @@ const AmenitiesPage = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             {language === 'vi' 
-              ? 'Khám phá những tiện ích độc đáo tại Annam Village, nơi mọi chi tiết đều được thiết kế để mang đến trải nghiệm nghỉ dưỡng tuyệt vời nhất cho bạn.'
-              : 'Discover unique amenities at Annam Village, where every detail is designed to bring you the best resort experience.'}
+              ? 'Khám phá những tiện ích độc đáo tại An Nam Village, nơi mọi chi tiết đều được thiết kế để mang đến trải nghiệm nghỉ dưỡng tuyệt vời nhất cho bạn.'
+              : 'Discover unique amenities at An Nam Village, where every detail is designed to bring you the best resort experience.'}
           </motion.p>
         </div>
       </div>

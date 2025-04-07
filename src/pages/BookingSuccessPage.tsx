@@ -63,8 +63,8 @@ const BookingSuccessPage = () => {
           </h1>
           <p className="text-gray-600">
             {language === 'vi' 
-              ? 'Cảm ơn bạn đã đặt phòng tại Annam Village. Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất.' 
-              : 'Thank you for booking with Annam Village. We will contact you as soon as possible.'
+              ? 'Cảm ơn bạn đã đặt phòng tại An Nam Village. Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất.' 
+              : 'Thank you for booking with An Nam Village. We will contact you as soon as possible.'
             }
           </p>
         </div>

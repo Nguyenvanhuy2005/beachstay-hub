@@ -123,7 +123,7 @@ const PrivacyPage = () => {
                 <>
                   <h2 className="font-display text-2xl text-beach-800 mb-6">1. Thu thập thông tin</h2>
                   <p className="mb-6">
-                    Annam Village thu thập thông tin cá nhân như tên, địa chỉ email, số điện thoại và thông tin thanh toán khi bạn đặt phòng hoặc đăng ký nhận thông tin từ chúng tôi. Chúng tôi cũng có thể thu thập thông tin về cách bạn sử dụng trang web của chúng tôi thông qua cookie và công nghệ tương tự.
+                    An Nam Village thu thập thông tin cá nhân như tên, địa chỉ email, số điện thoại và thông tin thanh toán khi bạn đặt phòng hoặc đăng ký nhận thông tin từ chúng tôi. Chúng tôi cũng có thể thu thập thông tin về cách bạn sử dụng trang web của chúng tôi thông qua cookie và công nghệ tương tự.
                   </p>
                   
                   <h2 className="font-display text-2xl text-beach-800 mb-6">2. Sử dụng thông tin</h2>
@@ -167,14 +167,14 @@ const PrivacyPage = () => {
                   
                   <h2 className="font-display text-2xl text-beach-800 mb-6">6. Liên hệ</h2>
                   <p className="mb-6">
-                    Nếu bạn có bất kỳ câu hỏi nào về Chính sách bảo mật của chúng tôi hoặc cách chúng tôi xử lý thông tin của bạn, vui lòng liên hệ với chúng tôi qua email tại privacy@annamvillage.vn hoặc qua số điện thoại +84 909 123 456.
+                    Nếu bạn có bất kỳ câu hỏi nào về Chính sách bảo mật của chúng tôi hoặc cách chúng tôi xử lý thông tin của bạn, vui lòng liên hệ với chúng tôi qua email tại privacy@An Namvillage.vn hoặc qua số điện thoại +84 909 123 456.
                   </p>
                 </>
               ) : (
                 <>
                   <h2 className="font-display text-2xl text-beach-800 mb-6">1. Information Collection</h2>
                   <p className="mb-6">
-                    Annam Village collects personal information such as your name, email address, phone number, and payment information when you make a reservation or sign up to receive information from us. We may also collect information about how you use our website through cookies and similar technologies.
+                    An Nam Village collects personal information such as your name, email address, phone number, and payment information when you make a reservation or sign up to receive information from us. We may also collect information about how you use our website through cookies and similar technologies.
                   </p>
                   
                   <h2 className="font-display text-2xl text-beach-800 mb-6">2. Use of Information</h2>
@@ -218,7 +218,7 @@ const PrivacyPage = () => {
                   
                   <h2 className="font-display text-2xl text-beach-800 mb-6">6. Contact Us</h2>
                   <p className="mb-6">
-                    If you have any questions about our Privacy Policy or how we handle your information, please contact us via email at privacy@annamvillage.vn or by phone at +84 909 123 456.
+                    If you have any questions about our Privacy Policy or how we handle your information, please contact us via email at privacy@An Namvillage.vn or by phone at +84 909 123 456.
                   </p>
                 </>
               )}

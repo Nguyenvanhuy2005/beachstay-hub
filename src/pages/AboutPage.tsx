@@ -39,7 +39,7 @@ const AboutPage = () => {
           duration: 0.5,
           delay: 0.2
         }}>
-            {language === 'vi' ? 'Khám phá câu chuyện, tầm nhìn và sứ mệnh của Annam Village - điểm đến nghỉ dưỡng hoàn hảo tại Vũng Tàu.' : 'Discover the story, vision, and mission of Annam Village - the perfect resort destination in Vung Tau.'}
+            {language === 'vi' ? 'Khám phá câu chuyện, tầm nhìn và sứ mệnh của An Nam Village - điểm đến nghỉ dưỡng hoàn hảo tại Vũng Tàu.' : 'Discover the story, vision, and mission of An Nam Village - the perfect resort destination in Vung Tau.'}
           </motion.p>
         </div>
       </div>
@@ -77,13 +77,13 @@ const AboutPage = () => {
                 {language === 'vi' ? 'Câu Chuyện Của Chúng Tôi' : 'Our Story'}
               </h2>
               <p className="text-beach-800 mb-4">
-                {language === 'vi' ? 'Annam Village được thành lập vào năm 2018 với khát vọng tạo ra một không gian nghỉ dưỡng hòa hợp với thiên nhiên, mang đến trải nghiệm đẳng cấp và thư giãn tuyệt đối cho du khách.' : 'Annam Village was established in 2018 with a vision to create a retreat in harmony with nature, providing a premium experience and absolute relaxation for travelers.'}
+                {language === 'vi' ? 'An Nam Village được thành lập vào năm 2018 với khát vọng tạo ra một không gian nghỉ dưỡng hòa hợp với thiên nhiên, mang đến trải nghiệm đẳng cấp và thư giãn tuyệt đối cho du khách.' : 'An Nam Village was established in 2018 with a vision to create a retreat in harmony with nature, providing a premium experience and absolute relaxation for travelers.'}
               </p>
               <p className="text-beach-800 mb-4">
                 {language === 'vi' ? 'Lấy cảm hứng từ vẻ đẹp của biển Vũng Tàu và kiến trúc truyền thống Việt Nam, chúng tôi đã xây dựng nên một khu nghỉ dưỡng có bản sắc riêng biệt, nơi du khách có thể tận hưởng kỳ nghỉ tuyệt vời trong không gian thanh bình và dịch vụ chất lượng cao.' : 'Inspired by the beauty of Vung Tau beach and traditional Vietnamese architecture, we have built a resort with a distinctive identity, where guests can enjoy a wonderful holiday in a peaceful space with high-quality service.'}
               </p>
               <p className="text-beach-800">
-                {language === 'vi' ? 'Ngày nay, Annam Village tự hào là điểm đến yêu thích của nhiều du khách trong và ngoài nước, với cam kết không ngừng nâng cao chất lượng dịch vụ và tạo ra những kỷ niệm đáng nhớ cho mỗi vị khách.' : 'Today, Annam Village is proud to be a favorite destination for many domestic and international tourists, with a commitment to continuously improve service quality and create memorable experiences for each guest.'}
+                {language === 'vi' ? 'Ngày nay, An Nam Village tự hào là điểm đến yêu thích của nhiều du khách trong và ngoài nước, với cam kết không ngừng nâng cao chất lượng dịch vụ và tạo ra những kỷ niệm đáng nhớ cho mỗi vị khách.' : 'Today, An Nam Village is proud to be a favorite destination for many domestic and international tourists, with a commitment to continuously improve service quality and create memorable experiences for each guest.'}
               </p>
             </motion.div>
           </div>
@@ -108,7 +108,7 @@ const AboutPage = () => {
               {language === 'vi' ? 'Giá Trị Cốt Lõi' : 'Our Core Values'}
             </h2>
             <p className="text-beach-800 max-w-3xl mx-auto">
-              {language === 'vi' ? 'Những giá trị định hướng mọi hoạt động và quyết định của chúng tôi tại Annam Village.' : 'The values that guide all our activities and decisions at Annam Village.'}
+              {language === 'vi' ? 'Những giá trị định hướng mọi hoạt động và quyết định của chúng tôi tại An Nam Village.' : 'The values that guide all our activities and decisions at An Nam Village.'}
             </p>
           </motion.div>
 

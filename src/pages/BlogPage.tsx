@@ -89,8 +89,8 @@ const BlogPage = () => {
   });
   return <MainLayout>
       <Helmet>
-        <title>{language === 'vi' ? 'Blog & Tin Tức | Annam Village' : 'Blog & News | Annam Village'}</title>
-        <meta name="description" content={language === 'vi' ? 'Cập nhật thông tin mới nhất về Annam Village, các sự kiện, cẩm nang du lịch và nhiều nội dung thú vị khác.' : 'Get the latest updates about Annam Village, events, travel guides and more interesting content.'} />
+        <title>{language === 'vi' ? 'Blog & Tin Tức | An Nam Village' : 'Blog & News | An Nam Village'}</title>
+        <meta name="description" content={language === 'vi' ? 'Cập nhật thông tin mới nhất về An Nam Village, các sự kiện, cẩm nang du lịch và nhiều nội dung thú vị khác.' : 'Get the latest updates about An Nam Village, events, travel guides and more interesting content.'} />
       </Helmet>
       
       {/* Hero Section */}
@@ -105,7 +105,7 @@ const BlogPage = () => {
             {language === 'vi' ? 'Blog & Tin Tức' : 'Blog & News'}
           </h1>
           <p className="text-beach-100 max-w-3xl text-lg mb-8">
-            {language === 'vi' ? 'Cập nhật thông tin mới nhất về Annam Village, các sự kiện, cẩm nang du lịch và nhiều nội dung thú vị khác.' : 'Get the latest updates about Annam Village, events, travel guides and more interesting content.'}
+            {language === 'vi' ? 'Cập nhật thông tin mới nhất về An Nam Village, các sự kiện, cẩm nang du lịch và nhiều nội dung thú vị khác.' : 'Get the latest updates about An Nam Village, events, travel guides and more interesting content.'}
           </p>
           
           <div className="relative max-w-lg">
