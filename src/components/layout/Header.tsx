@@ -5,12 +5,12 @@ import { Menu, X, Phone, AtSign, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
+
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const {
-    t
-  } = useLanguage();
+  const { t } = useLanguage();
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -18,6 +18,7 @@ const Header = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
   return <header className="bg-slate-50">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between">
@@ -33,9 +34,9 @@ const Header = () => {
 
           {/* Contact Information and Language Switcher */}
           <div className="hidden md:flex items-center space-x-4">
-            <a href="tel:+84933669154" className={`flex items-center space-x-1 text-sm ${isScrolled ? 'text-primary' : 'text-white'}`}>
-              
-              <span className="text-[gree-900] text-green-900 font-bold">0933 669 154</span>
+            <a href="tel:+84933669154" className="flex items-center space-x-1 text-sm">
+              <Phone size={16} className="text-green-900" />
+              <span className="text-green-900 font-bold">0933 669 154</span>
             </a>
             <LanguageSwitcher className={isScrolled ? "text-primary" : "text-white"} />
             <Button size="sm" className="bg-primary hover:bg-green-800 text-white" onClick={() => window.location.href = '/dat-phong'}>
@@ -60,7 +61,7 @@ const Header = () => {
           </nav>
           <div className="mt-4 flex flex-col space-y-2">
             <a href="tel:+84933669154" className="flex items-center space-x-1 text-primary">
-              <Phone size={16} className="text-primary" />
+              <Phone size={16} className="text-green-900" />
               <span>0933 669 154</span>
             </a>
             <a href="mailto:annamvillage.vn@gmail.com" className="flex items-center space-x-1 text-primary">
@@ -78,16 +79,12 @@ const Header = () => {
         </div>}
     </header>;
 };
-const NavLinks = ({
-  isScrolled
-}: {
-  isScrolled: boolean;
-}) => {
+
+const NavLinks = ({ isScrolled }: { isScrolled: boolean; }) => {
   const textColor = isScrolled ? "text-primary" : "text-white";
   const hoverColor = isScrolled ? "hover:text-secondary" : "hover:text-accent";
-  const {
-    t
-  } = useLanguage();
+  const { t } = useLanguage();
+
   return <>
       <Link to="/" className="">
         {t('home')}
@@ -109,4 +106,5 @@ const NavLinks = ({
       </Link>
     </>;
 };
+
 export default Header;
