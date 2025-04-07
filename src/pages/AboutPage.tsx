@@ -83,7 +83,7 @@ const AboutPage = () => {
               <p className="text-beach-800 mb-4">
                 {language === 'vi' ? 'Chúng tôi tin rằng: Một nơi ở đẹp không cần phải quá cầu kỳ. Chỉ cần đủ xanh, đủ thoáng, đủ tinh tế trong từng góc nhỏ - để bất kỳ ai ghé tới cũng có thể thật sự thả hồn phiêu du và trở về nguyên bản chính mình.' : 'We believe that a beautiful place to stay doesn’t have to be extravagant. It just needs enough greenery, enough openness, and enough thoughtfulness in the little details — so that anyone who visits can let their soul wander and gently return to their truest self.'}
               </p>
-              <p className="text-beach-800">
+              <p className="text-beach-800 mb-4">
                 {language === 'vi' ? 'Mỗi căn hộ và villa của AnNam đều mang hơi thở từ vùng biển Vũng Tàu, pha chút cảm hứng truyền thống, nhưng cũng đủ tối giản và gần gũi để bạn có thể trò chuyện với chính mình, hoặc cùng bạn bè tận hưởng khoảng thời gian ý nghĩa bên nhau.' : 'Each apartment and villa at AnNam carries the essence of Vung Tau’s seaside spirit — blended with touches of tradition, yet minimalist and familiar enough for you to slow down, reconnect with yourself, or share meaningful moments with friends.'}
               </p>
               <p className="text-beach-800 mp-4">
