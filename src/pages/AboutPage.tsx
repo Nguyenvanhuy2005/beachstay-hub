@@ -77,14 +77,17 @@ const AboutPage = () => {
               <h2 className="font-display text-3xl font-bold mb-6 text-beach-900">
                 {language === 'vi' ? 'Câu Chuyện Của Chúng Tôi' : 'Our Story'}
               </h2>
-              <p className="text-beach-800 mb-4">
-                {language === 'vi' ? 'AnNam Village được thành lập vào năm 2018 với khát vọng tạo ra một không gian nghỉ dưỡng hòa hợp với thiên nhiên, mang đến trải nghiệm đẳng cấp và thư giãn tuyệt đối cho du khách.' : 'AnNam Village was established in 2018 with a vision to create a retreat in harmony with nature, providing a premium experience and absolute relaxation for travelers.'}
+     <p className="text-beach-800 mb-4">
+                {language === 'vi' ? 'AnNam bắt đầu từ năm 2018, khi tụi mình muốn tạo ra nhiều căn nhà nhỏ giữa Vũng Tàu dành cho những người thích cảm giác được ở một nơi riêng tư, dễ chịu và có chút gì đó… thật bình yên.' : 'AnNam began in 2018, when we dreamed of creating small, cozy homes in Vung Tau for those who long for a private, tranquil space — something that feels... truly peaceful.'}
               </p>
               <p className="text-beach-800 mb-4">
-                {language === 'vi' ? 'Lấy cảm hứng từ vẻ đẹp của biển Vũng Tàu và kiến trúc truyền thống Việt Nam, chúng tôi đã xây dựng nên một khu nghỉ dưỡng có bản sắc riêng biệt, nơi du khách có thể tận hưởng kỳ nghỉ tuyệt vời trong không gian thanh bình và dịch vụ chất lượng cao.' : 'Inspired by the beauty of Vung Tau beach and traditional Vietnamese architecture, we have built a resort with a distinctive identity, where guests can enjoy a wonderful holiday in a peaceful space with high-quality service.'}
+                {language === 'vi' ? 'Chúng tôi tin rằng: Một nơi ở đẹp không cần phải quá cầu kỳ. Chỉ cần đủ xanh, đủ thoáng, đủ tinh tế trong từng góc nhỏ - để bất kỳ ai ghé tới cũng có thể thật sự thả hồn phiêu du và trở về nguyên bản chính mình.' : 'We believe that a beautiful place to stay doesn’t have to be extravagant. It just needs enough greenery, enough openness, and enough thoughtfulness in the little details — so that anyone who visits can let their soul wander and gently return to their truest self.'}
               </p>
               <p className="text-beach-800">
-                {language === 'vi' ? 'Ngày nay, AnNam Village tự hào là điểm đến yêu thích của nhiều du khách trong và ngoài nước, với cam kết không ngừng nâng cao chất lượng dịch vụ và tạo ra những kỷ niệm đáng nhớ cho mỗi vị khách.' : 'Today, AnNam Village is proud to be a favorite destination for many domestic and international tourists, with a commitment to continuously improve service quality and create memorable experiences for each guest.'}
+                {language === 'vi' ? 'Mỗi căn hộ và villa của AnNam đều mang hơi thở từ vùng biển Vũng Tàu, pha chút cảm hứng truyền thống, nhưng cũng đủ tối giản và gần gũi để bạn có thể trò chuyện với chính mình, hoặc cùng bạn bè tận hưởng khoảng thời gian ý nghĩa bên nhau.' : 'Each apartment and villa at AnNam carries the essence of Vung Tau’s seaside spirit — blended with touches of tradition, yet minimalist and familiar enough for you to slow down, reconnect with yourself, or share meaningful moments with friends.'}
+              </p>
+<p className="text-beach-800">
+                {language === 'vi' ? 'Hành trình đó, tới giờ vẫn đang được chúng tôi giữ gìn và vun đắp - bằng tất cả sự tử tế dành cho những du khách ghé qua.' : 'That journey is still unfolding today — nurtured with kindness, for every traveler who passes through.'}
               </p>
             </motion.div>
           </div>
