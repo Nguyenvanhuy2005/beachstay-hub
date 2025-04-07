@@ -8,19 +8,19 @@ import { useLanguage } from "@/contexts/LanguageContext";
 const slides = [
   {
     id: 1,
-    image: "/lovable-uploads/842f894d-4d09-4b7b-9de4-e68c7d1e2e30.png",
+    image: "/lovable-uploads/8ce686fb-1be2-4b8f-a4fe-1f77f439a159.png",
     titleKey: "peaceful_space",
     subtitleKey: "peaceful_space_desc",
   },
   {
     id: 2,
-    image: "/lovable-uploads/3de4ca25-b7f7-4567-8e8a-de3b9ef3e8ab.png",
+    image: "/lovable-uploads/635ad522-9789-42a4-b02a-6290f845f81a.png",
     titleKey: "luxury_experience",
     subtitleKey: "luxury_experience_desc",
   },
   {
     id: 3,
-    image: "/lovable-uploads/447ed5f1-0675-492c-8437-bb1fdf09ab86.png",
+    image: "/lovable-uploads/5075ccfe-742f-4147-a0c4-7d2c00807201.png",
     titleKey: "premium_amenities",
     subtitleKey: "premium_amenities_desc",
   },
