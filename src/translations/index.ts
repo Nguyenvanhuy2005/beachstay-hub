@@ -54,12 +54,12 @@ const viTranslations: Record<TranslationKey, string> = {
   view_details: "Xem Chi Tiết",
   
   // Hero section
-  peaceful_space: "Không Gian Yên Bình",
-  peaceful_space_desc: "Tận hưởng kỳ nghỉ trong không gian yên bình tại AnNam Village",
-  luxury_experience: "Trải Nghiệm Đẳng Cấp",
-  luxury_experience_desc: "Dịch vụ 5 sao và tiện nghi cao cấp cho kỳ nghỉ hoàn hảo",
-  premium_amenities: "Tiện Nghi Cao Cấp",
-  premium_amenities_desc: "Hồ bơi, nhà hàng, spa và nhiều tiện ích đẳng cấp",
+  peaceful_space: "Không gian xanh hóa",
+  peaceful_space_desc: "Một nơi đủ gần để nghe sóng biển, đủ xa để an tĩnh lòng.",
+  luxury_experience: "Trải nghiệm độc nhất Vũng Tàu",
+  luxury_experience_desc: "Tiện nghi đầy đủ, phong cách hiện đại mà vẫn cho bạn được hít thở không khí an yên của gió biển và thiên nhiên.",
+  premium_amenities: "Như được Trở Về Nhà"
+  premium_amenities_desc: "Ký ức đẹp của một chuyến đi… đôi khi chỉ bắt đầu từ cảm giác được ở yên đúng nghĩa.",
   
   // About section
   about_title: "Về AnNam Village",
