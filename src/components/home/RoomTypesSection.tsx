@@ -395,7 +395,7 @@ const RoomTypesSection = () => {
                   <img src={room.image_url} alt={getRoomName(room)} className="w-full h-60 object-cover" onError={e => {
               e.currentTarget.src = "/placeholder.svg";
             }} />
-                  {room.is_popular && <Badge className="absolute top-4 right-4 bg-coral-500">
+                  {room.is_popular && <Badge className="absolute top-4 right-4 bg-coral-500 bg-[#24490f]">
                       {language === 'vi' ? 'Phổ biến' : 'Popular'}
                     </Badge>}
                 </div>
