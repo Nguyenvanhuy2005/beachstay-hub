@@ -189,7 +189,7 @@ const RoomTypesPage = () => {
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-beach-900/80 to-beach-800/90 z-10"></div>
           <img 
-            src="/lovable-uploads/7e2eee36-3be7-4e6f-87d5-e0540c160bef.png" 
+            src="/lovable-uploads/db85018b5cdeef80b6cf.jpg" 
             alt="Room Types" 
             className="w-full h-full object-cover" 
           />
