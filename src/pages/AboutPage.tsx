@@ -86,7 +86,7 @@ const AboutPage = () => {
               <p className="text-beach-800">
                 {language === 'vi' ? 'Mỗi căn hộ và villa của AnNam đều mang hơi thở từ vùng biển Vũng Tàu, pha chút cảm hứng truyền thống, nhưng cũng đủ tối giản và gần gũi để bạn có thể trò chuyện với chính mình, hoặc cùng bạn bè tận hưởng khoảng thời gian ý nghĩa bên nhau.' : 'Each apartment and villa at AnNam carries the essence of Vung Tau’s seaside spirit — blended with touches of tradition, yet minimalist and familiar enough for you to slow down, reconnect with yourself, or share meaningful moments with friends.'}
               </p>
-<p className="text-beach-800">
+              <p className="text-beach-800 mp-4">
                 {language === 'vi' ? 'Hành trình đó, tới giờ vẫn đang được chúng tôi giữ gìn và vun đắp - bằng tất cả sự tử tế dành cho những du khách ghé qua.' : 'That journey is still unfolding today — nurtured with kindness, for every traveler who passes through.'}
               </p>
             </motion.div>
