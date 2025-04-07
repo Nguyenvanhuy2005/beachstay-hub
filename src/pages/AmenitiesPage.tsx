@@ -1,111 +1,68 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { supabase } from '@/integrations/supabase/client';
 import MainLayout from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Bath, Wifi, Coffee, Utensils, Map, Dumbbell, Ship, Shirt } from 'lucide-react';
+import { Bath, Wifi, Coffee, Utensils, Bike, LayoutGrid } from 'lucide-react';
 
 const AmenitiesPage = () => {
-  const [amenities, setAmenities] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const { language } = useLanguage();
   
   useEffect(() => {
     window.scrollTo(0, 0);
-    
-    const fetchAmenities = async () => {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from('amenities')
-          .select('*');
-        
-        if (error) {
-          console.error('Error fetching amenities:', error);
-          return;
-        }
-        
-        if (data && data.length > 0) {
-          setAmenities(data);
-        } else {
-          // Fallback to hardcoded data
-          setAmenities([
-            {
-              id: '1',
-              name: 'Hồ Bơi Vô Cực',
-              name_en: 'Infinity Pool',
-              description: 'Hồ bơi vô cực với tầm nhìn ra biển, nơi bạn có thể thư giãn và tận hưởng khung cảnh tuyệt đẹp của đại dương.',
-              description_en: 'Infinity pool with ocean views, where you can relax and enjoy the beautiful seascape.',
-              icon: 'Bath'
-            },
-            {
-              id: '2',
-              name: 'WiFi Miễn Phí',
-              name_en: 'Free WiFi',
-              description: 'Kết nối internet tốc độ cao miễn phí trong toàn bộ khu nghỉ dưỡng.',
-              description_en: 'Free high-speed internet connection throughout the resort.',
-              icon: 'Wifi'
-            },
-            {
-              id: '3',
-              name: 'Nhà Hàng',
-              name_en: 'Restaurant',
-              description: 'Nhà hàng phục vụ ẩm thực Việt Nam và quốc tế, sử dụng nguyên liệu tươi ngon từ địa phương.',
-              description_en: 'Restaurant serving Vietnamese and international cuisine, using fresh local ingredients.',
-              icon: 'Utensils'
-            },
-            {
-              id: '4',
-              name: 'Quầy Bar & Cà Phê',
-              name_en: 'Bar & Cafe',
-              description: 'Quầy bar ven biển và cà phê, nơi lý tưởng để thưởng thức đồ uống và ngắm hoàng hôn.',
-              description_en: 'Beachside bar and cafe, the perfect place to enjoy drinks and watch the sunset.',
-              icon: 'Coffee'
-            },
-            {
-              id: '5',
-              name: 'Tour & Hoạt Động',
-              name_en: 'Tours & Activities',
-              description: 'Các tour tham quan và hoạt động thú vị do đội ngũ chuyên nghiệp của chúng tôi tổ chức.',
-              description_en: 'Exciting tours and activities organized by our professional team.',
-              icon: 'Map'
-            },
-            {
-              id: '6',
-              name: 'Phòng Tập Gym',
-              name_en: 'Fitness Center',
-              description: 'Phòng tập gym hiện đại với đầy đủ thiết bị để duy trì lịch tập luyện của bạn trong kỳ nghỉ.',
-              description_en: 'Modern fitness center with complete equipment to maintain your workout routine during your vacation.',
-              icon: 'Dumbbell'
-            },
-            {
-              id: '7',
-              name: 'Thể Thao Biển',
-              name_en: 'Water Sports',
-              description: 'Các hoạt động thể thao biển như lướt ván, chèo thuyền kayak và lặn biển.',
-              description_en: 'Water sports activities such as surfing, kayaking and snorkeling.',
-              icon: 'Ship'
-            },
-            {
-              id: '8',
-              name: 'Dịch Vụ Giặt Ủi',
-              name_en: 'Laundry Service',
-              description: 'Dịch vụ giặt ủi chuyên nghiệp giúp quần áo của bạn luôn sạch sẽ và thơm tho.',
-              description_en: 'Professional laundry service to keep your clothes clean and fresh.',
-              icon: 'Shirt'
-            },
-          ]);
-        }
-      } catch (error) {
-        console.error('Unexpected error:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchAmenities();
   }, []);
+  
+  const amenities = [
+    {
+      id: '1',
+      name: 'Hồ bơi',
+      name_en: 'Swimming Pool',
+      description: 'Thả mình thư giãn trong làn nước mát lành, phóng tầm mắt ra khung cảnh xanh mát - nơi hồ bơi ngoài trời chan hoà nắng gió từ biển xanh.',
+      description_en: 'Relax in the cool water, looking out at the lush green surroundings - where the outdoor pool is bathed in sunshine and sea breezes.',
+      icon: 'Bath'
+    },
+    {
+      id: '2',
+      name: 'Góc bếp tiện nghi',
+      name_en: 'Fully-Equipped Kitchen',
+      description: 'Một gian bếp đủ đầy để bạn tự tay nấu nướng, pha cà phê hay bày biện bữa cơm ấm áp cùng người thân — bởi đôi khi, cảm giác "được về nhà" lại đến từ những điều thật giản dị.',
+      description_en: 'A complete kitchen where you can cook your own meals, brew coffee, or prepare a warm family dinner — because sometimes, the feeling of "coming home" comes from the simplest things.',
+      icon: 'Utensils'
+    },
+    {
+      id: '3',
+      name: 'WiFi Miễn Phí',
+      name_en: 'Free WiFi',
+      description: 'Luôn kết nối dễ dàng với wifi tốc độ cao phủ khắp khu vực nghỉ ngơi - dù làm việc hay giải trí cũng đều trọn vẹn.',
+      description_en: 'Stay easily connected with high-speed wifi throughout the accommodation area - perfect for both work and entertainment.',
+      icon: 'Wifi'
+    },
+    {
+      id: '4',
+      name: 'Gợi ý ẩm thực địa phương',
+      name_en: 'Local Cuisine Recommendations',
+      description: 'AnNam luôn sẵn lòng gửi bạn các Travel Maps về những địa điểm ẩm thực & du ngoạn nội địa - từ hải sản tươi ngon đến những hàng quán lâu năm chỉ người bản xứ mới rành.',
+      description_en: 'AnNam is always happy to provide you with Travel Maps of local dining & sightseeing spots - from fresh seafood to long-established eateries only locals know about.',
+      icon: 'Coffee'
+    },
+    {
+      id: '5',
+      name: 'Cho thuê xe đạp',
+      name_en: 'Bicycle Rental',
+      description: 'Nhẹ nhàng đạp xe qua những con phố đầy nắng, nghe gió biển lùa qua vai áo — là cách chậm rãi nhất để cảm nhận Vũng Tàu.',
+      description_en: 'Gently cycling through sunny streets, feeling the sea breeze on your shoulders — the slowest way to experience Vung Tau.',
+      icon: 'Bike'
+    },
+    {
+      id: '6',
+      name: 'Không gian mở',
+      name_en: 'Open Space',
+      description: 'Một khoảng xanh đủ yên để bạn ngồi lại với chính mình. Cũng đủ thoáng để cùng bạn bè hay gia đình tụ họp, kể cho nhau nghe vài câu chuyện vội quên giữa cuộc sống thường ngày.',
+      description_en: 'A green space peaceful enough for self-reflection. Also spacious enough for friends and family to gather, sharing stories that are often forgotten in everyday life.',
+      icon: 'LayoutGrid'
+    }
+  ];
 
   const getIconComponent = (iconName) => {
     switch (iconName) {
@@ -113,10 +70,8 @@ const AmenitiesPage = () => {
       case 'Wifi': return <Wifi className="h-10 w-10 text-beach-600" />;
       case 'Coffee': return <Coffee className="h-10 w-10 text-beach-600" />;
       case 'Utensils': return <Utensils className="h-10 w-10 text-beach-600" />;
-      case 'Map': return <Map className="h-10 w-10 text-beach-600" />;
-      case 'Dumbbell': return <Dumbbell className="h-10 w-10 text-beach-600" />;
-      case 'Ship': return <Ship className="h-10 w-10 text-beach-600" />;
-      case 'Shirt': return <Shirt className="h-10 w-10 text-beach-600" />;
+      case 'Bike': return <Bike className="h-10 w-10 text-beach-600" />;
+      case 'LayoutGrid': return <LayoutGrid className="h-10 w-10 text-beach-600" />;
       default: return <Bath className="h-10 w-10 text-beach-600" />;
     }
   };
@@ -177,8 +132,8 @@ const AmenitiesPage = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             {language === 'vi' 
-              ? 'Khám phá những tiện ích độc đáo tại An Nam Village, nơi mọi chi tiết đều được thiết kế để mang đến trải nghiệm nghỉ dưỡng tuyệt vời nhất cho bạn.'
-              : 'Discover unique amenities at An Nam Village, where every detail is designed to bring you the best resort experience.'}
+              ? 'Luôn chăm chút từng trải nghiệm nhỏ nhặt, để mỗi khoảnh khắc tại AnNam đều trở nên dễ chịu và trọn vẹn nhất với du khách.'
+              : 'Always attentive to every small experience, making each moment at AnNam pleasant and complete for our guests.'}
           </motion.p>
         </div>
       </div>
@@ -190,7 +145,7 @@ const AmenitiesPage = () => {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
             {amenities.map((amenity) => (
               <motion.div
@@ -231,7 +186,7 @@ const AmenitiesPage = () => {
             >
               <div className="bg-white p-6 rounded-lg shadow-md border border-beach-100">
                 <h3 className="font-bold text-lg mb-3 text-beach-900">
-                  {language === 'vi' ? 'Hồ Bơi & Bãi Biển' : 'Pool & Beach'}
+                  {language === 'vi' ? 'Hồ Bơi' : 'Pool'}
                 </h3>
                 <p className="text-beach-700 mb-1">
                   {language === 'vi' ? 'Hàng ngày: 6:00 - 22:00' : 'Daily: 6:00 AM - 10:00 PM'}
@@ -240,37 +195,10 @@ const AmenitiesPage = () => {
               
               <div className="bg-white p-6 rounded-lg shadow-md border border-beach-100">
                 <h3 className="font-bold text-lg mb-3 text-beach-900">
-                  {language === 'vi' ? 'Nhà Hàng' : 'Restaurant'}
+                  {language === 'vi' ? 'Cho thuê xe đạp' : 'Bicycle Rental'}
                 </h3>
                 <p className="text-beach-700 mb-1">
-                  {language === 'vi' ? 'Bữa sáng: 6:30 - 10:30' : 'Breakfast: 6:30 AM - 10:30 AM'}
-                </p>
-                <p className="text-beach-700 mb-1">
-                  {language === 'vi' ? 'Bữa trưa: 12:00 - 14:30' : 'Lunch: 12:00 PM - 2:30 PM'}
-                </p>
-                <p className="text-beach-700">
-                  {language === 'vi' ? 'Bữa tối: 18:00 - 22:00' : 'Dinner: 6:00 PM - 10:00 PM'}
-                </p>
-              </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow-md border border-beach-100">
-                <h3 className="font-bold text-lg mb-3 text-beach-900">
-                  {language === 'vi' ? 'Quầy Bar' : 'Bar'}
-                </h3>
-                <p className="text-beach-700 mb-1">
-                  {language === 'vi' ? 'Hàng ngày: 10:00 - 23:00' : 'Daily: 10:00 AM - 11:00 PM'}
-                </p>
-                <p className="text-beach-700">
-                  {language === 'vi' ? 'Happy Hour: 17:00 - 19:00' : 'Happy Hour: 5:00 PM - 7:00 PM'}
-                </p>
-              </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow-md border border-beach-100">
-                <h3 className="font-bold text-lg mb-3 text-beach-900">
-                  {language === 'vi' ? 'Phòng Tập Gym' : 'Fitness Center'}
-                </h3>
-                <p className="text-beach-700 mb-1">
-                  {language === 'vi' ? 'Hàng ngày: 6:00 - 21:00' : 'Daily: 6:00 AM - 9:00 PM'}
+                  {language === 'vi' ? 'Hàng ngày: 7:00 - 18:00' : 'Daily: 7:00 AM - 6:00 PM'}
                 </p>
               </div>
             </motion.div>

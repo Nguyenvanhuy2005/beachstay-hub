@@ -1,4 +1,3 @@
-
 // Type definitions
 export type Language = 'vi' | 'en';
 
@@ -63,7 +62,7 @@ const viTranslations: Record<TranslationKey, string> = {
   luxury_experience: "Trải nghiệm độc nhất Vũng Tàu",
   luxury_experience_desc: "Tiện nghi đầy đủ, phong cách hiện đại mà vẫn cho bạn được hít thở không khí an yên của gió biển và thiên nhiên.",
   premium_amenities: "Như được \"trở về nhà\"",
-  premium_amenities_desc: "Ký ức đẹp của một chuyến đi… đôi khi chỉ bắt đầu từ cảm giác được ở yên đúng nghĩa.",
+  premium_amenities_desc: "Ký ức đẹp của một chuyến đi... đôi khi chỉ bắt đầu từ cảm giác được ở yên đúng nghĩa.",
   
   // Core Values
   core_values: "Giá trị cốt lõi",
