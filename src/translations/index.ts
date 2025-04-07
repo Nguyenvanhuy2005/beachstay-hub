@@ -1,4 +1,3 @@
-
 // Type definitions
 export type Language = 'vi' | 'en';
 
@@ -29,7 +28,7 @@ export type TranslationKey =
   | 'about_annam' | 'villa_description' | 'error_loading_data' | 'error_loading_gallery' | 'try_again'
   | 'admin_login' | 'password' | 'login' | 'forgot_password' | 'back_to_login' | 'reset_password'
   | 'reset_password_sent' | 'admin_note' | 'login_error' | 'signing_in' | 'send_reset'
-  | 'core_values' | 'dedication' | 'dedication_desc' | 'wisdom' | 'wisdom_desc' | 'nature' | 'nature_desc'
+  | 'core_values' | 'dedication' | 'dedication_desc' | 'wisdom' | 'wisdom_desc' | 'nature' | 'nature_desc' | 'core_values_desc'
   | 'amenity_pool' | 'amenity_pool_desc' | 'amenity_kitchen' | 'amenity_kitchen_desc'
   | 'amenity_wifi' | 'amenity_wifi_desc' | 'amenity_food_guide' | 'amenity_food_guide_desc'
   | 'amenity_bicycle' | 'amenity_bicycle_desc' | 'amenity_open_space' | 'amenity_open_space_desc';
@@ -63,13 +62,14 @@ const viTranslations: Record<TranslationKey, string> = {
   luxury_experience: "Trải nghiệm độc nhất Vũng Tàu",
   luxury_experience_desc: "Tiện nghi đầy đủ, phong cách hiện đại mà vẫn cho bạn được hít thở không khí an yên của gió biển và thiên nhiên.",
   premium_amenities: "Như được \"trở về nhà\"",
-  premium_amenities_desc: "Ký ức đẹp của một chuyến đi… đôi khi chỉ bắt đầu từ cảm giác được ở yên đúng nghĩa.",
+  premium_amenities_desc: "Ký ức đẹp của một chuyến đi... đôi khi chỉ bắt đầu từ cảm giác được ở yên đúng nghĩa.",
   
   // Core Values
   core_values: "Giá trị cốt lõi",
+  core_values_desc: "Những điều nhỏ nhất — từ cách chào đón bạn, đến không gian sống, hay cách chúng tôi ứng xử với thiên nhiên — đều bắt đầu từ những giá trị này.",
   dedication: "Tận Tâm",
   dedication_desc: "Đặt trọn trái tim và tâm huyết vào từng chi tiết nhỏ, để mỗi trải nghiệm của du khách luôn là điều đáng nhớ và trọn vẹn nhất.",
-  wisdom: "Thông thái",
+  wisdom: "Thông Thái",
   wisdom_desc: "Để mỗi dịch vụ và lựa chọn phục vụ từ AnNam đều làm an lòng khách hàng. Chỉ mong mỗi khách đến – như khách về quê nhà.",
   nature: "Thuần Thiên",
   nature_desc: "Mỗi kiến trúc từ AnNam luôn hướng đến không gian sống thuần thiên nhiên - để du khách như được đắm mình giữa lòng thiên nhiên xanh mát.",
@@ -261,6 +261,7 @@ const enTranslations: Record<TranslationKey, string> = {
   
   // Core Values
   core_values: "Core Values",
+  core_values_desc: "The smallest things — from how we welcome you, to the living spaces, to how we interact with nature — all begin with these values.",
   dedication: "Dedication",
   dedication_desc: "Putting our heart and passion into every small detail, so that each guest experience is always memorable and complete.",
   wisdom: "Wisdom",

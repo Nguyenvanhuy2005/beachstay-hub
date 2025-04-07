@@ -81,10 +81,10 @@ const AboutPage = () => {
                 {language === 'vi' ? 'AnNam bắt đầu từ năm 2018, khi tụi mình muốn tạo ra nhiều căn nhà nhỏ giữa Vũng Tàu dành cho những người thích cảm giác được ở một nơi riêng tư, dễ chịu và có chút gì đó… thật bình yên.' : 'AnNam began in 2018, when we dreamed of creating small, cozy homes in Vung Tau for those who long for a private, tranquil space — something that feels... truly peaceful.'}
               </p>
               <p className="text-beach-800 mb-4">
-                {language === 'vi' ? 'Chúng tôi tin rằng: Một nơi ở đẹp không cần phải quá cầu kỳ. Chỉ cần đủ xanh, đủ thoáng, đủ tinh tế trong từng góc nhỏ - để bất kỳ ai ghé tới cũng có thể thật sự thả hồn phiêu du và trở về nguyên bản chính mình.' : 'We believe that a beautiful place to stay doesn’t have to be extravagant. It just needs enough greenery, enough openness, and enough thoughtfulness in the little details — so that anyone who visits can let their soul wander and gently return to their truest self.'}
+                {language === 'vi' ? 'Chúng tôi tin rằng: Một nơi ở đẹp không cần phải quá cầu kỳ. Chỉ cần đủ xanh, đủ thoáng, đủ tinh tế trong từng góc nhỏ - để bất kỳ ai ghé tới cũng có thể thật sự thả hồn phiêu du và trở về nguyên bản chính mình.' : 'We believe that a beautiful place to stay doesn't have to be extravagant. It just needs enough greenery, enough openness, and enough thoughtfulness in the little details — so that anyone who visits can let their soul wander and gently return to their truest self.'}
               </p>
               <p className="text-beach-800 mb-4">
-                {language === 'vi' ? 'Mỗi căn hộ và villa của AnNam đều mang hơi thở từ vùng biển Vũng Tàu, pha chút cảm hứng truyền thống, nhưng cũng đủ tối giản và gần gũi để bạn có thể trò chuyện với chính mình, hoặc cùng bạn bè tận hưởng khoảng thời gian ý nghĩa bên nhau.' : 'Each apartment and villa at AnNam carries the essence of Vung Tau’s seaside spirit — blended with touches of tradition, yet minimalist and familiar enough for you to slow down, reconnect with yourself, or share meaningful moments with friends.'}
+                {language === 'vi' ? 'Mỗi căn hộ và villa của AnNam đều mang hơi thở từ vùng biển Vũng Tàu, pha chút cảm hứng truyền thống, nhưng cũng đủ tối giản và gần gũi để bạn có thể trò chuyện với chính mình, hoặc cùng bạn bè tận hưởng khoảng thời gian ý nghĩa bên nhau.' : 'Each apartment and villa at AnNam carries the essence of Vung Tau's seaside spirit — blended with touches of tradition, yet minimalist and familiar enough for you to slow down, reconnect with yourself, or share meaningful moments with friends.'}
               </p>
               <p className="text-beach-800">
                 {language === 'vi' ? 'Hành trình đó, tới giờ vẫn đang được chúng tôi giữ gìn và vun đắp - bằng tất cả sự tử tế dành cho những du khách ghé qua.' : 'That journey is still unfolding today — nurtured with kindness, for every traveler who passes through.'}
@@ -107,27 +107,27 @@ const AboutPage = () => {
           duration: 0.5
         }} viewport={{
           once: true
-        }} className="text-center mb-16">
+        }} className="text-center mb-12">
             <h2 className="font-display text-3xl mb-6 text-beach-900 font-bold">
               {language === 'vi' ? 'Giá Trị Cốt Lõi' : 'Our Core Values'}
             </h2>
             <p className="text-beach-800 max-w-3xl mx-auto">
-              {language === 'vi' ? 'Những giá trị định hướng mọi hoạt động và quyết định của chúng tôi tại AnNam Village.' : 'The values that guide all our activities and decisions at AnNam Village.'}
+              {language === 'vi' ? 'Những điều nhỏ nhất — từ cách chào đón bạn, đến không gian sống, hay cách chúng tôi ứng xử với thiên nhiên — đều bắt đầu từ những giá trị này.' : 'The smallest things — from how we welcome you, to the living spaces, to how we interact with nature — all begin with these values.'}
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[{
-            title: language === 'vi' ? 'Chất Lượng' : 'Quality',
-            description: language === 'vi' ? 'Cam kết mang đến dịch vụ và trải nghiệm chất lượng cao nhất cho khách hàng.' : 'Commitment to delivering the highest quality service and experience to our customers.',
+            title: language === 'vi' ? 'Tận Tâm' : 'Dedication',
+            description: language === 'vi' ? 'Đặt trọn trái tim và tâm huyết vào từng chi tiết nhỏ, để mỗi trải nghiệm của du khách luôn là điều đáng nhớ và trọn vẹn nhất.' : 'Putting our heart and passion into every small detail, so that each guest experience is always memorable and complete.',
             icon: '✦'
           }, {
-            title: language === 'vi' ? 'Hiếu Khách' : 'Hospitality',
-            description: language === 'vi' ? 'Đón tiếp mỗi vị khách với sự ấm áp, chân thành và tận tâm.' : 'Welcoming each guest with warmth, sincerity and dedication.',
+            title: language === 'vi' ? 'Thông Thái' : 'Wisdom',
+            description: language === 'vi' ? 'Để mỗi dịch vụ và lựa chọn phục vụ từ AnNam đều làm an lòng khách hàng. Chỉ mong mỗi khách đến – như khách về quê nhà.' : 'So that every service and option from AnNam reassures our customers. We simply hope each guest arrives - like coming home.',
             icon: '✦'
           }, {
-            title: language === 'vi' ? 'Bền Vững' : 'Sustainability',
-            description: language === 'vi' ? 'Hoạt động có trách nhiệm với môi trường và cộng đồng địa phương.' : 'Operating responsibly with the environment and local community.',
+            title: language === 'vi' ? 'Thuần Thiên' : 'Natural Connection',
+            description: language === 'vi' ? 'Mỗi kiến trúc từ AnNam luôn hướng đến không gian sống thuần thiên nhiên - để du khách như được đắm mình giữa lòng thiên nhiên xanh mát.' : 'Every architectural element at AnNam always aims for living spaces in harmony with nature - so guests feel immersed in green nature.',
             icon: '✦'
           }].map((value, index) => <motion.div key={index} initial={{
             opacity: 0,
