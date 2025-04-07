@@ -174,7 +174,7 @@ const AdminLoginPage = () => {
         </div>
         
         <div className="flex flex-col space-y-2">
-          <Button type="submit" className="w-full bg-beach-600 hover:bg-beach-700" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading} className="w-full bg-beach-600 hover:bg-beach-700 text-slate-50 bg-slate-900 hover:bg-slate-800">
             {isLoading ? t('signing_in') : t('login')}
           </Button>
           
