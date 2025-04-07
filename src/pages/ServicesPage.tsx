@@ -5,7 +5,7 @@ import MainLayout from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Map, Car, Calendar, Plane, Heart, Music, Gift, Ship, Bath, Utensils, Wifi, Bike } from 'lucide-react';
+import { Calendar, Utensils, Car, Plane, Heart, Music, Gift, Ship, Map } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const ServicesPage = () => {
@@ -55,52 +55,6 @@ const ServicesPage = () => {
       icon: <Ship className="h-10 w-10 text-beach-600" />,
       title: language === 'vi' ? 'Thể Thao Biển' : 'Water Sports',
       description: language === 'vi' ? 'Cung cấp dịch vụ cho thuê thiết bị và hướng dẫn các hoạt động thể thao biển như lướt ván, chèo thuyền kayak.' : 'Provide equipment rental services and guide water sports activities such as surfing, kayaking.'
-    }
-  ];
-  
-  // Amenities list based on the new content provided
-  const amenities = [
-    {
-      icon: <Bath className="h-10 w-10 text-beach-600" />,
-      title: language === 'vi' ? 'Hồ bơi' : 'Swimming Pool',
-      description: language === 'vi' 
-        ? 'Thả mình thư giãn trong làn nước mát lành, phóng tầm mắt ra khung cảnh xanh mát - nơi hồ bơi ngoài trời chan hoà nắng gió từ biển xanh.'
-        : 'Relax in the cool water, looking out at the lush green surroundings - where the outdoor pool is bathed in sunshine and sea breezes.'
-    },
-    {
-      icon: <Utensils className="h-10 w-10 text-beach-600" />,
-      title: language === 'vi' ? 'Góc bếp tiện nghi' : 'Fully-Equipped Kitchen',
-      description: language === 'vi'
-        ? 'Một gian bếp đủ đầy để bạn tự tay nấu nướng, pha cà phê hay bày biện bữa cơm ấm áp cùng người thân — bởi đôi khi, cảm giác "được về nhà" lại đến từ những điều thật giản dị.'
-        : 'A complete kitchen where you can cook your own meals, brew coffee, or prepare a warm family dinner — because sometimes, the feeling of "coming home" comes from the simplest things.'
-    },
-    {
-      icon: <Wifi className="h-10 w-10 text-beach-600" />,
-      title: language === 'vi' ? 'Wifi' : 'Wifi',
-      description: language === 'vi'
-        ? 'Luôn kết nối dễ dàng với wifi tốc độ cao phủ khắp khu vực nghỉ ngơi - dù làm việc hay giải trí cũng đều trọn vẹn.'
-        : 'Stay easily connected with high-speed wifi throughout the accommodation area - perfect for both work and entertainment.'
-    },
-    {
-      icon: <Map className="h-10 w-10 text-beach-600" />,
-      title: language === 'vi' ? 'Gợi ý ẩm thực địa phương' : 'Local Cuisine Recommendations',
-      description: language === 'vi'
-        ? 'AnNam luôn sẵn lòng gửi bạn các Travel Maps về những địa điểm ẩm thực & du ngoạn nội địa - từ hải sản tươi ngon đến những hàng quán lâu năm chỉ người bản xứ mới rành.'
-        : 'AnNam is always happy to provide you with Travel Maps of local dining & sightseeing spots - from fresh seafood to long-established eateries only locals know about.'
-    },
-    {
-      icon: <Bike className="h-10 w-10 text-beach-600" />,
-      title: language === 'vi' ? 'Cho thuê xe đạp' : 'Bicycle Rental',
-      description: language === 'vi'
-        ? 'Nhẹ nhàng đạp xe qua những con phố đầy nắng, nghe gió biển lùa qua vai áo — là cách chậm rãi nhất để cảm nhận Vũng Tàu.'
-        : 'Gently cycling through sunny streets, feeling the sea breeze on your shoulders — the slowest way to experience Vung Tau.'
-    },
-    {
-      icon: <Map className="h-10 w-10 text-beach-600" />,
-      title: language === 'vi' ? 'Không gian mở' : 'Open Space',
-      description: language === 'vi'
-        ? 'Một khoảng xanh đủ yên để bạn ngồi lại với chính mình. Cũng đủ thoáng để cùng bạn bè hay gia đình tụ họp, kể cho nhau nghe vài câu chuyện vội quên giữa cuộc sống thường ngày.'
-        : 'A green space peaceful enough for self-reflection. Also spacious enough for friends and family to gather, sharing stories that are often forgotten in everyday life.'
     }
   ];
   
@@ -162,9 +116,6 @@ const ServicesPage = () => {
       {/* Services Section */}
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-beach-900">
-            {language === 'vi' ? 'Dịch Vụ Của Chúng Tôi' : 'Our Services'}
-          </h2>
           <motion.div 
             variants={containerVariants} 
             initial="hidden" 
@@ -173,43 +124,13 @@ const ServicesPage = () => {
           >
             {services.map((service, index) => (
               <motion.div key={index} variants={itemVariants}>
-                <Card className="h-full hover:shadow-lg transition-shadow border-green-100">
+                <Card className="h-full hover:shadow-lg transition-shadow">
                   <CardContent className="pt-6">
-                    <div className="mb-4 text-green-700">
+                    <div className="mb-4">
                       {service.icon}
                     </div>
-                    <h3 className="text-xl font-bold mb-3 text-green-800">{service.title}</h3>
-                    <p className="text-green-700 mb-4">{service.description}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-      
-      {/* Amenities Section */}
-      <section className="py-16 md:py-24 bg-beach-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-beach-900">
-            {language === 'vi' ? 'Tiện Ích Tại AnNam Village' : 'Amenities at AnNam Village'}
-          </h2>
-          <motion.div 
-            variants={containerVariants} 
-            initial="hidden" 
-            whileInView="visible" 
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-            {amenities.map((amenity, index) => (
-              <motion.div key={index} variants={itemVariants}>
-                <Card className="h-full hover:shadow-lg transition-shadow border-green-100">
-                  <CardContent className="pt-6">
-                    <div className="mb-4 text-green-700">
-                      {amenity.icon}
-                    </div>
-                    <h3 className="text-xl font-bold mb-3 text-green-800">{amenity.title}</h3>
-                    <p className="text-green-700 mb-4">{amenity.description}</p>
+                    <h3 className="text-xl font-bold mb-3 text-beach-900">{service.title}</h3>
+                    <p className="text-beach-700 mb-4">{service.description}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -237,7 +158,7 @@ const ServicesPage = () => {
               <p className="text-beach-800 mb-6">
                 {language === 'vi' ? 'Một hành trình trọn vẹn không chỉ dừng lại ở nơi lưu trú, mà còn là những trải nghiệm địa phương khó quên trên từng bước chân khám phá.' : 'A complete journey doesn\'t just stop at your accommodation, but includes unforgettable local experiences with every step of exploration.'}
               </p>
-              <Button asChild className="bg-green-700 hover:bg-green-800">
+              <Button asChild>
                 <Link to="/lien-he">
                   {language === 'vi' ? 'Nhận Travel Maps Ngay' : 'Get Travel Maps Now'}
                 </Link>
@@ -251,7 +172,7 @@ const ServicesPage = () => {
               viewport={{ once: true }}
             >
               <img 
-                src="/lovable-uploads/631e39ca-04c2-4fe6-b9f7-fee9122fb530.png" 
+                src="/lovable-uploads/cdfb47b1-e949-44cc-85b1-de98fba2961e.png" 
                 alt={language === 'vi' ? 'Travel Maps' : 'Travel Maps'} 
                 className="rounded-lg shadow-xl w-full h-auto object-cover" 
               />
