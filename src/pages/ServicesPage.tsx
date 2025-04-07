@@ -5,7 +5,7 @@ import MainLayout from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Map, Car, Calendar, Plane, Heart, Music, Gift, Ship, SwimmingPool, Utensils, Wifi, Bicycle } from 'lucide-react';
+import { Map, Car, Calendar, Plane, Heart, Music, Gift, Ship, Bath, Utensils, Wifi, Bike } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const ServicesPage = () => {
@@ -61,7 +61,7 @@ const ServicesPage = () => {
   // Amenities list based on the new content provided
   const amenities = [
     {
-      icon: <SwimmingPool className="h-10 w-10 text-beach-600" />,
+      icon: <Bath className="h-10 w-10 text-beach-600" />,
       title: language === 'vi' ? 'Hồ bơi' : 'Swimming Pool',
       description: language === 'vi' 
         ? 'Thả mình thư giãn trong làn nước mát lành, phóng tầm mắt ra khung cảnh xanh mát - nơi hồ bơi ngoài trời chan hoà nắng gió từ biển xanh.'
@@ -89,7 +89,7 @@ const ServicesPage = () => {
         : 'AnNam is always happy to provide you with Travel Maps of local dining & sightseeing spots - from fresh seafood to long-established eateries only locals know about.'
     },
     {
-      icon: <Bicycle className="h-10 w-10 text-beach-600" />,
+      icon: <Bike className="h-10 w-10 text-beach-600" />,
       title: language === 'vi' ? 'Cho thuê xe đạp' : 'Bicycle Rental',
       description: language === 'vi'
         ? 'Nhẹ nhàng đạp xe qua những con phố đầy nắng, nghe gió biển lùa qua vai áo — là cách chậm rãi nhất để cảm nhận Vũng Tàu.'
