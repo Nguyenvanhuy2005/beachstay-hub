@@ -35,7 +35,7 @@ const Footer = () => {
       }
     })
   };
-  return <footer className="bg-olive-800 text-white pt-16 pb-8 relative overflow-hidden bg-green-901">
+  return <footer className="bg-olive-800 text-white pt-16 pb-8 relative overflow-hidden bg-green-900">
       <div className="wave-pattern absolute bottom-0 left-0 right-0 h-16 opacity-10"></div>
       
       <div className="container mx-auto px-4 md:px-6 relative z-10 bg-green-900">
