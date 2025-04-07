@@ -74,32 +74,32 @@ const Footer = () => {
             <h3 className="font-display text-lg font-semibold mb-4 text-gray-50">{t('links')}</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-gray-300 hover:text-terra-300 transition-colors inline-block">
+                <Link to="/" className="text-gray-50 hover:text-terra-300 transition-colors inline-block">
                   {t('home')}
                 </Link>
               </li>
               <li>
-                <Link to="/ve-chung-toi" className="text-gray-300 hover:text-terra-300 transition-colors inline-block">
+                <Link to="/ve-chung-toi" className="text-gray-50 hover:text-terra-300 transition-colors inline-block">
                   {t('about')}
                 </Link>
               </li>
               <li>
-                <Link to="/loai-phong" className="text-gray-300 hover:text-terra-300 transition-colors inline-block">
+                <Link to="/loai-phong" className="text-gray-50 hover:text-terra-300 transition-colors inline-block">
                   {t('rooms')}
                 </Link>
               </li>
               <li>
-                <Link to="/dich-vu" className="text-gray-300 hover:text-terra-300 transition-colors inline-block">
+                <Link to="/dich-vu" className="text-gray-50 hover:text-terra-300 transition-colors inline-block">
                   {t('services')}
                 </Link>
               </li>
               <li>
-                <Link to="/blog" className="text-gray-300 hover:text-terra-300 transition-colors inline-block">
+                <Link to="/blog" className="text-gray-50 hover:text-terra-300 transition-colors inline-block">
                   {t('blog')}
                 </Link>
               </li>
               <li>
-                <Link to="/lien-he" className="text-gray-300 hover:text-terra-300 transition-colors inline-block">
+                <Link to="/lien-he" className="text-gray-50 hover:text-terra-300 transition-colors inline-block">
                   {t('contact')}
                 </Link>
               </li>
@@ -113,17 +113,17 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start">
                 <MapPin size={18} className="mr-2 mt-1 text-terra-400" />
-                <span className="text-gray-300">
+                <span className="text-slate-50">
                   234 Phan Chu Trinh, Phường 2, TP. Vũng Tàu, Việt Nam
                 </span>
               </li>
               <li className="flex items-center">
                 <Phone size={18} className="mr-2 text-terra-400" />
-                <a href="tel:+84933669154" className="text-gray-300 hover:text-terra-300 transition-colors">0933 669 154</a>
+                <a href="tel:+84933669154" className="text-gray-50 hover:text-terra-300 transition-colors">0933 669 154</a>
               </li>
               <li className="flex items-center">
                 <Mail size={18} className="mr-2 text-terra-400" />
-                <a href="mailto:info@annamvillage.vn" className="text-gray-300 hover:text-terra-300 transition-colors">info@annamvillage.vn</a>
+                <a href="mailto:info@annamvillage.vn" className="text-gray-50 hover:text-terra-300 transition-colors">info@annamvillage.vn</a>
               </li>
             </ul>
           </motion.div>
