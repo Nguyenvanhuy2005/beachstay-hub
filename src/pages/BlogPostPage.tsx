@@ -9,40 +9,37 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet';
 import { toast } from 'sonner';
-
 const BlogPostPage = () => {
-  const { slug } = useParams();
+  const {
+    slug
+  } = useParams();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const { language } = useLanguage();
+  const {
+    language
+  } = useLanguage();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [relatedPosts, setRelatedPosts] = useState([]);
-
   useEffect(() => {
     const fetchBlogPost = async () => {
       try {
         setLoading(true);
         setError(false);
-        
         console.log('Fetching blog post with slug:', slug);
-        const { data, error } = await supabase
-          .from('blog_posts')
-          .select('*')
-          .eq('slug', slug)
-          .eq('published', true)
-          .maybeSingle();
-
+        const {
+          data,
+          error
+        } = await supabase.from('blog_posts').select('*').eq('slug', slug).eq('published', true).maybeSingle();
         if (error) {
           console.error('Error fetching blog post:', error);
           setError(true);
           return;
         }
-
         if (data) {
           console.log('Blog post retrieved:', data);
           setPost(data);
-          
+
           // Fetch related posts based on tags
           if (data.tags && Array.isArray(data.tags) && data.tags.length > 0) {
             fetchRelatedPosts(data.id, data.tags);
@@ -59,172 +56,143 @@ const BlogPostPage = () => {
         setLoading(false);
       }
     };
-
     if (slug) {
       fetchBlogPost();
       // Reset scroll position
       window.scrollTo(0, 0);
     }
   }, [slug]);
-
   const fetchRelatedPosts = async (currentPostId, tags) => {
     try {
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .select('id, title, title_en, slug, featured_image, published_at')
-        .eq('published', true)
-        .neq('id', currentPostId)
-        .order('published_at', { ascending: false })
-        .limit(3);
-
+      const {
+        data,
+        error
+      } = await supabase.from('blog_posts').select('id, title, title_en, slug, featured_image, published_at').eq('published', true).neq('id', currentPostId).order('published_at', {
+        ascending: false
+      }).limit(3);
       if (error) {
         console.error('Error fetching related posts:', error);
         return;
       }
-
       setRelatedPosts(data || []);
     } catch (error) {
       console.error('Unexpected error when fetching related posts:', error);
     }
   };
-
   const getTitle = () => {
     return language === 'vi' ? post.title : post.title_en;
   };
-
   const getContent = () => {
     return language === 'vi' ? post.content : post.content_en;
   };
-
-  const formatDate = (dateString) => {
+  const formatDate = dateString => {
     if (!dateString) return '';
     const date = new Date(dateString);
     return new Intl.DateTimeFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric',
+      day: 'numeric'
     }).format(date);
   };
-
-  const getReadingTime = (content) => {
+  const getReadingTime = content => {
     // Average reading speed: 200 words per minute
     if (!content) return language === 'vi' ? '1 phút đọc' : '1 min read';
     const wordCount = content.split(/\s+/).length || 0;
     const readingTimeMinutes = Math.max(1, Math.ceil(wordCount / 200));
-    
-    return language === 'vi' 
-      ? `${readingTimeMinutes} phút đọc`
-      : `${readingTimeMinutes} min read`;
+    return language === 'vi' ? `${readingTimeMinutes} phút đọc` : `${readingTimeMinutes} min read`;
   };
-
   const getImageToShow = () => {
     // Combine featured image and gallery images
-    const allImages = [
-      post.featured_image,
-      ...(Array.isArray(post.gallery_images) ? post.gallery_images : [])
-    ].filter(Boolean);
-    
+    const allImages = [post.featured_image, ...(Array.isArray(post.gallery_images) ? post.gallery_images : [])].filter(Boolean);
     if (allImages.length === 0) {
       return '/placeholder.svg';
     }
-    
     return allImages[currentImageIndex];
   };
-
   const handlePrevImage = () => {
     const allImages = [post.featured_image, ...(Array.isArray(post.gallery_images) ? post.gallery_images : [])].filter(Boolean);
-    setCurrentImageIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1));
+    setCurrentImageIndex(prev => prev === 0 ? allImages.length - 1 : prev - 1);
   };
-
   const handleNextImage = () => {
     const allImages = [post.featured_image, ...(Array.isArray(post.gallery_images) ? post.gallery_images : [])].filter(Boolean);
-    setCurrentImageIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1));
+    setCurrentImageIndex(prev => prev === allImages.length - 1 ? 0 : prev + 1);
   };
-
   const getMetaTitle = () => {
     if (!post) return language === 'vi' ? 'Không tìm thấy bài viết' : 'Post Not Found';
-    return language === 'vi' 
-      ? (post.meta_title || post.title)
-      : (post.meta_title_en || post.title_en);
+    return language === 'vi' ? post.meta_title || post.title : post.meta_title_en || post.title_en;
   };
-
   const getMetaDescription = () => {
     if (!post) return '';
-    return language === 'vi'
-      ? (post.meta_description || post.excerpt || `Đọc bài viết ${post.title} tại An Nam Village`)
-      : (post.meta_description_en || post.excerpt_en || `Read ${post.title_en} at An Nam Village`);
+    return language === 'vi' ? post.meta_description || post.excerpt || `Đọc bài viết ${post.title} tại An Nam Village` : post.meta_description_en || post.excerpt_en || `Read ${post.title_en} at An Nam Village`;
   };
-
   const handleSharePost = () => {
     if (navigator.share) {
       navigator.share({
         title: getTitle(),
         text: getMetaDescription(),
-        url: window.location.href,
-      })
-        .then(() => console.log('Successful share'))
-        .catch((error) => console.log('Error sharing', error));
+        url: window.location.href
+      }).then(() => console.log('Successful share')).catch(error => console.log('Error sharing', error));
     } else {
       // Fallback for browsers that don't support the Web Share API
       navigator.clipboard.writeText(window.location.href);
       toast.success(language === 'vi' ? 'Đã sao chép đường dẫn' : 'Link copied to clipboard');
     }
   };
-
   if (loading) {
-    return (
-      <MainLayout>
+    return <MainLayout>
         <Helmet>
           <title>{language === 'vi' ? 'Đang tải...' : 'Loading...'} | An Nam Village</title>
         </Helmet>
         <div className="container mx-auto px-4 py-20 flex justify-center items-center">
           <Loader2 className="h-10 w-10 animate-spin text-beach-600" />
         </div>
-      </MainLayout>
-    );
+      </MainLayout>;
   }
-
   if (error || !post) {
-    return (
-      <MainLayout>
+    return <MainLayout>
         <Helmet>
           <title>{language === 'vi' ? 'Không tìm thấy bài viết' : 'Post Not Found'} | An Nam Village</title>
-          <meta 
-            name="description" 
-            content={language === 'vi' 
-              ? 'Bài viết bạn đang tìm kiếm không tồn tại hoặc đã được gỡ bỏ.' 
-              : 'The post you are looking for does not exist or has been removed.'} 
-          />
+          <meta name="description" content={language === 'vi' ? 'Bài viết bạn đang tìm kiếm không tồn tại hoặc đã được gỡ bỏ.' : 'The post you are looking for does not exist or has been removed.'} />
           <meta name="robots" content="noindex, follow" />
         </Helmet>
         
         <div className="container mx-auto px-4 py-20 md:py-32">
           <div className="max-w-3xl mx-auto text-center">
-            <motion.h1 
-              className="text-3xl md:text-4xl font-serif font-bold mb-6 text-beach-900"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
+            <motion.h1 className="text-3xl md:text-4xl font-serif font-bold mb-6 text-beach-900" initial={{
+            opacity: 0,
+            y: 20
+          }} animate={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 0.5
+          }}>
               {language === 'vi' ? 'Không Tìm Thấy Bài Viết' : 'Post Not Found'}
             </motion.h1>
             
-            <motion.p 
-              className="text-lg text-gray-700 mb-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              {language === 'vi' 
-                ? 'Bài viết bạn đang tìm kiếm không tồn tại hoặc đã được gỡ bỏ.'
-                : 'The post you are looking for does not exist or has been removed.'}
+            <motion.p className="text-lg text-gray-700 mb-8" initial={{
+            opacity: 0,
+            y: 20
+          }} animate={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 0.5,
+            delay: 0.1
+          }}>
+              {language === 'vi' ? 'Bài viết bạn đang tìm kiếm không tồn tại hoặc đã được gỡ bỏ.' : 'The post you are looking for does not exist or has been removed.'}
             </motion.p>
             
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
+            <motion.div initial={{
+            opacity: 0,
+            y: 20
+          }} animate={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 0.5,
+            delay: 0.2
+          }}>
               <Button asChild className="bg-beach-600 hover:bg-beach-700">
                 <Link to="/blog">
                   <ArrowLeft className="mr-2 h-4 w-4" />
@@ -234,18 +202,12 @@ const BlogPostPage = () => {
             </motion.div>
           </div>
         </div>
-      </MainLayout>
-    );
+      </MainLayout>;
   }
-
-  const hasMultipleImages = post.featured_image && 
-                           Array.isArray(post.gallery_images) && 
-                           post.gallery_images.length > 0;
+  const hasMultipleImages = post.featured_image && Array.isArray(post.gallery_images) && post.gallery_images.length > 0;
   const currentPostUrl = window.location.href;
   const readingTime = getReadingTime(getContent());
-
-  return (
-    <MainLayout>
+  return <MainLayout>
       <Helmet>
         <title>{getMetaTitle()} | An Nam Village</title>
         <meta name="description" content={getMetaDescription()} />
@@ -257,9 +219,7 @@ const BlogPostPage = () => {
         <meta property="og:type" content="article" />
         <meta property="article:published_time" content={post.published_at} />
         <meta property="article:author" content={post.author} />
-        {post.tags && post.tags.map((tag) => (
-          <meta property="article:tag" content={tag} key={tag} />
-        ))}
+        {post.tags && post.tags.map(tag => <meta property="article:tag" content={tag} key={tag} />)}
         <link rel="canonical" href={currentPostUrl} />
       </Helmet>
       
@@ -267,27 +227,14 @@ const BlogPostPage = () => {
       <div className="relative h-80 md:h-96 bg-beach-900">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-beach-900/70 to-beach-900/90 z-10"></div>
-          <img 
-            src={getImageToShow()} 
-            alt={getTitle()} 
-            className="w-full h-full object-cover"
-          />
+          <img src={getImageToShow()} alt={getTitle()} className="w-full h-full object-cover" />
           
           {/* Image Navigation */}
-          {hasMultipleImages && (
-            <>
-              <button 
-                onClick={handlePrevImage}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full z-20"
-                aria-label={language === 'vi' ? 'Ảnh trước' : 'Previous image'}
-              >
+          {hasMultipleImages && <>
+              <button onClick={handlePrevImage} className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full z-20" aria-label={language === 'vi' ? 'Ảnh trước' : 'Previous image'}>
                 <ChevronLeft className="h-6 w-6" />
               </button>
-              <button 
-                onClick={handleNextImage}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full z-20"
-                aria-label={language === 'vi' ? 'Ảnh sau' : 'Next image'}
-              >
+              <button onClick={handleNextImage} className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full z-20" aria-label={language === 'vi' ? 'Ảnh sau' : 'Next image'}>
                 <ChevronRight className="h-6 w-6" />
               </button>
               
@@ -295,18 +242,15 @@ const BlogPostPage = () => {
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-20">
                 {currentImageIndex + 1} / {[post.featured_image, ...(Array.isArray(post.gallery_images) ? post.gallery_images : [])].filter(Boolean).length}
               </div>
-            </>
-          )}
+            </>}
         </div>
         
         <div className="relative z-20 container mx-auto px-4 h-full flex items-center">
           <div className="max-w-3xl text-white">
             <div className="flex flex-wrap gap-2 mb-4">
-              {post.tags && post.tags.map((tag, index) => (
-                <Badge key={index} className="bg-beach-600/80">
+              {post.tags && post.tags.map((tag, index) => <Badge key={index} className="bg-beach-600/80 bg-[#004500]">
                   {tag}
-                </Badge>
-              ))}
+                </Badge>)}
             </div>
             <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
               {getTitle()}
@@ -330,29 +274,16 @@ const BlogPostPage = () => {
       </div>
       
       {/* Gallery Preview (if multiple images) */}
-      {post.gallery_images && post.gallery_images.length > 0 && (
-        <div className="bg-gray-100 py-6">
+      {post.gallery_images && post.gallery_images.length > 0 && <div className="bg-gray-100 py-6">
           <div className="container mx-auto px-4">
             <div className="flex overflow-x-auto space-x-4 pb-2 scrollbar-hide">
-              {[post.featured_image, ...post.gallery_images].filter(Boolean).map((image, index) => (
-                <div 
-                  key={index}
-                  onClick={() => setCurrentImageIndex(index)}
-                  className={`shrink-0 w-16 h-16 md:w-24 md:h-24 rounded-md overflow-hidden cursor-pointer border-2 
-                    ${currentImageIndex === index ? 'border-beach-500' : 'border-transparent'}`}
-                >
-                  <img 
-                    src={image} 
-                    alt={`${getTitle()} - ${language === 'vi' ? 'Hình ảnh' : 'Image'} ${index + 1}`} 
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
-              ))}
+              {[post.featured_image, ...post.gallery_images].filter(Boolean).map((image, index) => <div key={index} onClick={() => setCurrentImageIndex(index)} className={`shrink-0 w-16 h-16 md:w-24 md:h-24 rounded-md overflow-hidden cursor-pointer border-2 
+                    ${currentImageIndex === index ? 'border-beach-500' : 'border-transparent'}`}>
+                  <img src={image} alt={`${getTitle()} - ${language === 'vi' ? 'Hình ảnh' : 'Image'} ${index + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                </div>)}
             </div>
           </div>
-        </div>
-      )}
+        </div>}
       
       {/* Article Content */}
       <div className="container mx-auto px-4 py-12 md:py-16">
@@ -365,37 +296,37 @@ const BlogPostPage = () => {
               </Link>
             </Button>
             
-            <Button 
-              variant="outline" 
-              onClick={handleSharePost} 
-              className="rounded-full"
-              aria-label={language === 'vi' ? 'Chia sẻ bài viết' : 'Share post'}
-            >
+            <Button variant="outline" onClick={handleSharePost} className="rounded-full" aria-label={language === 'vi' ? 'Chia sẻ bài viết' : 'Share post'}>
               <Share2 className="mr-2 h-4 w-4" />
               {language === 'vi' ? 'Chia sẻ' : 'Share'}
             </Button>
           </div>
           
-          {post.excerpt && (
-            <motion.div 
-              className="mb-8 bg-beach-50 p-6 rounded-lg border border-beach-100"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
+          {post.excerpt && <motion.div className="mb-8 bg-beach-50 p-6 rounded-lg border border-beach-100" initial={{
+          opacity: 0,
+          y: 20
+        }} animate={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          duration: 0.5
+        }}>
               <p className="text-lg italic text-beach-800">
                 {language === 'vi' ? post.excerpt : post.excerpt_en}
               </p>
-            </motion.div>
-          )}
+            </motion.div>}
           
-          <motion.article 
-            className="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-beach-900 prose-img:rounded-lg prose-a:text-beach-600 prose-a:no-underline hover:prose-a:underline"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            dangerouslySetInnerHTML={{ __html: getContent() }}
-          />
+          <motion.article className="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-beach-900 prose-img:rounded-lg prose-a:text-beach-600 prose-a:no-underline hover:prose-a:underline" initial={{
+          opacity: 0,
+          y: 20
+        }} animate={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          duration: 0.5
+        }} dangerouslySetInnerHTML={{
+          __html: getContent()
+        }} />
           
           {/* Share buttons */}
           <div className="mt-12 pt-6 border-t border-gray-200">
@@ -403,12 +334,7 @@ const BlogPostPage = () => {
               <h3 className="text-lg font-semibold text-beach-900">
                 {language === 'vi' ? 'Chia sẻ bài viết này' : 'Share this post'}
               </h3>
-              <Button 
-                variant="outline" 
-                onClick={handleSharePost} 
-                className="rounded-full"
-                aria-label={language === 'vi' ? 'Chia sẻ bài viết' : 'Share post'}
-              >
+              <Button variant="outline" onClick={handleSharePost} className="rounded-full" aria-label={language === 'vi' ? 'Chia sẻ bài viết' : 'Share post'}>
                 <Share2 className="mr-2 h-4 w-4" />
                 {language === 'vi' ? 'Chia sẻ' : 'Share'}
               </Button>
@@ -431,25 +357,14 @@ const BlogPostPage = () => {
           </div>
           
           {/* Related Posts */}
-          {relatedPosts.length > 0 && (
-            <div className="mt-16 pt-8 border-t border-gray-200">
+          {relatedPosts.length > 0 && <div className="mt-16 pt-8 border-t border-gray-200">
               <h3 className="text-2xl font-serif font-bold text-beach-900 mb-6">
                 {language === 'vi' ? 'Bài Viết Liên Quan' : 'Related Posts'}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {relatedPosts.map((relatedPost) => (
-                  <Link 
-                    key={relatedPost.id} 
-                    to={`/blog/${relatedPost.slug}`}
-                    className="group"
-                  >
+                {relatedPosts.map(relatedPost => <Link key={relatedPost.id} to={`/blog/${relatedPost.slug}`} className="group">
                     <div className="rounded-lg overflow-hidden h-40 mb-3">
-                      <img 
-                        src={relatedPost.featured_image || '/placeholder.svg'} 
-                        alt={language === 'vi' ? relatedPost.title : relatedPost.title_en} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                      />
+                      <img src={relatedPost.featured_image || '/placeholder.svg'} alt={language === 'vi' ? relatedPost.title : relatedPost.title_en} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
                     </div>
                     <h4 className="font-medium text-beach-900 group-hover:text-beach-600 transition-colors line-clamp-2">
                       {language === 'vi' ? relatedPost.title : relatedPost.title_en}
@@ -457,15 +372,11 @@ const BlogPostPage = () => {
                     <p className="text-sm text-gray-500 mt-1">
                       {formatDate(relatedPost.published_at || relatedPost.created_at)}
                     </p>
-                  </Link>
-                ))}
+                  </Link>)}
               </div>
-            </div>
-          )}
+            </div>}
         </div>
       </div>
-    </MainLayout>
-  );
+    </MainLayout>;
 };
-
 export default BlogPostPage;
