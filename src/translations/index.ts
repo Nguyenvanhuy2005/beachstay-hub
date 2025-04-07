@@ -28,7 +28,8 @@ export type TranslationKey =
   | 'gallery' | 'discover_images' | 'gallery_desc' | 'view_more_images' | 'all'
   | 'about_annam' | 'villa_description' | 'error_loading_data' | 'error_loading_gallery' | 'try_again'
   | 'admin_login' | 'password' | 'login' | 'forgot_password' | 'back_to_login' | 'reset_password'
-  | 'reset_password_sent' | 'admin_note' | 'login_error' | 'signing_in' | 'send_reset';
+  | 'reset_password_sent' | 'admin_note' | 'login_error' | 'signing_in' | 'send_reset'
+  | 'core_values' | 'dedication' | 'dedication_desc' | 'wisdom' | 'wisdom_desc' | 'nature' | 'nature_desc';
 
 const viTranslations: Record<TranslationKey, string> = {
   // Home page
@@ -54,12 +55,21 @@ const viTranslations: Record<TranslationKey, string> = {
   view_details: "Xem Chi Tiết",
   
   // Hero section
-  peaceful_space: "Không Gian Yên Bình",
-  peaceful_space_desc: "Tận hưởng kỳ nghỉ trong không gian yên bình tại AnNam Village",
-  luxury_experience: "Trải Nghiệm Đẳng Cấp",
-  luxury_experience_desc: "Dịch vụ 5 sao và tiện nghi cao cấp cho kỳ nghỉ hoàn hảo",
-  premium_amenities: "Tiện Nghi Cao Cấp",
-  premium_amenities_desc: "Hồ bơi, nhà hàng, spa và nhiều tiện ích đẳng cấp",
+  peaceful_space: "Không gian Xanh Hóa",
+  peaceful_space_desc: "Một nơi đủ gần để nghe sóng biển, đủ xa để an tĩnh lòng.",
+  luxury_experience: "Trải nghiệm độc nhất Vũng Tàu",
+  luxury_experience_desc: "Tiện nghi đầy đủ, phong cách hiện đại mà vẫn cho bạn được hít thở không khí an yên của gió biển và thiên nhiên.",
+  premium_amenities: "Như được \"trở về nhà\"",
+  premium_amenities_desc: "Ký ức đẹp của một chuyến đi… đôi khi chỉ bắt đầu từ cảm giác được ở yên đúng nghĩa.",
+  
+  // Core Values
+  core_values: "Giá trị cốt lõi",
+  dedication: "Tận Tâm",
+  dedication_desc: "Đặt trọn trái tim và tâm huyết vào từng chi tiết nhỏ, để mỗi trải nghiệm của du khách luôn là điều đáng nhớ và trọn vẹn nhất.",
+  wisdom: "Thông thái",
+  wisdom_desc: "Để mỗi dịch vụ và lựa chọn phục vụ từ AnNam đều làm an lòng khách hàng. Chỉ mong mỗi khách đến – như khách về quê nhà.",
+  nature: "Thuần Thiên",
+  nature_desc: "Mỗi kiến trúc từ AnNam luôn hướng đến không gian sống thuần thiên nhiên - để du khách như được đắm mình giữa lòng thiên nhiên xanh mát.",
   
   // About section
   about_title: "Về AnNam Village",
@@ -69,8 +79,8 @@ const viTranslations: Record<TranslationKey, string> = {
   villa_description: "Ở AnNam, mỗi căn villa không chỉ là một chốn nghỉ chân — mà là một khoảng lặng rất riêng, đủ xanh để chở che, đủ gió để làm dịu tâm hồn, và đủ nắng để sưởi ấm những khoảnh khắc tưởng chừng bình thường nhất. Từ căn villa rộng rãi dành cho nhóm bạn đông người, đến không gian riêng tư cho những cặp đôi cần khoảng lặng - AnNam vẫn giữ nguyên một tinh thần: \"Xanh hóa từng trải nghiệm nghỉ dưỡng, để du khách ghé lại đều có thể thở thật sâu, sống thật chậm và lắng mình lại giữa miền gió mát.\"",
   
   // Room types section
-  room_types_title: "Loại Phòng",
-  room_types_subtitle: "Không gian nghỉ dưỡng đa dạng",
+  room_types_title: "Lựa chọn không gian lưu trú của riêng bạn",
+  room_types_subtitle: "Từ những căn hộ nhỏ xinh giữa lòng thành phố, đến villa theo kiến trúc #XanhHóa để bạn tha hồ \"thả mình\" cùng hội bạn hay người thân - AnNam có đủ những lựa chọn gần gũi và thoải mái cho từng chuyến đi của bạn.",
   
   // Amenities section
   amenities_title: "Tiện Nghi & Dịch Vụ",
@@ -224,12 +234,21 @@ const enTranslations: Record<TranslationKey, string> = {
   view_details: "View Details",
   
   // Hero section
-  peaceful_space: "Peaceful Space",
-  peaceful_space_desc: "Enjoy your vacation in a peaceful atmosphere at AnNam Village",
-  luxury_experience: "Luxury Experience",
-  luxury_experience_desc: "5-star service and premium amenities for a perfect getaway",
-  premium_amenities: "Premium Amenities",
-  premium_amenities_desc: "Swimming pool, restaurant, spa and many more luxurious facilities",
+  peaceful_space: "Green Living Space",
+  peaceful_space_desc: "A place close enough to hear the waves, far enough to calm your soul.",
+  luxury_experience: "Unique Vung Tau Experience",
+  luxury_experience_desc: "Full amenities, modern style while allowing you to breathe in the peaceful air of sea breeze and nature.",
+  premium_amenities: "Feel Like \"Coming Home\"",
+  premium_amenities_desc: "Beautiful memories of a journey... sometimes begin with the feeling of being truly at peace.",
+  
+  // Core Values
+  core_values: "Core Values",
+  dedication: "Dedication",
+  dedication_desc: "Putting our heart and passion into every small detail, so that each guest experience is always memorable and complete.",
+  wisdom: "Wisdom",
+  wisdom_desc: "So that every service and option from AnNam reassures our customers. We simply hope each guest arrives - like coming home.",
+  nature: "Natural Connection",
+  nature_desc: "Every architectural element at AnNam always aims for living spaces in harmony with nature - so guests feel immersed in green nature.",
   
   // About section
   about_title: "About AnNam Village",
@@ -239,8 +258,8 @@ const enTranslations: Record<TranslationKey, string> = {
   villa_description: "At AnNam, each villa is not just a place to stay — but a very personal retreat, green enough to shelter, breezy enough to soothe the soul, and sunny enough to warm life's seemingly ordinary moments. From spacious villas for large groups of friends, to private spaces for couples seeking solitude - AnNam maintains one spirit: \"Greenifying every vacation experience, so visitors can breathe deeply, live slowly, and immerse themselves in the gentle breeze.\"",
   
   // Room types section
-  room_types_title: "Room Types",
-  room_types_subtitle: "Diverse accommodation options",
+  room_types_title: "Choose your own living space",
+  room_types_subtitle: "From charming apartments in the heart of the city to villas with #Greenified architecture where you can \"unwind\" with friends or family - AnNam has comfortable, welcoming options for all your journeys.",
   
   // Amenities section
   amenities_title: "Amenities & Services",
