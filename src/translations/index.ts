@@ -1,3 +1,4 @@
+
 // Type definitions
 export type Language = 'vi' | 'en';
 
@@ -31,7 +32,7 @@ export type TranslationKey =
 
 const viTranslations: Record<TranslationKey, string> = {
   // Home page
-  hero_title: "Annam Village Vũng Tàu",
+  hero_title: "AnNam Village Vũng Tàu",
   hero_subtitle: "Trải nghiệm không gian nghỉ dưỡng đẳng cấp bên bờ biển",
   hero_booking_button: "Đặt Phòng Ngay",
   hero_explore_button: "Khám Phá Dịch Vụ",
@@ -54,17 +55,17 @@ const viTranslations: Record<TranslationKey, string> = {
   
   // Hero section
   peaceful_space: "Không Gian Yên Bình",
-  peaceful_space_desc: "Tận hưởng kỳ nghỉ trong không gian yên bình tại Annam Village",
+  peaceful_space_desc: "Tận hưởng kỳ nghỉ trong không gian yên bình tại AnNam Village",
   luxury_experience: "Trải Nghiệm Đẳng Cấp",
   luxury_experience_desc: "Dịch vụ 5 sao và tiện nghi cao cấp cho kỳ nghỉ hoàn hảo",
   premium_amenities: "Tiện Nghi Cao Cấp",
   premium_amenities_desc: "Hồ bơi, nhà hàng, spa và nhiều tiện ích đẳng cấp",
   
   // About section
-  about_title: "Về Annam Village",
+  about_title: "Về AnNam Village",
   about_subtitle: "Không gian nghỉ dưỡng sang trọng bên bờ biển",
   about_description: "Villa AnNam - Nơi kiến trúc #XanhHóa từng trải nghiệm nghỉ dưỡng. Lấy cảm hứng từ kiến trúc Sinh Khí Hậu - nơi con người thật sự chan hòa cùng thiên nhiên, từng căn villa tại AnNam được thiết kế để bạn tìm thấy sự bình yên — vừa đủ riêng tư để an trú, vừa đủ cởi mở để tâm hồn được tắm mát cùng gió, nắng và biển trời Vũng Tàu.",
-  about_annam: "Về Annam Village",
+  about_annam: "Về AnNam Village",
   villa_description: "Ở AnNam, mỗi căn villa không chỉ là một chốn nghỉ chân — mà là một khoảng lặng rất riêng, đủ xanh để chở che, đủ gió để làm dịu tâm hồn, và đủ nắng để sưởi ấm những khoảnh khắc tưởng chừng bình thường nhất. Từ căn villa rộng rãi dành cho nhóm bạn đông người, đến không gian riêng tư cho những cặp đôi cần khoảng lặng - AnNam vẫn giữ nguyên một tinh thần: \"Xanh hóa từng trải nghiệm nghỉ dưỡng, để du khách ghé lại đều có thể thở thật sâu, sống thật chậm và lắng mình lại giữa miền gió mát.\"",
   
   // Room types section
@@ -81,10 +82,10 @@ const viTranslations: Record<TranslationKey, string> = {
   
   // Gallery section
   gallery_title: "Thư Viện Ảnh",
-  gallery_subtitle: "Khám phá vẻ đẹp của Annam Village",
+  gallery_subtitle: "Khám phá vẻ đẹp của AnNam Village",
   gallery: "Thư Viện Ảnh",
   discover_images: "Khám Phá Hình Ảnh",
-  gallery_desc: "Ngắm nhìn không gian và thiết kế sang trọng của Annam Village qua bộ sưu tập hình ảnh",
+  gallery_desc: "Ngắm nhìn không gian và thiết kế sang trọng của AnNam Village qua bộ sưu tập hình ảnh",
   view_more_images: "Xem Thêm Hình Ảnh",
   all: "Tất Cả",
   
@@ -201,7 +202,7 @@ const viTranslations: Record<TranslationKey, string> = {
 
 const enTranslations: Record<TranslationKey, string> = {
   // Home page
-  hero_title: "Annam Village Vung Tau",
+  hero_title: "AnNam Village Vung Tau",
   hero_subtitle: "Experience luxury beachfront living",
   hero_booking_button: "Book Now",
   hero_explore_button: "Explore Services",
@@ -224,17 +225,17 @@ const enTranslations: Record<TranslationKey, string> = {
   
   // Hero section
   peaceful_space: "Peaceful Space",
-  peaceful_space_desc: "Enjoy your vacation in a peaceful atmosphere at Annam Village",
+  peaceful_space_desc: "Enjoy your vacation in a peaceful atmosphere at AnNam Village",
   luxury_experience: "Luxury Experience",
   luxury_experience_desc: "5-star service and premium amenities for a perfect getaway",
   premium_amenities: "Premium Amenities",
   premium_amenities_desc: "Swimming pool, restaurant, spa and many more luxurious facilities",
   
   // About section
-  about_title: "About Annam Village",
+  about_title: "About AnNam Village",
   about_subtitle: "Luxury beachfront resort",
   about_description: "Villa AnNam - Where architecture #Greenifies every vacation experience. Inspired by Bioclimatic Architecture - where humans truly commune with nature, each villa at AnNam is designed for you to find peace — private enough for sanctuary, yet open enough for your soul to bathe in the wind, sun, and coastal horizon of Vung Tau.",
-  about_annam: "About Annam Village",
+  about_annam: "About AnNam Village",
   villa_description: "At AnNam, each villa is not just a place to stay — but a very personal retreat, green enough to shelter, breezy enough to soothe the soul, and sunny enough to warm life's seemingly ordinary moments. From spacious villas for large groups of friends, to private spaces for couples seeking solitude - AnNam maintains one spirit: \"Greenifying every vacation experience, so visitors can breathe deeply, live slowly, and immerse themselves in the gentle breeze.\"",
   
   // Room types section
@@ -251,10 +252,10 @@ const enTranslations: Record<TranslationKey, string> = {
   
   // Gallery section
   gallery_title: "Gallery",
-  gallery_subtitle: "Explore the beauty of Annam Village",
+  gallery_subtitle: "Explore the beauty of AnNam Village",
   gallery: "Gallery",
   discover_images: "Discover Images",
-  gallery_desc: "Explore the luxurious spaces and elegant design of Annam Village through our collection of images",
+  gallery_desc: "Explore the luxurious spaces and elegant design of AnNam Village through our collection of images",
   view_more_images: "View More Images",
   all: "All",
   

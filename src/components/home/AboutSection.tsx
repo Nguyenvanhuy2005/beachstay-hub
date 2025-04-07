@@ -15,7 +15,7 @@ const AboutSection = () => {
             <div className="relative">
               <img 
                 src="/lovable-uploads/595dc250-29ec-4d1d-873b-d34aecdba712.png"
-                alt={isVietnamese ? "Annam Village - Không gian nghỉ dưỡng" : "Annam Village - Retreat space"}
+                alt={isVietnamese ? "AnNam Village - Không gian nghỉ dưỡng" : "AnNam Village - Retreat space"}
                 className="rounded-lg shadow-xl w-full h-auto"
               />
               <div className="absolute -bottom-8 -right-8 bg-white p-4 rounded-lg shadow-lg hidden md:block">

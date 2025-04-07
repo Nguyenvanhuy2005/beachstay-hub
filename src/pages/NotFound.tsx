@@ -23,7 +23,7 @@ const NotFound = () => {
     <MainLayout>
       <Helmet>
         <title>
-          {language === "vi" ? "Không tìm thấy trang | An Nam Village" : "Page Not Found | An Nam Village"}
+          {language === "vi" ? "Không tìm thấy trang | AnNam Village" : "Page Not Found | AnNam Village"}
         </title>
         <meta 
           name="description" 
