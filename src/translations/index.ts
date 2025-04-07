@@ -1,4 +1,3 @@
-
 // Type definitions
 export type Language = 'vi' | 'en';
 
@@ -29,7 +28,10 @@ export type TranslationKey =
   | 'about_annam' | 'villa_description' | 'error_loading_data' | 'error_loading_gallery' | 'try_again'
   | 'admin_login' | 'password' | 'login' | 'forgot_password' | 'back_to_login' | 'reset_password'
   | 'reset_password_sent' | 'admin_note' | 'login_error' | 'signing_in' | 'send_reset'
-  | 'core_values' | 'dedication' | 'dedication_desc' | 'wisdom' | 'wisdom_desc' | 'nature' | 'nature_desc';
+  | 'core_values' | 'dedication' | 'dedication_desc' | 'wisdom' | 'wisdom_desc' | 'nature' | 'nature_desc'
+  | 'amenities_intro' | 'amenity_pool' | 'amenity_pool_desc' | 'amenity_kitchen' | 'amenity_kitchen_desc'
+  | 'amenity_wifi' | 'amenity_wifi_desc' | 'amenity_food_guide' | 'amenity_food_guide_desc'
+  | 'amenity_bicycle' | 'amenity_bicycle_desc' | 'amenity_open_space' | 'amenity_open_space_desc';
 
 const viTranslations: Record<TranslationKey, string> = {
   // Home page
@@ -71,6 +73,24 @@ const viTranslations: Record<TranslationKey, string> = {
   nature: "Thuần Thiên",
   nature_desc: "Mỗi kiến trúc từ AnNam luôn hướng đến không gian sống thuần thiên nhiên - để du khách như được đắm mình giữa lòng thiên nhiên xanh mát.",
   
+  // Amenities section
+  amenities_title: "Dịch vụ & tiện ích",
+  amenities_subtitle: "Luôn chăm chút từng trải nghiệm nhỏ nhặt, để mỗi khoảnh khắc tại AnNam đều trở nên dễ chịu và trọn vẹn nhất với du khách.",
+  
+  // New amenities translations
+  amenity_pool: "Hồ bơi",
+  amenity_pool_desc: "Thả mình thư giãn trong làn nước mát lành, phóng tầm mắt ra khung cảnh xanh mát - nơi hồ bơi ngoài trời chan hoà nắng gió từ biển xanh.",
+  amenity_kitchen: "Góc bếp tiện nghi",
+  amenity_kitchen_desc: "Một gian bếp đủ đầy để bạn tự tay nấu nướng, pha cà phê hay bày biện bữa cơm ấm áp cùng người thân — bởi đôi khi, cảm giác \"được về nhà\" lại đến từ những điều thật giản dị.",
+  amenity_wifi: "Wifi",
+  amenity_wifi_desc: "Luôn kết nối dễ dàng với wifi tốc độ cao phủ khắp khu vực nghỉ ngơi - dù làm việc hay giải trí cũng đều trọn vẹn.",
+  amenity_food_guide: "Gợi ý ẩm thực địa phương",
+  amenity_food_guide_desc: "AnNam luôn sẵn lòng gửi bạn các Travel Maps về những địa điểm ẩm thực & du ngoạn nội địa - từ hải sản tươi ngon đến những hàng quán lâu năm chỉ người bản xứ mới rành.",
+  amenity_bicycle: "Cho thuê xe đạp",
+  amenity_bicycle_desc: "Nhẹ nhàng đạp xe qua những con phố đầy nắng, nghe gió biển lùa qua vai áo — là cách chậm rãi nhất để cảm nhận Vũng Tàu.",
+  amenity_open_space: "Không gian mở",
+  amenity_open_space_desc: "Một khoảng xanh đủ yên để bạn ngồi lại với chính mình. Cũng đủ thoáng để cùng bạn bè hay gia đình tụ họp, kể cho nhau nghe vài câu chuyện vội quên giữa cuộc sống thường ngày.",
+  
   // About section
   about_title: "Về AnNam Village",
   about_subtitle: "Không gian nghỉ dưỡng sang trọng bên bờ biển",
@@ -81,10 +101,6 @@ const viTranslations: Record<TranslationKey, string> = {
   // Room types section
   room_types_title: "Lựa chọn không gian lưu trú của riêng bạn",
   room_types_subtitle: "Từ những căn hộ nhỏ xinh giữa lòng thành phố, đến villa theo kiến trúc #XanhHóa để bạn tha hồ \"thả mình\" cùng hội bạn hay người thân - AnNam có đủ những lựa chọn gần gũi và thoải mái cho từng chuyến đi của bạn.",
-  
-  // Amenities section
-  amenities_title: "Tiện Nghi & Dịch Vụ",
-  amenities_subtitle: "Trải nghiệm sang trọng và tiện nghi",
   
   // Testimonials section
   testimonials_title: "Đánh Giá Từ Khách Hàng",
@@ -250,6 +266,24 @@ const enTranslations: Record<TranslationKey, string> = {
   nature: "Natural Connection",
   nature_desc: "Every architectural element at AnNam always aims for living spaces in harmony with nature - so guests feel immersed in green nature.",
   
+  // Amenities section
+  amenities_title: "Services & Amenities",
+  amenities_subtitle: "Always attentive to every small experience, making each moment at AnNam pleasant and complete for our guests.",
+  
+  // New amenities translations
+  amenity_pool: "Swimming Pool",
+  amenity_pool_desc: "Relax in the cool water, looking out at the lush green surroundings - where the outdoor pool is bathed in sunshine and sea breezes.",
+  amenity_kitchen: "Fully-Equipped Kitchen",
+  amenity_kitchen_desc: "A complete kitchen where you can cook your own meals, brew coffee, or prepare a warm family dinner — because sometimes, the feeling of \"coming home\" comes from the simplest things.",
+  amenity_wifi: "Wifi",
+  amenity_wifi_desc: "Stay easily connected with high-speed wifi throughout the accommodation area - perfect for both work and entertainment.",
+  amenity_food_guide: "Local Cuisine Recommendations",
+  amenity_food_guide_desc: "AnNam is always happy to provide you with Travel Maps of local dining & sightseeing spots - from fresh seafood to long-established eateries only locals know about.",
+  amenity_bicycle: "Bicycle Rental",
+  amenity_bicycle_desc: "Gently cycling through sunny streets, feeling the sea breeze on your shoulders — the slowest way to experience Vung Tau.",
+  amenity_open_space: "Open Space",
+  amenity_open_space_desc: "A green space peaceful enough for self-reflection. Also spacious enough for friends and family to gather, sharing stories that are often forgotten in everyday life.",
+  
   // About section
   about_title: "About AnNam Village",
   about_subtitle: "Luxury beachfront resort",
@@ -260,10 +294,6 @@ const enTranslations: Record<TranslationKey, string> = {
   // Room types section
   room_types_title: "Choose your own living space",
   room_types_subtitle: "From charming apartments in the heart of the city to villas with #Greenified architecture where you can \"unwind\" with friends or family - AnNam has comfortable, welcoming options for all your journeys.",
-  
-  // Amenities section
-  amenities_title: "Amenities & Services",
-  amenities_subtitle: "Luxury and convenience experience",
   
   // Testimonials section
   testimonials_title: "Guest Testimonials",
