@@ -13,7 +13,8 @@ const AboutPage = () => {
     window.scrollTo(0, 0);
   }, []);
   
-  return <MainLayout>
+  return (
+    <MainLayout>
       {/* Hero Section */}
       <div className="relative bg-beach-700 text-white">
         <div className="absolute inset-0 overflow-hidden">
@@ -22,27 +23,37 @@ const AboutPage = () => {
         </div>
         
         <div className="relative z-20 container mx-auto px-4 py-20 md:py-32">
-          <motion.h1 initial={{
-          opacity: 0,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.5
-        }} className="font-display text-4xl md:text-5xl font-bold mb-4">
+          <motion.h1 
+            initial={{
+              opacity: 0,
+              y: 20
+            }} 
+            animate={{
+              opacity: 1,
+              y: 0
+            }} 
+            transition={{
+              duration: 0.5
+            }} 
+            className="font-display text-4xl md:text-5xl font-bold mb-4"
+          >
             {language === 'vi' ? 'Về Chúng Tôi' : 'About Us'}
           </motion.h1>
-          <motion.p className="text-beach-100 max-w-3xl text-lg mb-8" initial={{
-          opacity: 0,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.5,
-          delay: 0.2
-        }}>
+          <motion.p 
+            className="text-beach-100 max-w-3xl text-lg mb-8" 
+            initial={{
+              opacity: 0,
+              y: 20
+            }} 
+            animate={{
+              opacity: 1,
+              y: 0
+            }} 
+            transition={{
+              duration: 0.5,
+              delay: 0.2
+            }}
+          >
             {language === 'vi' ? 'Khám phá câu chuyện, tầm nhìn và sứ mệnh của AnNam Village - điểm đến nghỉ dưỡng hoàn hảo tại Vũng Tàu.' : 'Discover the story, vision, and mission of AnNam Village - the perfect resort destination in Vung Tau.'}
           </motion.p>
         </div>
@@ -52,31 +63,41 @@ const AboutPage = () => {
       <section className="py-16 md:py-24 bg-beach-50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <motion.div initial={{
-            opacity: 0,
-            x: -50
-          }} whileInView={{
-            opacity: 1,
-            x: 0
-          }} transition={{
-            duration: 0.5
-          }} viewport={{
-            once: true
-          }}>
+            <motion.div 
+              initial={{
+                opacity: 0,
+                x: -50
+              }} 
+              whileInView={{
+                opacity: 1,
+                x: 0
+              }} 
+              transition={{
+                duration: 0.5
+              }} 
+              viewport={{
+                once: true
+              }}
+            >
               <img src="/lovable-uploads/3de4ca25-b7f7-4567-8e8a-de3b9ef3e8ab.png" alt="Our Story" className="rounded-lg shadow-xl w-full h-auto object-cover" />
             </motion.div>
             
-            <motion.div initial={{
-            opacity: 0,
-            x: 50
-          }} whileInView={{
-            opacity: 1,
-            x: 0
-          }} transition={{
-            duration: 0.5
-          }} viewport={{
-            once: true
-          }}>
+            <motion.div 
+              initial={{
+                opacity: 0,
+                x: 50
+              }} 
+              whileInView={{
+                opacity: 1,
+                x: 0
+              }} 
+              transition={{
+                duration: 0.5
+              }} 
+              viewport={{
+                once: true
+              }}
+            >
               <h2 className="font-display text-3xl font-bold mb-6 text-beach-900">
                 {language === 'vi' ? 'Câu Chuyện Của Chúng Tôi' : 'Our Story'}
               </h2>
@@ -100,17 +121,23 @@ const AboutPage = () => {
       {/* Our Values Section */}
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
-          <motion.div initial={{
-          opacity: 0,
-          y: 30
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.5
-        }} viewport={{
-          once: true
-        }} className="text-center mb-12">
+          <motion.div 
+            initial={{
+              opacity: 0,
+              y: 30
+            }} 
+            whileInView={{
+              opacity: 1,
+              y: 0
+            }} 
+            transition={{
+              duration: 0.5
+            }} 
+            viewport={{
+              once: true
+            }} 
+            className="text-center mb-12"
+          >
             <h2 className="font-display text-3xl mb-6 text-beach-900 font-bold">
               {language === 'vi' ? 'Giá Trị Cốt Lõi' : 'Our Core Values'}
             </h2>
@@ -169,6 +196,8 @@ const AboutPage = () => {
 
       {/* Team Section */}
       
-    </MainLayout>;
+    </MainLayout>
+  );
 };
+
 export default AboutPage;
