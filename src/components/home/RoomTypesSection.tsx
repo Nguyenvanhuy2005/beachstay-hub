@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Users, Wifi, Coffee, Bath, Tv, Loader2, Car, Umbrella, Ban, Plane, LifeBuoy, UtensilsCrossed, ShowerHead, Bed, FlameKindling, Refrigerator } from "lucide-react";
+import { ArrowRight, Users, Wifi, Coffee, Bath, Tv, Loader2, Car, Umbrella, Ban, Plane, LifeBuoy, UtensilsCrossed, ShowerHead, Bed, FlameKindling, Refrigerator, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
@@ -11,7 +11,6 @@ import { format } from "date-fns";
 import AnimationWrapper from "@/components/utils/AnimationWrapper";
 import { useToast } from "@/hooks/use-toast";
 
-// Mock data for fallback when Supabase is unavailable
 const fallbackRooms = [{
   id: "fallback-1",
   name: "Deluxe Pool Villa",
@@ -112,6 +111,7 @@ const fallbackRooms = [{
   }],
   is_popular: true
 }];
+
 const iconMap: Record<string, React.ReactNode> = {
   wifi: <Wifi size={14} />,
   tv: <Tv size={14} />,
@@ -131,6 +131,7 @@ const iconMap: Record<string, React.ReactNode> = {
   bbq: <FlameKindling size={14} />,
   private_beach: <Umbrella size={14} />
 };
+
 const containerVariants = {
   hidden: {},
   visible: {
@@ -139,6 +140,7 @@ const containerVariants = {
     }
   }
 };
+
 const itemVariants = {
   hidden: {
     opacity: 0,
@@ -153,31 +155,30 @@ const itemVariants = {
     }
   }
 };
+
 const RoomTypesSection = () => {
   const [roomTypes, setRoomTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const {
-    language
-  } = useLanguage();
+  const { language } = useLanguage();
   const [customPrices, setCustomPrices] = useState<Record<string, number>>({});
+  const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
   const today = new Date();
   const todayStr = format(today, 'yyyy-MM-dd');
   const isSaturday = today.getDay() === 6; // 6 is Saturday
-  const {
-    toast: uiToast
-  } = useToast();
+  const { toast: uiToast } = useToast();
+
   const retryFetch = async () => {
     setLoading(true);
     setError(false);
     fetchRoomTypes();
   };
+
   const fetchRoomTypes = async () => {
     try {
       setLoading(true);
       console.log('Fetching room types for homepage...');
 
-      // Get popular rooms first
       const {
         data: popularRooms,
         error: popularError
@@ -188,7 +189,6 @@ const RoomTypesSection = () => {
         console.error('Error fetching popular room types:', popularError);
         toast.error(language === 'vi' ? 'Không thể tải dữ liệu phòng nổi bật' : 'Error loading popular rooms');
 
-        // If we're in a network error situation, use fallback data
         if (popularError.message.includes('fetch') || popularError.code === 'NETWORK_ERROR') {
           console.log('Using fallback data due to network error');
           setRoomTypes(fallbackRooms);
@@ -202,7 +202,6 @@ const RoomTypesSection = () => {
       let featuredRooms = popularRooms || [];
       console.log('Fetched popular rooms:', featuredRooms.length);
 
-      // If we don't have 3 popular rooms, get some other rooms to fill up
       if (featuredRooms.length < 3) {
         const {
           data: otherRooms,
@@ -216,7 +215,6 @@ const RoomTypesSection = () => {
         }
       }
 
-      // If we still don't have any rooms, use fallback data
       if (featuredRooms.length === 0) {
         console.log('No rooms found, using fallback data');
         setRoomTypes(fallbackRooms);
@@ -224,13 +222,11 @@ const RoomTypesSection = () => {
         return;
       }
 
-      // Limit to 3 rooms for homepage
       featuredRooms = featuredRooms.slice(0, 3);
       console.log('Total rooms for homepage:', featuredRooms.length);
       setRoomTypes(featuredRooms);
       setError(false);
 
-      // Fetch custom prices for today for all displayed rooms
       if (featuredRooms.length > 0) {
         const roomIds = featuredRooms.map(room => room.id);
         const {
@@ -249,55 +245,71 @@ const RoomTypesSection = () => {
       console.error('Error in fetchRoomTypes:', error);
       toast.error(language === 'vi' ? 'Đã xảy ra lỗi khi tải dữ liệu' : 'Error loading data');
 
-      // Use fallback data in case of exception
       setRoomTypes(fallbackRooms);
       setError(true);
     } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchRoomTypes();
   }, [language, todayStr]);
-  const getRoomPrice = room => {
-    // Check if we have a custom price for today
+
+  const getRoomPrice = (room) => {
     if (customPrices[room.id]) {
       return customPrices[room.id];
     }
-
-    // Otherwise use weekend price for Saturdays only, or regular price
     return isSaturday ? room.weekend_price || room.price : room.price;
   };
-  const formatPrice = price => {
+
+  const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN').format(price);
   };
-  const getRoomName = room => {
+
+  const getRoomName = (room) => {
     return language === 'vi' ? room.name : room.name_en;
   };
-  const getRoomDescription = room => {
-    return language === 'vi' ? room.description : room.description_en;
+
+  const getRoomDescription = (room) => {
+    if (room.short_description && language === 'vi') {
+      return room.short_description;
+    }
+    
+    if (room.short_description_en && language === 'en') {
+      return room.short_description_en;
+    }
+    
+    const fullDescription = language === 'vi' ? room.description : room.description_en;
+    if (fullDescription && fullDescription.length > 120) {
+      return fullDescription.substring(0, 120) + '...';
+    }
+    
+    return fullDescription;
   };
-  const getRoomCapacity = room => {
+
+  const getRoomCapacity = (room) => {
     return language === 'vi' ? room.capacity : room.capacity_en;
   };
-  const getAmenityName = amenity => {
-    // Handle both string and object amenities
+
+  const getAmenityName = (amenity) => {
     if (typeof amenity === 'string') {
       return amenity;
     }
     return language === 'vi' ? amenity.vi : amenity.en;
   };
-  const getAmenityIcon = amenity => {
+
+  const getAmenityIcon = (amenity) => {
     if (typeof amenity === 'string') {
       return iconMap[amenity] || <Coffee size={14} />;
     }
-
-    // Try to find icon by matching amenity text with known keys
     const amenityText = language === 'vi' ? amenity.vi : amenity.en;
     const knownAmenity = Object.keys(iconMap).find(key => amenityText.toLowerCase().includes(key.toLowerCase()));
     return knownAmenity ? iconMap[knownAmenity] : <Coffee size={14} />;
   };
-  return <section className="py-20 bg-white relative overflow-hidden">
+
+  return (
+    <section className="py-20 bg-white relative overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-beach-50/50 to-transparent z-0"></div>
       <div className="absolute bottom-0 left-0 right-0 h-40 ocean-wave z-0"></div>
       
@@ -316,9 +328,12 @@ const RoomTypesSection = () => {
           </div>
         </AnimationWrapper>
 
-        {loading ? <div className="flex justify-center items-center py-20">
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
             <Loader2 className="h-10 w-10 animate-spin text-beach-600" />
-          </div> : error ? <div className="text-center py-5">
+          </div>
+        ) : error ? (
+          <div className="text-center py-5">
             <p className="text-red-600 mb-4">
               {language === 'vi' ? 'Không thể tải dữ liệu phòng từ máy chủ.' : 'Unable to load room data from server.'}
             </p>
@@ -326,50 +341,60 @@ const RoomTypesSection = () => {
               {language === 'vi' ? 'Thử lại' : 'Try Again'}
             </Button>
             
-            {/* Display fallback room data */}
             <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8" variants={containerVariants} initial="hidden" animate="visible">
-              {roomTypes.map(room => <motion.div key={room.id} className="bg-white rounded-lg overflow-hidden shadow-lg border border-gray-100 hover:shadow-xl transition-shadow" variants={itemVariants}>
+              {roomTypes.map(room => (
+                <motion.div key={room.id} className="bg-white rounded-lg overflow-hidden shadow-lg border border-gray-100 hover:shadow-xl transition-shadow" variants={itemVariants}>
                   <div className="relative">
                     <img src={room.image_url} alt={getRoomName(room)} className="w-full h-60 object-cover" onError={e => {
-                e.currentTarget.src = "/placeholder.svg";
-              }} />
-                    {room.is_popular && <Badge className="absolute top-4 right-4 bg-coral-500">
+                      e.currentTarget.src = "/placeholder.svg";
+                    }} />
+                    {room.is_popular && (
+                      <Badge className="absolute top-4 right-4 bg-coral-500 bg-[#24490f]">
                         {language === 'vi' ? 'Phổ biến' : 'Popular'}
-                      </Badge>}
+                      </Badge>
+                    )}
                   </div>
                   <div className="p-6">
-                    <h3 className="font-serif font-bold text-xl text-gray-900 mb-2">
+                    <h3 className="font-display font-bold text-xl text-gray-900 mb-2">
                       {getRoomName(room)}
                     </h3>
-                    <p className="text-gray-700 mb-4">
+                    <p className="text-gray-700 mb-4 line-clamp-3">
                       {getRoomDescription(room)}
                     </p>
                     <div className="flex items-center mb-4">
                       <Users size={18} className="text-beach-600 mr-2" />
                       <span className="text-gray-600 text-sm">{getRoomCapacity(room)}</span>
                     </div>
-                    {room.amenities && Array.isArray(room.amenities) && <div className="flex flex-wrap gap-2 mb-4">
+                    {room.amenities && Array.isArray(room.amenities) && (
+                      <div className="flex flex-wrap gap-2 mb-4">
                         {room.amenities.slice(0, 5).map((amenity, index) => {
-                  const amenityName = getAmenityName(amenity);
-                  const amenityIcon = getAmenityIcon(amenity);
-                  return <span key={index} className="inline-flex items-center text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                          const amenityName = getAmenityName(amenity);
+                          const amenityIcon = getAmenityIcon(amenity);
+                          return (
+                            <span key={index} className="inline-flex items-center text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
                               {amenityIcon && <span className="mr-1">{amenityIcon}</span>}
                               {amenityName}
-                            </span>;
-                })}
-                      </div>}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    )}
                     <div className="flex justify-between items-center mt-6">
                       <div>
                         <span className="text-beach-700 font-bold text-xl">
                           {formatPrice(getRoomPrice(room))}đ
                         </span>
                         <span className="text-gray-500 text-sm"> / {language === 'vi' ? 'đêm' : 'night'}</span>
-                        {isSaturday && !customPrices[room.id] && <span className="text-orange-500 text-xs block mt-1">
+                        {isSaturday && !customPrices[room.id] && (
+                          <span className="text-orange-500 text-xs block mt-1">
                             {language === 'vi' ? 'Giá cuối tuần (Thứ 7)' : 'Weekend price (Saturday)'}
-                          </span>}
-                        {customPrices[room.id] && <span className="text-blue-500 text-xs block mt-1">
+                          </span>
+                        )}
+                        {customPrices[room.id] && (
+                          <span className="text-blue-500 text-xs block mt-1">
                             {language === 'vi' ? 'Giá đặc biệt' : 'Special price'}
-                          </span>}
+                          </span>
+                        )}
                       </div>
                       <Link to={`/loai-phong/${room.id}`}>
                         <Button className="rounded-md border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 transition-colors">
@@ -378,9 +403,12 @@ const RoomTypesSection = () => {
                       </Link>
                     </div>
                   </div>
-                </motion.div>)}
+                </motion.div>
+              ))}
             </motion.div>
-          </div> : roomTypes.length === 0 ? <div className="text-center py-10">
+          </div>
+        ) : roomTypes.length === 0 ? (
+          <div className="text-center py-10">
             <p className="text-beach-700">
               {language === 'vi' ? 'Chưa có loại phòng nào.' : 'No room types available yet.'}
             </p>
@@ -389,49 +417,62 @@ const RoomTypesSection = () => {
                 {language === 'vi' ? 'Xem Tất Cả Loại Phòng' : 'View All Room Types'} <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
-          </div> : <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-8" variants={containerVariants} initial="hidden" animate="visible">
-            {roomTypes.map(room => <motion.div key={room.id} className="bg-white rounded-lg overflow-hidden shadow-lg border border-gray-100 hover:shadow-xl transition-shadow" variants={itemVariants}>
+          </div>
+        ) : (
+          <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-8" variants={containerVariants} initial="hidden" animate="visible">
+            {roomTypes.map(room => (
+              <motion.div key={room.id} className="bg-white rounded-lg overflow-hidden shadow-lg border border-gray-100 hover:shadow-xl transition-shadow" variants={itemVariants}>
                 <div className="relative">
                   <img src={room.image_url} alt={getRoomName(room)} className="w-full h-60 object-cover" onError={e => {
-              e.currentTarget.src = "/placeholder.svg";
-            }} />
-                  {room.is_popular && <Badge className="absolute top-4 right-4 bg-coral-500 bg-[#24490f]">
+                    e.currentTarget.src = "/placeholder.svg";
+                  }} />
+                  {room.is_popular && (
+                    <Badge className="absolute top-4 right-4 bg-coral-500 bg-[#24490f]">
                       {language === 'vi' ? 'Phổ biến' : 'Popular'}
-                    </Badge>}
+                    </Badge>
+                  )}
                 </div>
                 <div className="p-6">
                   <h3 className="font-display font-bold text-xl text-gray-900 mb-2">
                     {getRoomName(room)}
                   </h3>
-                  <p className="text-gray-700 mb-4">
+                  <p className="text-gray-700 mb-4 line-clamp-3">
                     {getRoomDescription(room)}
                   </p>
                   <div className="flex items-center mb-4">
                     <Users size={18} className="text-beach-600 mr-2" />
                     <span className="text-gray-600 text-sm">{getRoomCapacity(room)}</span>
                   </div>
-                  {room.amenities && Array.isArray(room.amenities) && <div className="flex flex-wrap gap-2 mb-4">
+                  {room.amenities && Array.isArray(room.amenities) && (
+                    <div className="flex flex-wrap gap-2 mb-4">
                       {room.amenities.slice(0, 5).map((amenity, index) => {
-                const amenityName = getAmenityName(amenity);
-                const amenityIcon = getAmenityIcon(amenity);
-                return <span key={index} className="inline-flex items-center text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                        const amenityName = getAmenityName(amenity);
+                        const amenityIcon = getAmenityIcon(amenity);
+                        return (
+                          <span key={index} className="inline-flex items-center text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
                             {amenityIcon && <span className="mr-1">{amenityIcon}</span>}
                             {amenityName}
-                          </span>;
-              })}
-                    </div>}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
                   <div className="flex justify-between items-center mt-6">
                     <div>
                       <span className="text-beach-700 font-bold text-xl">
                         {formatPrice(getRoomPrice(room))}đ
                       </span>
                       <span className="text-gray-500 text-sm"> / {language === 'vi' ? 'đêm' : 'night'}</span>
-                      {isSaturday && !customPrices[room.id] && <span className="text-orange-500 text-xs block mt-1">
+                      {isSaturday && !customPrices[room.id] && (
+                        <span className="text-orange-500 text-xs block mt-1">
                           {language === 'vi' ? 'Giá cuối tuần (Thứ 7)' : 'Weekend price (Saturday)'}
-                        </span>}
-                      {customPrices[room.id] && <span className="text-blue-500 text-xs block mt-1">
+                        </span>
+                      )}
+                      {customPrices[room.id] && (
+                        <span className="text-blue-500 text-xs block mt-1">
                           {language === 'vi' ? 'Giá đặc biệt' : 'Special price'}
-                        </span>}
+                        </span>
+                      )}
                     </div>
                     <Link to={`/loai-phong/${room.id}`}>
                       <Button className="rounded-md border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 transition-colors">
@@ -440,8 +481,10 @@ const RoomTypesSection = () => {
                     </Link>
                   </div>
                 </div>
-              </motion.div>)}
-          </motion.div>}
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
 
         <AnimationWrapper direction="up" delay={0.3} once={true}>
           <div className="text-center mt-12 bg-[#275101]">
@@ -453,6 +496,8 @@ const RoomTypesSection = () => {
           </div>
         </AnimationWrapper>
       </div>
-    </section>;
+    </section>
+  );
 };
+
 export default RoomTypesSection;

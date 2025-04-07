@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,8 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
   const [nameEn, setNameEn] = useState('');
   const [description, setDescription] = useState('');
   const [descriptionEn, setDescriptionEn] = useState('');
+  const [shortDescription, setShortDescription] = useState('');
+  const [shortDescriptionEn, setShortDescriptionEn] = useState('');
   const [capacity, setCapacity] = useState('');
   const [capacityEn, setCapacityEn] = useState('');
   const [price, setPrice] = useState('');
@@ -70,6 +73,8 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
     setNameEn('');
     setDescription('');
     setDescriptionEn('');
+    setShortDescription('');
+    setShortDescriptionEn('');
     setCapacity('');
     setCapacityEn('');
     setPrice('');
@@ -186,6 +191,8 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
           name_en: nameEn || name,
           description,
           description_en: descriptionEn || description,
+          short_description: shortDescription || description.substring(0, 150) + (description.length > 150 ? '...' : ''),
+          short_description_en: shortDescriptionEn || (descriptionEn ? descriptionEn.substring(0, 150) + (descriptionEn.length > 150 ? '...' : '') : ''),
           capacity,
           capacity_en: capacityEn || capacity,
           price: Number(price),
@@ -254,10 +261,40 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
                   />
                 </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="short_description">Mô tả ngắn (VI)</Label>
+                  <Textarea 
+                    id="short_description" 
+                    value={shortDescription} 
+                    onChange={e => setShortDescription(e.target.value)}
+                    placeholder="Mô tả ngắn gọn về phòng (hiển thị ở trang danh sách)..."
+                    rows={2}
+                  />
+                  <p className="text-xs text-gray-500">
+                    *Tối đa 150 ký tự, nếu để trống sẽ tự lấy từ mô tả đầy đủ
+                  </p>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="short_description_en">Mô tả ngắn (EN)</Label>
+                  <Textarea 
+                    id="short_description_en" 
+                    value={shortDescriptionEn} 
+                    onChange={e => setShortDescriptionEn(e.target.value)}
+                    placeholder="Brief room description (shown in listing)..."
+                    rows={2}
+                  />
+                  <p className="text-xs text-gray-500">
+                    *Max 150 characters, if empty will use full description
+                  </p>
+                </div>
+              </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="description">Mô tả (VI)</Label>
+                  <Label htmlFor="description">Mô tả đầy đủ (VI)</Label>
                   <Textarea 
                     id="description" 
                     value={description} 
@@ -268,7 +305,7 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ open, onOpenChange, onRoomA
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="description_en">Mô tả (EN)</Label>
+                  <Label htmlFor="description_en">Mô tả đầy đủ (EN)</Label>
                   <Textarea 
                     id="description_en" 
                     value={descriptionEn} 
