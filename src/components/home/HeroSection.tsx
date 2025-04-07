@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -7,7 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 const slides = [
   {
     id: 1,
-    image: "/lovable-uploads/32ffc101-dc48-4c38-a8ad-0b1f56dfaad0.png",
+    image: "/lovable-uploads/8ce686fb-1be2-4b8f-a4fe-1f77f439a159.png",
     titleKey: "peaceful_space",
     subtitleKey: "peaceful_space_desc",
   },
