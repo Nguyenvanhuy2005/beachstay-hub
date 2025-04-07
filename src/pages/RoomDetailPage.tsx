@@ -393,7 +393,7 @@ const RoomDetailPage = () => {
                 </div>
               </div>
               
-              <Button asChild className="bg-beach-600 hover:bg-beach-700 text-black">
+              <Button asChild className="w-full bg-beach-600 hover:bg-beach-700 text-black">
                 <Link to="/dat-phong">
                   {language === 'vi' ? 'Đặt Phòng Ngay' : 'Book Now'}
                 </Link>
