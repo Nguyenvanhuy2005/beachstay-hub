@@ -48,7 +48,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative h-screen overflow-hidden">
+    <section className="relative h-[70vh] md:h-[75vh] overflow-hidden">
       {/* Slider */}
       <div className="absolute inset-0">
         {slides.map((slide, index) => (
@@ -71,32 +71,32 @@ const HeroSection = () => {
       {/* Content */}
       <div className="relative z-20 container mx-auto px-4 h-full flex flex-col justify-center">
         <div className="max-w-3xl">
-          <h1 className="text-white font-sans font-bold text-4xl md:text-5xl lg:text-6xl mb-4 tracking-tight fade-in">
+          <h1 className="text-white font-sans font-bold text-3xl md:text-4xl lg:text-5xl mb-3 tracking-tight fade-in">
             {t(slides[currentSlide].titleKey)}
           </h1>
-          <p className="text-white/90 text-xl md:text-2xl mb-8">
+          <p className="text-white/90 text-lg md:text-xl mb-6">
             {t(slides[currentSlide].subtitleKey)}
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button 
-              className="bg-primary hover:bg-green-800 text-white font-medium px-8 py-6 text-lg"
+              className="bg-primary hover:bg-green-800 text-white font-medium px-6 py-5 text-base"
               onClick={handleBookNow}
             >
               {t('book_now_action')}
             </Button>
             <Button 
               variant="outline" 
-              className="bg-transparent text-white border-white hover:bg-white/10 px-8 py-6 text-lg"
+              className="bg-transparent text-white border-white hover:bg-white/10 px-6 py-5 text-base"
               onClick={handleExplore}
             >
-              {t('explore')} <ArrowRight className="ml-2 h-5 w-5" />
+              {t('explore')} <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </div>
       </div>
 
       {/* Dots */}
-      <div className="absolute bottom-10 left-0 right-0 z-20 flex justify-center">
+      <div className="absolute bottom-6 left-0 right-0 z-20 flex justify-center">
         <div className="flex space-x-2">
           {slides.map((_, index) => (
             <button
