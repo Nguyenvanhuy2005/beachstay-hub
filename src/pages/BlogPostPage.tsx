@@ -252,7 +252,7 @@ const BlogPostPage = () => {
                   {tag}
                 </Badge>)}
             </div>
-            <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+            <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
               {getTitle()}
             </h1>
             <div className="flex flex-wrap items-center gap-4 md:gap-6 text-beach-100 text-sm md:text-base">
