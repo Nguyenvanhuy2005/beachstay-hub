@@ -444,7 +444,7 @@ const RoomTypesSection = () => {
           </motion.div>}
 
         <AnimationWrapper direction="up" delay={0.3} once={true}>
-          <div className="text-center mt-12">
+          <div className="text-center mt-12 bg-[#275101]">
             <Button asChild className="bg-beach-600 hover:bg-beach-700 text-white px-8 py-6">
               <Link to="/loai-phong">
                 {language === 'vi' ? 'Xem Tất Cả Loại Phòng' : 'View All Room Types'} <ArrowRight className="ml-2 h-5 w-5" />
