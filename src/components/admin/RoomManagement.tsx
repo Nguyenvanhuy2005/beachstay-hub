@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -71,25 +70,6 @@ const RoomManagement = () => {
     setIsDeletingRoom(true);
     
     try {
-      // Check if there are any active bookings (non-cancelled) using this room type
-      const { data: activeBookings, error: bookingsError } = await supabase
-        .from('bookings')
-        .select('id')
-        .eq('room_type_id', id)
-        .neq('status', 'cancelled')  // Only check for non-cancelled bookings
-        .limit(1);
-
-      if (bookingsError) {
-        throw bookingsError;
-      }
-
-      // If there are active bookings for this room type, we can't delete it
-      if (activeBookings && activeBookings.length > 0) {
-        setDeleteError('Không thể xóa phòng vì còn tồn tại đặt phòng đã xác nhận hoặc đang chờ xử lý. Bạn cần hủy (cancelled) tất cả các đặt phòng liên quan trước.');
-        return;
-      }
-
-      // Check if the room still exists
       const { data: existingRoom, error: checkError } = await supabase
         .from('room_types')
         .select('id')
@@ -105,19 +85,13 @@ const RoomManagement = () => {
         return;
       }
 
-      // Now we can delete the room safely
       const { error } = await supabase
         .from('room_types')
         .delete()
         .eq('id', id);
 
       if (error) {
-        // Specific error for foreign key constraint violation
-        if (error.message.includes('violates foreign key constraint')) {
-          console.error('Foreign key constraint violation:', error);
-          setDeleteError('Không thể xóa phòng này vì còn tồn tại đặt phòng liên quan. Kiểm tra và cập nhật lại trang đặt phòng để đảm bảo tất cả đặt phòng đã được hủy trước khi thử lại.');
-          return;
-        }
+        console.error('Delete error details:', error);
         throw error;
       }
       
