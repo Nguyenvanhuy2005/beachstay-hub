@@ -4,7 +4,7 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, CheckCircle, XCircle, Image, RefreshCw, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, CheckCircle, XCircle, Image, RefreshCw, Loader2, AlertTriangle } from 'lucide-react';
 import AddRoomModal from './AddRoomModal';
 import EditRoomModal from './EditRoomModal';
 import { 
@@ -31,6 +31,7 @@ const RoomManagement = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [currentRoomId, setCurrentRoomId] = useState<string | null>(null);
   const [roomToDelete, setRoomToDelete] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchRooms();
@@ -65,7 +66,25 @@ const RoomManagement = () => {
   };
 
   const handleDeleteRoom = async (id: string) => {
+    setDeleteError(null);
     try {
+      // First check if there are any bookings using this room type
+      const { data: bookings, error: bookingsError } = await supabase
+        .from('bookings')
+        .select('id')
+        .eq('room_type_id', id)
+        .limit(1);
+
+      if (bookingsError) {
+        throw bookingsError;
+      }
+
+      // If there are bookings for this room type, we can't delete it
+      if (bookings && bookings.length > 0) {
+        setDeleteError('Không thể xóa phòng vì đã có đặt phòng sử dụng loại phòng này. Bạn cần xóa các đặt phòng liên quan trước.');
+        return;
+      }
+
       const { data: existingRoom, error: checkError } = await supabase
         .from('room_types')
         .select('id')
@@ -86,7 +105,14 @@ const RoomManagement = () => {
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        // Specific error for foreign key constraint violation
+        if (error.message.includes('violates foreign key constraint')) {
+          setDeleteError('Không thể xóa phòng này vì còn tồn tại đặt phòng liên quan. Bạn cần xóa các đặt phòng liên quan trước khi xóa phòng.');
+          return;
+        }
+        throw error;
+      }
       
       toast.success('Đã xóa phòng thành công');
       fetchRooms();
@@ -94,7 +120,9 @@ const RoomManagement = () => {
       console.error('Error deleting room:', error);
       toast.error('Không thể xóa phòng: ' + (error as any).message);
     } finally {
-      setRoomToDelete(null);
+      if (!deleteError) {
+        setRoomToDelete(null);
+      }
     }
   };
 
@@ -262,17 +290,26 @@ const RoomManagement = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn xóa phòng này? Hành động này không thể hoàn tác.
+              {deleteError ? (
+                <div className="flex items-start space-x-2 text-red-600">
+                  <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                  <span>{deleteError}</span>
+                </div>
+              ) : (
+                "Bạn có chắc chắn muốn xóa phòng này? Hành động này không thể hoàn tác."
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Hủy</AlertDialogCancel>
-            <AlertDialogAction 
-              className="bg-red-500 hover:bg-red-600"
-              onClick={() => roomToDelete && handleDeleteRoom(roomToDelete)}
-            >
-              Xóa
-            </AlertDialogAction>
+            {!deleteError && (
+              <AlertDialogAction 
+                className="bg-red-500 hover:bg-red-600"
+                onClick={() => roomToDelete && handleDeleteRoom(roomToDelete)}
+              >
+                Xóa
+              </AlertDialogAction>
+            )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
