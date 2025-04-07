@@ -26,13 +26,13 @@ export type TranslationKey =
   | 'book_now_action' | 'explore' | 'peaceful_space' | 'peaceful_space_desc' | 'luxury_experience' 
   | 'luxury_experience_desc' | 'premium_amenities' | 'premium_amenities_desc'
   | 'gallery' | 'discover_images' | 'gallery_desc' | 'view_more_images' | 'all'
-  | 'about_annam' | 'villa_description' | 'error_loading_data' | 'error_loading_gallery' | 'try_again'
+  | 'about_An Nam' | 'villa_description' | 'error_loading_data' | 'error_loading_gallery' | 'try_again'
   | 'admin_login' | 'password' | 'login' | 'forgot_password' | 'back_to_login' | 'reset_password'
   | 'reset_password_sent' | 'admin_note' | 'login_error' | 'signing_in' | 'send_reset';
 
 const viTranslations: Record<TranslationKey, string> = {
   // Home page
-  hero_title: "Annam Village Vũng Tàu",
+  hero_title: "An Nam Village Vũng Tàu",
   hero_subtitle: "Trải nghiệm không gian nghỉ dưỡng đẳng cấp bên bờ biển",
   hero_booking_button: "Đặt Phòng Ngay",
   hero_explore_button: "Khám Phá Dịch Vụ",
@@ -55,17 +55,17 @@ const viTranslations: Record<TranslationKey, string> = {
   
   // Hero section
   peaceful_space: "Không Gian Yên Bình",
-  peaceful_space_desc: "Tận hưởng kỳ nghỉ trong không gian yên bình tại Annam Village",
+  peaceful_space_desc: "Tận hưởng kỳ nghỉ trong không gian yên bình tại An Nam Village",
   luxury_experience: "Trải Nghiệm Đẳng Cấp",
   luxury_experience_desc: "Dịch vụ 5 sao và tiện nghi cao cấp cho kỳ nghỉ hoàn hảo",
   premium_amenities: "Tiện Nghi Cao Cấp",
   premium_amenities_desc: "Hồ bơi, nhà hàng, spa và nhiều tiện ích đẳng cấp",
   
   // About section
-  about_title: "Về Annam Village",
+  about_title: "Về An Nam Village",
   about_subtitle: "Không gian nghỉ dưỡng sang trọng bên bờ biển",
-  about_description: "Annam Village là một khu nghỉ dưỡng ven biển sang trọng tại Vũng Tàu, mang đến trải nghiệm độc đáo với kiến trúc đương đại pha trộn nét đẹp truyền thống Việt Nam. Tọa lạc tại vị trí đắc địa, mỗi phòng nghỉ đều có tầm nhìn tuyệt đẹp ra biển và được thiết kế tinh tế với các tiện nghi hiện đại, mang đến không gian sống tiện nghi và đẳng cấp.",
-  about_annam: "Về Annam Village",
+  about_description: "An Nam Village là một khu nghỉ dưỡng ven biển sang trọng tại Vũng Tàu, mang đến trải nghiệm độc đáo với kiến trúc đương đại pha trộn nét đẹp truyền thống Việt Nam. Tọa lạc tại vị trí đắc địa, mỗi phòng nghỉ đều có tầm nhìn tuyệt đẹp ra biển và được thiết kế tinh tế với các tiện nghi hiện đại, mang đến không gian sống tiện nghi và đẳng cấp.",
+  about_An Nam: "Về An Nam Village",
   villa_description: "Mỗi villa được thiết kế với không gian mở, ánh sáng tự nhiên và các tiện nghi hiện đại, kết hợp với những điểm nhấn truyền thống Việt Nam để tạo nên trải nghiệm lưu trú đẳng cấp.",
   
   // Room types section
@@ -82,10 +82,10 @@ const viTranslations: Record<TranslationKey, string> = {
   
   // Gallery section
   gallery_title: "Thư Viện Ảnh",
-  gallery_subtitle: "Khám phá vẻ đẹp của Annam Village",
+  gallery_subtitle: "Khám phá vẻ đẹp của An Nam Village",
   gallery: "Thư Viện Ảnh",
   discover_images: "Khám Phá Hình Ảnh",
-  gallery_desc: "Ngắm nhìn không gian và thiết kế sang trọng của Annam Village qua bộ sưu tập hình ảnh",
+  gallery_desc: "Ngắm nhìn không gian và thiết kế sang trọng của An Nam Village qua bộ sưu tập hình ảnh",
   view_more_images: "Xem Thêm Hình Ảnh",
   all: "Tất Cả",
   
@@ -184,7 +184,7 @@ const viTranslations: Record<TranslationKey, string> = {
   back_to_login: "Quay Lại Đăng Nhập",
   reset_password: "Đặt Lại Mật Khẩu",
   reset_password_sent: "Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư của bạn.",
-  admin_note: "Tài khoản admin mặc định: admin@annamvillage.vn",
+  admin_note: "Tài khoản admin mặc định: admin@An Namvillage.vn",
   login_error: "Email hoặc mật khẩu không đúng. Vui lòng thử lại.",
   signing_in: "Đang đăng nhập...",
   send_reset: "Gửi yêu cầu đặt lại mật khẩu",
@@ -202,7 +202,7 @@ const viTranslations: Record<TranslationKey, string> = {
 
 const enTranslations: Record<TranslationKey, string> = {
   // Home page
-  hero_title: "Annam Village Vung Tau",
+  hero_title: "An Nam Village Vung Tau",
   hero_subtitle: "Experience luxury beachfront living",
   hero_booking_button: "Book Now",
   hero_explore_button: "Explore Services",
@@ -225,17 +225,17 @@ const enTranslations: Record<TranslationKey, string> = {
   
   // Hero section
   peaceful_space: "Peaceful Space",
-  peaceful_space_desc: "Enjoy your vacation in a peaceful atmosphere at Annam Village",
+  peaceful_space_desc: "Enjoy your vacation in a peaceful atmosphere at An Nam Village",
   luxury_experience: "Luxury Experience",
   luxury_experience_desc: "5-star service and premium amenities for a perfect getaway",
   premium_amenities: "Premium Amenities",
   premium_amenities_desc: "Swimming pool, restaurant, spa and many more luxurious facilities",
   
   // About section
-  about_title: "About Annam Village",
+  about_title: "About An Nam Village",
   about_subtitle: "Luxury beachfront resort",
-  about_description: "Annam Village is a luxurious beachfront resort in Vung Tau that offers a unique experience with contemporary architecture blended with traditional Vietnamese beauty. Located in a prime location, each accommodation has stunning sea views and is elegantly designed with modern amenities, providing a comfortable and sophisticated living space.",
-  about_annam: "About Annam Village",
+  about_description: "An Nam Village is a luxurious beachfront resort in Vung Tau that offers a unique experience with contemporary architecture blended with traditional Vietnamese beauty. Located in a prime location, each accommodation has stunning sea views and is elegantly designed with modern amenities, providing a comfortable and sophisticated living space.",
+  about_An Nam: "About An Nam Village",
   villa_description: "Each villa is designed with open spaces, natural light and modern amenities, combined with traditional Vietnamese accents to create a luxurious staying experience.",
   
   // Room types section
@@ -252,10 +252,10 @@ const enTranslations: Record<TranslationKey, string> = {
   
   // Gallery section
   gallery_title: "Gallery",
-  gallery_subtitle: "Explore the beauty of Annam Village",
+  gallery_subtitle: "Explore the beauty of An Nam Village",
   gallery: "Gallery",
   discover_images: "Discover Images",
-  gallery_desc: "Explore the luxurious spaces and elegant design of Annam Village through our collection of images",
+  gallery_desc: "Explore the luxurious spaces and elegant design of An Nam Village through our collection of images",
   view_more_images: "View More Images",
   all: "All",
   
@@ -354,7 +354,7 @@ const enTranslations: Record<TranslationKey, string> = {
   back_to_login: "Back to Login",
   reset_password: "Reset Password",
   reset_password_sent: "Password reset email has been sent. Please check your inbox.",
-  admin_note: "Default admin account: admin@annamvillage.vn",
+  admin_note: "Default admin account: admin@An Namvillage.vn",
   login_error: "Invalid email or password. Please try again.",
   signing_in: "Signing in...",
   send_reset: "Send Reset Request",
