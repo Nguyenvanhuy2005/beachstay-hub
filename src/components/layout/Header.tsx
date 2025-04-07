@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X, Phone, AtSign, MapPin } from "lucide-react";
@@ -22,7 +23,7 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img alt="Annam Village Logo" className="h-12 md:h-16" src="/lovable-uploads/1421d474-c744-4bd5-b508-7ecc1b135ee4.png" />
+            <img alt="AnNam Village Logo" className="h-12 md:h-16" src="/lovable-uploads/1421d474-c744-4bd5-b508-7ecc1b135ee4.png" />
           </Link>
 
           {/* Desktop Navigation */}
@@ -59,7 +60,7 @@ const Header = () => {
           </nav>
           <div className="mt-4 flex flex-col space-y-2">
             <a href="tel:+84933669154" className="flex items-center space-x-1 text-primary">
-              <Phone size={16} />
+              <Phone size={16} className="text-primary" />
               <span>0933 669 154</span>
             </a>
             <a href="mailto:annamvillage.vn@gmail.com" className="flex items-center space-x-1 text-primary">
