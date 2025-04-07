@@ -32,6 +32,7 @@ const RoomManagement = () => {
   const [currentRoomId, setCurrentRoomId] = useState<string | null>(null);
   const [roomToDelete, setRoomToDelete] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeletingRoom, setIsDeletingRoom] = useState(false);
 
   useEffect(() => {
     fetchRooms();
@@ -67,24 +68,28 @@ const RoomManagement = () => {
 
   const handleDeleteRoom = async (id: string) => {
     setDeleteError(null);
+    setIsDeletingRoom(true);
+    
     try {
-      // First check if there are any bookings using this room type
-      const { data: bookings, error: bookingsError } = await supabase
+      // Check if there are any active bookings (non-cancelled) using this room type
+      const { data: activeBookings, error: bookingsError } = await supabase
         .from('bookings')
         .select('id')
         .eq('room_type_id', id)
+        .neq('status', 'cancelled')  // Only check for non-cancelled bookings
         .limit(1);
 
       if (bookingsError) {
         throw bookingsError;
       }
 
-      // If there are bookings for this room type, we can't delete it
-      if (bookings && bookings.length > 0) {
-        setDeleteError('Không thể xóa phòng vì đã có đặt phòng sử dụng loại phòng này. Bạn cần xóa các đặt phòng liên quan trước.');
+      // If there are active bookings for this room type, we can't delete it
+      if (activeBookings && activeBookings.length > 0) {
+        setDeleteError('Không thể xóa phòng vì còn tồn tại đặt phòng đã xác nhận hoặc đang chờ xử lý. Bạn cần hủy (cancelled) tất cả các đặt phòng liên quan trước.');
         return;
       }
 
+      // Check if the room still exists
       const { data: existingRoom, error: checkError } = await supabase
         .from('room_types')
         .select('id')
@@ -100,6 +105,7 @@ const RoomManagement = () => {
         return;
       }
 
+      // Now we can delete the room safely
       const { error } = await supabase
         .from('room_types')
         .delete()
@@ -108,7 +114,8 @@ const RoomManagement = () => {
       if (error) {
         // Specific error for foreign key constraint violation
         if (error.message.includes('violates foreign key constraint')) {
-          setDeleteError('Không thể xóa phòng này vì còn tồn tại đặt phòng liên quan. Bạn cần xóa các đặt phòng liên quan trước khi xóa phòng.');
+          console.error('Foreign key constraint violation:', error);
+          setDeleteError('Không thể xóa phòng này vì còn tồn tại đặt phòng liên quan. Kiểm tra và cập nhật lại trang đặt phòng để đảm bảo tất cả đặt phòng đã được hủy trước khi thử lại.');
           return;
         }
         throw error;
@@ -120,6 +127,7 @@ const RoomManagement = () => {
       console.error('Error deleting room:', error);
       toast.error('Không thể xóa phòng: ' + (error as any).message);
     } finally {
+      setIsDeletingRoom(false);
       if (!deleteError) {
         setRoomToDelete(null);
       }
@@ -301,13 +309,24 @@ const RoomManagement = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeletingRoom}>Hủy</AlertDialogCancel>
             {!deleteError && (
               <AlertDialogAction 
                 className="bg-red-500 hover:bg-red-600"
-                onClick={() => roomToDelete && handleDeleteRoom(roomToDelete)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  roomToDelete && handleDeleteRoom(roomToDelete);
+                }}
+                disabled={isDeletingRoom}
               >
-                Xóa
+                {isDeletingRoom ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Đang xử lý...
+                  </>
+                ) : (
+                  <>Xóa</>
+                )}
               </AlertDialogAction>
             )}
           </AlertDialogFooter>
