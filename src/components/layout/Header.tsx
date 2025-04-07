@@ -46,7 +46,7 @@ const Header = () => {
           <div className="md:hidden flex items-center space-x-2">
             <LanguageSwitcher className={isScrolled ? "text-primary" : "text-white"} />
             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-              {isMobileMenuOpen ? <X className={isScrolled ? "text-primary" : "text-white"} /> : <Menu className={isScrolled ? "text-primary" : "text-white"} />}
+              {isMobileMenuOpen ? <X className="bg-slate-50" /> : <Menu className={isScrolled ? "text-primary" : "text-white"} />}
             </button>
           </div>
         </div>
