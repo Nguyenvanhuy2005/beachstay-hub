@@ -46,7 +46,7 @@ const Footer = () => {
             <Link to="/" className="inline-block mb-4">
               <img alt="Annam Village Logo" className="h-32" src="/lovable-uploads/11b55939-121b-4727-b0b8-d207b802ccfd.png" />
             </Link>
-            <p className="text-gray-300 mb-4">
+            <p className="mb-4 text-slate-50">
               {language === 'vi' ? 'Nơi hòa quyện giữa thiên nhiên và không gian nghỉ dưỡng sang trọng tại thành phố biển Vũng Tàu.' : 'A harmonious blend of nature and luxury retreat space in the coastal city of Vung Tau.'}
             </p>
             <div className="flex space-x-4 mt-6">
