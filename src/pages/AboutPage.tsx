@@ -3,13 +3,16 @@ import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import MainLayout from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
+
 const AboutPage = () => {
   const {
     language
   } = useLanguage();
+  
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+  
   return <MainLayout>
       {/* Hero Section */}
       <div className="relative bg-beach-700 text-white">
@@ -77,7 +80,7 @@ const AboutPage = () => {
               <h2 className="font-display text-3xl font-bold mb-6 text-beach-900">
                 {language === 'vi' ? 'Câu Chuyện Của Chúng Tôi' : 'Our Story'}
               </h2>
-     <p className="text-beach-800 mb-4">
+              <p className="text-beach-800 mb-4">
                 {language === 'vi' ? 'AnNam bắt đầu từ năm 2018, khi tụi mình muốn tạo ra nhiều căn nhà nhỏ giữa Vũng Tàu dành cho những người thích cảm giác được ở một nơi riêng tư, dễ chịu và có chút gì đó… thật bình yên.' : 'AnNam began in 2018, when we dreamed of creating small, cozy homes in Vung Tau for those who long for a private, tranquil space — something that feels... truly peaceful.'}
               </p>
               <p className="text-beach-800 mb-4">
@@ -117,36 +120,49 @@ const AboutPage = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[{
-            title: language === 'vi' ? 'Tận Tâm' : 'Dedication',
-            description: language === 'vi' ? 'Đặt trọn trái tim và tâm huyết vào từng chi tiết nhỏ, để mỗi trải nghiệm của du khách luôn là điều đáng nhớ và trọn vẹn nhất.' : 'Putting our heart and passion into every small detail, so that each guest experience is always memorable and complete.',
-            icon: '✦'
-          }, {
-            title: language === 'vi' ? 'Thông Thái' : 'Wisdom',
-            description: language === 'vi' ? 'Để mỗi dịch vụ và lựa chọn phục vụ từ AnNam đều làm an lòng khách hàng. Chỉ mong mỗi khách đến – như khách về quê nhà.' : 'So that every service and option from AnNam reassures our customers. We simply hope each guest arrives - like coming home.',
-            icon: '✦'
-          }, {
-            title: language === 'vi' ? 'Thuần Thiên' : 'Natural Connection',
-            description: language === 'vi' ? 'Mỗi kiến trúc từ AnNam luôn hướng đến không gian sống thuần thiên nhiên - để du khách như được đắm mình giữa lòng thiên nhiên xanh mát.' : 'Every architectural element at AnNam always aims for living spaces in harmony with nature - so guests feel immersed in green nature.',
-            icon: '✦'
-          }].map((value, index) => <motion.div key={index} initial={{
-            opacity: 0,
-            y: 30
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 0.5,
-            delay: index * 0.1
-          }} viewport={{
-            once: true
-          }} className="bg-white p-8 rounded-lg shadow-md border border-beach-100 text-center hover:shadow-xl transition-shadow">
+            {[
+              {
+                title: language === 'vi' ? 'Tận Tâm' : 'Dedication',
+                description: language === 'vi' ? 'Đặt trọn trái tim và tâm huyết vào từng chi tiết nhỏ, để mỗi trải nghiệm của du khách luôn là điều đáng nhớ và trọn vẹn nhất.' : 'Putting our heart and passion into every small detail, so that each guest experience is always memorable and complete.',
+                icon: '✦'
+              }, 
+              {
+                title: language === 'vi' ? 'Thông Thái' : 'Wisdom',
+                description: language === 'vi' ? 'Để mỗi dịch vụ và lựa chọn phục vụ từ AnNam đều làm an lòng khách hàng. Chỉ mong mỗi khách đến – như khách về quê nhà.' : 'So that every service and option from AnNam reassures our customers. We simply hope each guest arrives - like coming home.',
+                icon: '✦'
+              }, 
+              {
+                title: language === 'vi' ? 'Thuần Thiên' : 'Natural Connection',
+                description: language === 'vi' ? 'Mỗi kiến trúc từ AnNam luôn hướng đến không gian sống thuần thiên nhiên - để du khách như được đắm mình giữa lòng thiên nhiên xanh mát.' : 'Every architectural element at AnNam always aims for living spaces in harmony with nature - so guests feel immersed in green nature.',
+                icon: '✦'
+              }
+            ].map((value, index) => (
+              <motion.div 
+                key={index} 
+                initial={{
+                  opacity: 0,
+                  y: 30
+                }} 
+                whileInView={{
+                  opacity: 1,
+                  y: 0
+                }} 
+                transition={{
+                  duration: 0.5,
+                  delay: index * 0.1
+                }} 
+                viewport={{
+                  once: true
+                }} 
+                className="bg-white p-8 rounded-lg shadow-md border border-beach-100 text-center hover:shadow-xl transition-shadow"
+              >
                 <div className="inline-block text-3xl text-beach-600 mb-4">
                   {value.icon}
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-beach-900">{value.title}</h3>
                 <p className="text-beach-700">{value.description}</p>
-              </motion.div>)}
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
