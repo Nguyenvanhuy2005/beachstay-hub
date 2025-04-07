@@ -38,12 +38,12 @@ const viTranslations: Record<TranslationKey, string> = {
   hero_explore_button: "Khám Phá Dịch Vụ",
   
   // Navigation
-  home: "Trang Chủ",
-  about: "Về Chúng Tôi",
-  rooms: "Loại Phòng",
-  services: "Dịch Vụ",
+  home: "Trang chủ",
+  about: "Về chúng tôi",
+  rooms: "Loại phòng",
+  services: "Dịch vụ",
   blog: "Blog",
-  contact: "Liên Hệ",
+  contact: "Liên hệ",
   
   // Common buttons
   book_now: "Đặt Phòng",
