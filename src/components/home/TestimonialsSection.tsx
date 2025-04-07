@@ -73,7 +73,7 @@ const TestimonialsSection = () => {
           <div className="inline-block mb-2 rounded bg-beach-600 px-3 py-1 text-sm font-semibold text-white">
             {isVietnamese ? 'Đánh Giá' : 'Testimonials'}
           </div>
-          <h2 className="font-serif text-3xl md:text-4xl font-bold mb-4">
+          <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
             {isVietnamese ? 'Khách Hàng Nói Gì Về Chúng Tôi' : 'What Our Guests Say About Us'}
           </h2>
           <p className="text-beach-100 max-w-3xl mx-auto">
