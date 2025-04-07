@@ -171,7 +171,7 @@ const RoomDetailPage = () => {
             duration: 0.5,
             delay: 0.2
           }}>
-              <Badge className="bg-beach-600">{formatPrice(roomType.price)}/{language === 'vi' ? 'đêm' : 'night'}</Badge>
+              <Badge className="bg-beach-600 bg-[#004400]">{formatPrice(roomType.price)}/{language === 'vi' ? 'đêm' : 'night'}</Badge>
               <Badge variant="outline" className="border-beach-300 text-beach-50">
                 <Users className="h-3 w-3 mr-1" />
                 {getCapacity()}
