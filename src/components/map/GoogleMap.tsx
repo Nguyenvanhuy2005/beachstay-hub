@@ -2,13 +2,15 @@
 import React, { useEffect, useRef } from 'react';
 
 interface GoogleMapProps {
-  apiKey: string;
+  apiKey?: string;
   address?: string;
   lat?: number;
   lng?: number;
   zoom?: number;
   height?: string;
   width?: string;
+  embedUrl?: string;
+  useEmbed?: boolean;
 }
 
 const GoogleMap: React.FC<GoogleMapProps> = ({
@@ -18,13 +20,18 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
   lng = 107.083180,
   zoom = 15,
   height = "400px",
-  width = "100%"
+  width = "100%",
+  embedUrl,
+  useEmbed = false
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
   const apiLoadedRef = useRef<boolean>(false);
 
   useEffect(() => {
+    // Skip JS map initialization if we're using an embed
+    if (useEmbed) return;
+    
     // Function to load Google Maps API
     const loadGoogleMapsApi = () => {
       if (window.google && window.google.maps) {
@@ -90,14 +97,33 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
 
     // Cleanup
     return () => {
-      if (window.google && mapInstanceRef.current) {
+      if (!useEmbed && window.google && mapInstanceRef.current) {
         // Clean up map resources if needed
         mapInstanceRef.current = null;
       }
       // Remove the global callback
       delete window.initGoogleMap;
     };
-  }, [apiKey, address, lat, lng, zoom]);
+  }, [apiKey, address, lat, lng, zoom, useEmbed]);
+
+  if (useEmbed && embedUrl) {
+    return (
+      <div className="google-map-container">
+        <iframe
+          src={embedUrl}
+          width={width}
+          height={height}
+          style={{ border: 0, borderRadius: '0.5rem' }}
+          allowFullScreen
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          title="Bản đồ vị trí AnNam Village"
+          className="google-map-iframe"
+          aria-label="Bản đồ vị trí AnNam Village"
+        ></iframe>
+      </div>
+    );
+  }
 
   return (
     <div className="google-map-container">

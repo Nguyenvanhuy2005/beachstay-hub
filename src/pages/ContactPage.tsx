@@ -1,3 +1,4 @@
+
 import React from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -12,6 +13,9 @@ const ContactPage = () => {
   const { language } = useLanguage();
   const isEnglish = language === 'en';
   const GOOGLE_MAPS_API_KEY = "AIzaSyCWZ8Qqf4TN2PILN26A1nztzZxQEv1oB98";
+  
+  // Google Maps embed URL for better performance and SEO
+  const googleMapsEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3500.6927776776856!2d107.09073330998955!3d10.352732866824537!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31756fe71b884ff1%3A0xafa9bce0ca3bd3!2zMTMxIMSQxrDhu51uZyBOZ3V54buFbiBUaOG7iyBNaW5oIEtoYWksIFBoxrDhu51uZyA4LCBWxaluZyBUw6B1LCBCw6AgUuG7i2EgLSBWxaluZyBUw6B1IDc4MDAwLCBWaeG7h3QgTmFt!5e1!3m2!1svi!2s!4v1744254615306!5m2!1svi!2s";
 
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
@@ -178,10 +182,12 @@ const ContactPage = () => {
                   lat={locationData.coordinates.latitude}
                   lng={locationData.coordinates.longitude}
                   address={locationData.fullAddress}
+                  useEmbed={true}
+                  embedUrl={googleMapsEmbedUrl}
                 />
               </div>
               <div className="mt-4 text-center text-sm text-gray-500">
-                {isEnglish ? "Click on the pin for directions" : "Nhấp vào ghim để được chỉ đường"}
+                {isEnglish ? "Click on the map for directions" : "Nhấp vào bản đồ để được chỉ đường"}
               </div>
             </motion.section>
 
