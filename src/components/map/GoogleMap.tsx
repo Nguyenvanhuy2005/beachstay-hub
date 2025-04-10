@@ -13,9 +13,9 @@ interface GoogleMapProps {
 
 const GoogleMap: React.FC<GoogleMapProps> = ({
   apiKey,
-  address = "234 Phan Chu Trinh, Phường 2, Vũng Tàu, Vietnam",
-  lat = 10.346895,
-  lng = 107.084289,
+  address = "131 Đường Nguyễn Thị Minh Khai, Phường 8, Vũng Tàu, Bà Rịa - Vũng Tàu",
+  lat = 10.347041,
+  lng = 107.083180,
   zoom = 15,
   height = "400px",
   width = "100%"
