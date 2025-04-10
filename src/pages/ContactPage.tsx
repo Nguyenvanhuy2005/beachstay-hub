@@ -2,14 +2,17 @@
 import React from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Facebook, MapPin, Phone, AtSign, MessageSquare } from 'lucide-react';
+import { Facebook, MapPin, Phone, AtSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import GoogleMap from '@/components/map/GoogleMap';
+import LocationStructuredData from '@/components/seo/LocationStructuredData';
 
 const ContactPage = () => {
   const { language } = useLanguage();
   const isEnglish = language === 'en';
+  const GOOGLE_MAPS_API_KEY = "AIzaSyCWZ8Qqf4TN2PILN26A1nztzZxQEv1oB98";
 
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
@@ -23,12 +26,35 @@ const ContactPage = () => {
     })
   };
 
+  // Location data for both UI and structured data
+  const locationData = {
+    name: "AnNam Village",
+    description: isEnglish 
+      ? "Luxury resort villas and apartments for rent in Vung Tau."
+      : "Khu nghỉ dưỡng cao cấp với villa và căn hộ cho thuê tại Vũng Tàu.",
+    address: {
+      street: "234 Phan Chu Trinh",
+      locality: "Phường 2",
+      region: "Vũng Tàu",
+      country: "Vietnam"
+    },
+    fullAddress: "234 Phan Chu Trinh, Phường 2, Vũng Tàu, Vietnam",
+    coordinates: {
+      latitude: 10.346895,
+      longitude: 107.084289
+    },
+    phone: "+84933669154",
+    email: "annamvillage.vn@gmail.com",
+    image: "/lovable-uploads/6e6d4cbd-20c4-41bc-9ecd-453019a0c8df.png",
+    url: "https://annamvillage.com"
+  };
+
   const contactInfo = [
     {
       icon: <MapPin className="h-10 w-10 text-primary" />,
       title: isEnglish ? "Address" : "Địa chỉ",
-      content: "234 Phan Chu Trinh, Phường 2, Vũng Tàu, Vietnam",
-      link: "https://maps.app.goo.gl/12345",
+      content: locationData.fullAddress,
+      link: `https://maps.google.com/maps?q=${locationData.coordinates.latitude},${locationData.coordinates.longitude}`,
       action: isEnglish ? "View on Maps" : "Xem trên bản đồ"
     },
     {
@@ -41,8 +67,8 @@ const ContactPage = () => {
     {
       icon: <AtSign className="h-10 w-10 text-primary" />,
       title: "Email",
-      content: "annamvillage.vn@gmail.com",
-      link: "mailto:annamvillage.vn@gmail.com",
+      content: locationData.email,
+      link: `mailto:${locationData.email}`,
       action: isEnglish ? "Send Email" : "Gửi Email"
     }
   ];
@@ -71,6 +97,23 @@ const ContactPage = () => {
 
   return (
     <MainLayout>
+      {/* SEO structured data */}
+      <LocationStructuredData 
+        name={locationData.name}
+        description={locationData.description}
+        address={{
+          street: locationData.address.street,
+          locality: locationData.address.locality,
+          region: locationData.address.region,
+          country: locationData.address.country
+        }}
+        coordinates={locationData.coordinates}
+        phone={locationData.phone}
+        email={locationData.email}
+        image={locationData.image}
+        url={locationData.url}
+      />
+
       <div className="bg-background py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
@@ -115,6 +158,32 @@ const ContactPage = () => {
                 </motion.div>
               ))}
             </div>
+
+            {/* Google Map Component with proper HTML5 semantics for SEO */}
+            <motion.section 
+              className="mb-12 bg-white p-4 rounded-xl shadow-md"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              aria-labelledby="location-heading"
+            >
+              <h2 id="location-heading" className="text-2xl font-bold text-center mb-6 text-primary">
+                {isEnglish ? "Find Us" : "Tìm Chúng Tôi"}
+              </h2>
+              <div className="rounded-xl overflow-hidden shadow-lg">
+                <GoogleMap 
+                  apiKey={GOOGLE_MAPS_API_KEY} 
+                  height="450px"
+                  width="100%"
+                  lat={locationData.coordinates.latitude}
+                  lng={locationData.coordinates.longitude}
+                  address={locationData.fullAddress}
+                />
+              </div>
+              <div className="mt-4 text-center text-sm text-gray-500">
+                {isEnglish ? "Click on the pin for directions" : "Nhấp vào ghim để được chỉ đường"}
+              </div>
+            </motion.section>
 
             <motion.div 
               className="bg-neutral p-8 rounded-xl shadow-lg"
