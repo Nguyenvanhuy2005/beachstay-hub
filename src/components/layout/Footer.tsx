@@ -121,7 +121,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center">
                 <Mail size={18} className="mr-2 text-terra-400" />
-                <a href="mailto:info@annamvillage.vn" className="text-gray-50 hover:text-terra-300 transition-colors">info@annamvillage.vn</a>
+                <a href="mailto:annamvillage.vn@gmail.com" className="text-gray-50 hover:text-terra-300 transition-colors">annamvillage.vn@gmail.com</a>
               </li>
             </ul>
           </motion.div>
