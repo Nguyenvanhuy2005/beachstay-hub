@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import RoomManagement from './RoomManagement';
 
 const RoomsManagement = () => {
   return (
@@ -12,9 +13,7 @@ const RoomsManagement = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
-        <p className="text-terra-600">
-          Tính năng này đang được phát triển.
-        </p>
+        <RoomManagement />
       </CardContent>
     </Card>
   );
