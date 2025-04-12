@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -13,15 +12,17 @@ import { toast } from 'sonner';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-
 const RoomDetailPage = () => {
-  const { id } = useParams();
+  const {
+    id
+  } = useParams();
   const [roomType, setRoomType] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { language } = useLanguage();
+  const {
+    language
+  } = useLanguage();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
   useEffect(() => {
     window.scrollTo(0, 0);
     const fetchRoomType = async () => {
@@ -33,26 +34,22 @@ const RoomDetailPage = () => {
           return;
         }
         console.log("Fetching room with ID:", id);
-        const { data, error } = await supabase
-          .from('room_types')
-          .select('*')
-          .eq('id', id)
-          .maybeSingle();
-
+        const {
+          data,
+          error
+        } = await supabase.from('room_types').select('*').eq('id', id).maybeSingle();
         if (error) {
           console.error('Error fetching room type:', error);
           toast.error(language === 'vi' ? 'Không thể tải dữ liệu phòng' : 'Error loading room data');
           setLoading(false);
           return;
         }
-
         if (!data) {
           console.log("No room data found for ID:", id);
           toast.error(language === 'vi' ? 'Không tìm thấy loại phòng' : 'Room type not found');
           setLoading(false);
           return;
         }
-
         console.log("Room data retrieved successfully:", data);
         setRoomType(data);
       } catch (error) {
@@ -62,31 +59,24 @@ const RoomDetailPage = () => {
         setLoading(false);
       }
     };
-
     fetchRoomType();
   }, [id, language]);
-
   const getName = () => {
     return language === 'vi' ? roomType?.name : roomType?.name_en;
   };
-
   const getDescription = () => {
     return language === 'vi' ? roomType?.description : roomType?.description_en;
   };
-
   const getCapacity = () => {
     return language === 'vi' ? roomType?.capacity : roomType?.capacity_en;
   };
-
   const getAddress = () => {
     return language === 'vi' ? roomType?.address : roomType?.address_en;
   };
-
   const getGoogleMapsUrl = () => {
     const address = encodeURIComponent(getAddress() || '');
     return `https://www.google.com/maps/search/?api=1&query=${address}`;
   };
-
   const formatPrice = price => {
     return new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
       style: 'currency',
@@ -94,7 +84,6 @@ const RoomDetailPage = () => {
       maximumFractionDigits: 0
     }).format(language === 'vi' ? price : Math.round(price / 23000));
   };
-
   const getAllImages = () => {
     if (!roomType) return [];
     const allImages = [];
@@ -106,47 +95,36 @@ const RoomDetailPage = () => {
     }
     return [...new Set(allImages)];
   };
-
   const images = getAllImages();
-
   const openLightbox = index => {
     setCurrentImageIndex(index);
     setLightboxOpen(true);
   };
-
   const closeLightbox = () => {
     setLightboxOpen(false);
   };
-
   const goToNextImage = e => {
     e.stopPropagation();
     setCurrentImageIndex(prev => prev === images.length - 1 ? 0 : prev + 1);
   };
-
   const goToPrevImage = e => {
     e.stopPropagation();
     setCurrentImageIndex(prev => prev === 0 ? images.length - 1 : prev - 1);
   };
-
   const handleKeyDown = e => {
     if (e.key === 'ArrowRight') goToNextImage(e);
     if (e.key === 'ArrowLeft') goToPrevImage(e);
     if (e.key === 'Escape') closeLightbox();
   };
-
   if (loading) {
-    return (
-      <MainLayout>
+    return <MainLayout>
         <div className="container mx-auto px-4 py-20 flex justify-center items-center">
           <Loader2 className="h-10 w-10 animate-spin text-beach-600" />
         </div>
-      </MainLayout>
-    );
+      </MainLayout>;
   }
-
   if (!roomType) {
-    return (
-      <MainLayout>
+    return <MainLayout>
         <div className="container mx-auto px-4 py-20 text-center">
           <h1 className="font-serif text-3xl font-bold mb-4 text-gray-900">
             {language === 'vi' ? 'Không Tìm Thấy Loại Phòng' : 'Room Type Not Found'}
@@ -161,12 +139,9 @@ const RoomDetailPage = () => {
             </Link>
           </Button>
         </div>
-      </MainLayout>
-    );
+      </MainLayout>;
   }
-
-  return (
-    <MainLayout>
+  return <MainLayout>
       <div className="relative h-80 md:h-96 bg-beach-900">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-beach-900/70 to-beach-900/90 z-10"></div>
@@ -175,20 +150,27 @@ const RoomDetailPage = () => {
         
         <div className="relative z-20 container mx-auto px-4 h-full flex items-center">
           <div className="max-w-3xl text-white">
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              transition={{ duration: 0.5 }} 
-              className="font-display text-4xl md:text-5xl font-bold mb-4"
-            >
+            <motion.h1 initial={{
+            opacity: 0,
+            y: 20
+          }} animate={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 0.5
+          }} className="font-display text-4xl md:text-5xl font-bold mb-4 my-0 py-[2px]">
               {getName()}
             </motion.h1>
-            <motion.div 
-              className="flex flex-wrap items-center gap-2 mb-2" 
-              initial={{ opacity: 0, y: 20 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
+            <motion.div className="flex flex-wrap items-center gap-2 mb-2" initial={{
+            opacity: 0,
+            y: 20
+          }} animate={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 0.5,
+            delay: 0.2
+          }}>
               <Badge className="bg-beach-600 bg-[#004400]">{formatPrice(roomType.price)}/{language === 'vi' ? 'đêm' : 'night'}</Badge>
               <Badge variant="outline" className="border-beach-300 text-beach-50">
                 <Users className="h-3 w-3 mr-1" />
@@ -196,21 +178,20 @@ const RoomDetailPage = () => {
               </Badge>
             </motion.div>
             
-            {getAddress() && (
-              <motion.a 
-                href={getGoogleMapsUrl()} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="flex items-center text-beach-100 hover:text-beach-50 group transition-colors"
-                initial={{ opacity: 0, y: 20 }} 
-                animate={{ opacity: 1, y: 0 }} 
-                transition={{ duration: 0.5, delay: 0.3 }}
-              >
+            {getAddress() && <motion.a href={getGoogleMapsUrl()} target="_blank" rel="noopener noreferrer" className="flex items-center text-beach-100 hover:text-beach-50 group transition-colors" initial={{
+            opacity: 0,
+            y: 20
+          }} animate={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 0.5,
+            delay: 0.3
+          }}>
                 <MapPin className="h-4 w-4 mr-1" />
                 <span className="text-sm">{getAddress()}</span>
                 <ExternalLink className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </motion.a>
-            )}
+              </motion.a>}
           </div>
         </div>
       </div>
@@ -225,28 +206,26 @@ const RoomDetailPage = () => {
           </Button>
         </div>
         
-        <motion.div 
-          className="mb-12" 
-          initial={{ opacity: 0, y: 30 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ duration: 0.6 }}
-        >
+        <motion.div className="mb-12" initial={{
+        opacity: 0,
+        y: 30
+      }} animate={{
+        opacity: 1,
+        y: 0
+      }} transition={{
+        duration: 0.6
+      }}>
           <h2 className="font-display text-2xl font-bold mb-6 text-beach-900">
             {language === 'vi' ? 'Hình Ảnh Phòng' : 'Room Gallery'}
           </h2>
           
           {/* Desktop Gallery Layout - Grid Format */}
           <div className="hidden md:block">
-            {images.length > 0 ? (
-              <div className="grid grid-cols-4 grid-rows-2 gap-3 h-[400px]">
+            {images.length > 0 ? <div className="grid grid-cols-4 grid-rows-2 gap-3 h-[400px]">
                 {/* Main large image */}
                 <div className="col-span-2 row-span-2">
                   <div className="relative cursor-pointer overflow-hidden rounded-lg border border-beach-100 h-full" onClick={() => openLightbox(0)}>
-                    <img 
-                      src={images[0]} 
-                      alt={`${getName()} - 1`} 
-                      className="h-full w-full object-cover hover:scale-105 transition-transform duration-500" 
-                    />
+                    <img src={images[0]} alt={`${getName()} - 1`} className="h-full w-full object-cover hover:scale-105 transition-transform duration-500" />
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
                       <div className="bg-black/50 p-3 rounded-full">
                         <Maximize2 className="h-6 w-6 text-white" />
@@ -257,13 +236,8 @@ const RoomDetailPage = () => {
                 
                 {/* Top right */}
                 <div className="col-span-1 row-span-1">
-                  <div className="relative cursor-pointer overflow-hidden rounded-lg border border-beach-100 h-full" 
-                       onClick={() => openLightbox(images.length > 1 ? 1 : 0)}>
-                    <img 
-                      src={images.length > 1 ? images[1] : images[0]} 
-                      alt={`${getName()} - ${images.length > 1 ? 2 : 1}`} 
-                      className="h-full w-full object-cover hover:scale-105 transition-transform duration-500" 
-                    />
+                  <div className="relative cursor-pointer overflow-hidden rounded-lg border border-beach-100 h-full" onClick={() => openLightbox(images.length > 1 ? 1 : 0)}>
+                    <img src={images.length > 1 ? images[1] : images[0]} alt={`${getName()} - ${images.length > 1 ? 2 : 1}`} className="h-full w-full object-cover hover:scale-105 transition-transform duration-500" />
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
                       <div className="bg-black/50 p-2 rounded-full">
                         <Maximize2 className="h-4 w-4 text-white" />
@@ -274,13 +248,8 @@ const RoomDetailPage = () => {
                 
                 {/* Top far right */}
                 <div className="col-span-1 row-span-1">
-                  <div className="relative cursor-pointer overflow-hidden rounded-lg border border-beach-100 h-full" 
-                       onClick={() => openLightbox(images.length > 2 ? 2 : 0)}>
-                    <img 
-                      src={images.length > 2 ? images[2] : images[0]} 
-                      alt={`${getName()} - ${images.length > 2 ? 3 : 1}`} 
-                      className="h-full w-full object-cover hover:scale-105 transition-transform duration-500" 
-                    />
+                  <div className="relative cursor-pointer overflow-hidden rounded-lg border border-beach-100 h-full" onClick={() => openLightbox(images.length > 2 ? 2 : 0)}>
+                    <img src={images.length > 2 ? images[2] : images[0]} alt={`${getName()} - ${images.length > 2 ? 3 : 1}`} className="h-full w-full object-cover hover:scale-105 transition-transform duration-500" />
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
                       <div className="bg-black/50 p-2 rounded-full">
                         <Maximize2 className="h-4 w-4 text-white" />
@@ -291,13 +260,8 @@ const RoomDetailPage = () => {
                 
                 {/* Bottom right */}
                 <div className="col-span-1 row-span-1">
-                  <div className="relative cursor-pointer overflow-hidden rounded-lg border border-beach-100 h-full" 
-                       onClick={() => openLightbox(images.length > 3 ? 3 : 0)}>
-                    <img 
-                      src={images.length > 3 ? images[3] : images[0]} 
-                      alt={`${getName()} - ${images.length > 3 ? 4 : 1}`} 
-                      className="h-full w-full object-cover hover:scale-105 transition-transform duration-500" 
-                    />
+                  <div className="relative cursor-pointer overflow-hidden rounded-lg border border-beach-100 h-full" onClick={() => openLightbox(images.length > 3 ? 3 : 0)}>
+                    <img src={images.length > 3 ? images[3] : images[0]} alt={`${getName()} - ${images.length > 3 ? 4 : 1}`} className="h-full w-full object-cover hover:scale-105 transition-transform duration-500" />
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
                       <div className="bg-black/50 p-2 rounded-full">
                         <Maximize2 className="h-4 w-4 text-white" />
@@ -308,67 +272,47 @@ const RoomDetailPage = () => {
                 
                 {/* Bottom far right */}
                 <div className="col-span-1 row-span-1 relative">
-                  <div className={`relative cursor-pointer overflow-hidden rounded-lg border border-beach-100 h-full ${images.length > 5 ? 'after:absolute after:inset-0 after:bg-black/50 after:flex after:items-center after:justify-center after:text-white after:font-bold' : ''}`} 
-                       onClick={() => openLightbox(images.length > 4 ? 4 : 0)}>
-                    <img 
-                      src={images.length > 4 ? images[4] : images[0]} 
-                      alt={`${getName()} - ${images.length > 4 ? 5 : 1}`} 
-                      className="h-full w-full object-cover hover:scale-105 transition-transform duration-500" 
-                    />
+                  <div className={`relative cursor-pointer overflow-hidden rounded-lg border border-beach-100 h-full ${images.length > 5 ? 'after:absolute after:inset-0 after:bg-black/50 after:flex after:items-center after:justify-center after:text-white after:font-bold' : ''}`} onClick={() => openLightbox(images.length > 4 ? 4 : 0)}>
+                    <img src={images.length > 4 ? images[4] : images[0]} alt={`${getName()} - ${images.length > 4 ? 5 : 1}`} className="h-full w-full object-cover hover:scale-105 transition-transform duration-500" />
                     
-                    {images.length > 5 ? (
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white font-semibold text-lg z-10">
+                    {images.length > 5 ? <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white font-semibold text-lg z-10">
                         +{images.length - 5}
-                      </div>
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
+                      </div> : <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
                         <div className="bg-black/50 p-2 rounded-full">
                           <Maximize2 className="h-4 w-4 text-white" />
                         </div>
-                      </div>
-                    )}
+                      </div>}
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div className="aspect-[2/1] flex items-center justify-center bg-gray-100 rounded-lg border border-beach-100">
+              </div> : <div className="aspect-[2/1] flex items-center justify-center bg-gray-100 rounded-lg border border-beach-100">
                 <p className="text-gray-500 italic">
                   {language === 'vi' ? 'Không có hình ảnh' : 'No images available'}
                 </p>
-              </div>
-            )}
+              </div>}
           </div>
           
           {/* Mobile Gallery Carousel */}
           <div className="md:hidden w-full">
             <Carousel className="w-full">
               <CarouselContent>
-                {images.length > 0 ? images.map((image, index) => (
-                  <CarouselItem key={index} className="basis-full">
+                {images.length > 0 ? images.map((image, index) => <CarouselItem key={index} className="basis-full">
                     <div className="p-1">
-                      <AspectRatio ratio={1/1} className="overflow-hidden rounded-lg border border-beach-100 relative bg-gray-100" onClick={() => openLightbox(index)}>
-                        <img 
-                          src={image} 
-                          alt={`${getName()} - ${index + 1}`} 
-                          className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" 
-                        />
+                      <AspectRatio ratio={1 / 1} className="overflow-hidden rounded-lg border border-beach-100 relative bg-gray-100" onClick={() => openLightbox(index)}>
+                        <img src={image} alt={`${getName()} - ${index + 1}`} className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" />
                         <div className="absolute bottom-2 right-2 bg-black/50 text-white rounded-full h-8 w-8 flex items-center justify-center">
                           <Maximize2 className="h-4 w-4" />
                         </div>
                       </AspectRatio>
                     </div>
-                  </CarouselItem>
-                )) : (
-                  <CarouselItem className="basis-full">
+                  </CarouselItem>) : <CarouselItem className="basis-full">
                     <div className="p-1">
-                      <AspectRatio ratio={1/1} className="overflow-hidden rounded-lg border border-beach-100 flex items-center justify-center bg-gray-100">
+                      <AspectRatio ratio={1 / 1} className="overflow-hidden rounded-lg border border-beach-100 flex items-center justify-center bg-gray-100">
                         <p className="text-gray-500 italic">
                           {language === 'vi' ? 'Không có hình ảnh' : 'No images available'}
                         </p>
                       </AspectRatio>
                     </div>
-                  </CarouselItem>
-                )}
+                  </CarouselItem>}
               </CarouselContent>
               <div className="hidden md:block">
                 <CarouselPrevious className="-left-4 bg-white" />
@@ -376,28 +320,25 @@ const RoomDetailPage = () => {
               </div>
             </Carousel>
             
-            {images.length > 1 && (
-              <div className="mt-4 text-center">
-                <Button 
-                  variant="outline" 
-                  onClick={() => openLightbox(0)} 
-                  className="border border-beach-300 hover:bg-beach-50 text-beach-800"
-                >
+            {images.length > 1 && <div className="mt-4 text-center">
+                <Button variant="outline" onClick={() => openLightbox(0)} className="border border-beach-300 hover:bg-beach-50 text-beach-800">
                   <Maximize2 className="h-4 w-4 mr-2" />
                   {language === 'vi' ? `Xem tất cả ${images.length} ảnh` : `View all ${images.length} photos`}
                 </Button>
-              </div>
-            )}
+              </div>}
           </div>
         </motion.div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          <motion.div 
-            className="lg:col-span-2" 
-            initial={{ opacity: 0, x: -30 }} 
-            animate={{ opacity: 1, x: 0 }} 
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div className="lg:col-span-2" initial={{
+          opacity: 0,
+          x: -30
+        }} animate={{
+          opacity: 1,
+          x: 0
+        }} transition={{
+          duration: 0.6
+        }}>
             <h2 className="font-display text-2xl font-bold mb-6 text-beach-900">
               {language === 'vi' ? 'Mô Tả' : 'Description'}
             </h2>
@@ -405,51 +346,42 @@ const RoomDetailPage = () => {
               {getDescription()}
             </div>
             
-            {getAddress() && (
-              <div className="mb-8">
+            {getAddress() && <div className="mb-8">
                 <h3 className="font-display text-xl font-bold mb-4 text-beach-900">
                   {language === 'vi' ? 'Địa Chỉ' : 'Address'}
                 </h3>
-                <a 
-                  href={getGoogleMapsUrl()} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="flex items-center text-beach-800 hover:text-beach-600 group transition-colors"
-                >
+                <a href={getGoogleMapsUrl()} target="_blank" rel="noopener noreferrer" className="flex items-center text-beach-800 hover:text-beach-600 group transition-colors">
                   <MapPin className="h-5 w-5 mr-2 text-beach-600" />
                   <span>{getAddress()}</span>
                   <ExternalLink className="h-4 w-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </a>
-              </div>
-            )}
+              </div>}
             
             <div>
               <h3 className="font-display text-xl font-bold mb-4 text-beach-900">
                 {language === 'vi' ? 'Tiện Nghi Phòng' : 'Room Amenities'}
               </h3>
               
-              {roomType.amenities && Array.isArray(roomType.amenities) ? (
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {roomType.amenities.map((amenity, index) => (
-                    <li key={index} className="flex items-center gap-2 text-beach-700">
+              {roomType.amenities && Array.isArray(roomType.amenities) ? <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {roomType.amenities.map((amenity, index) => <li key={index} className="flex items-center gap-2 text-beach-700">
                       <Check className="h-4 w-4 text-beach-600" />
                       <span>{typeof amenity === 'object' ? language === 'vi' ? amenity.vi : amenity.en : amenity}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-beach-700">
+                    </li>)}
+                </ul> : <p className="text-beach-700">
                   {language === 'vi' ? 'Không có thông tin về tiện nghi' : 'No amenities information available'}
-                </p>
-              )}
+                </p>}
             </div>
           </motion.div>
           
-          <motion.div 
-            initial={{ opacity: 0, x: 30 }} 
-            animate={{ opacity: 1, x: 0 }} 
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div initial={{
+          opacity: 0,
+          x: 30
+        }} animate={{
+          opacity: 1,
+          x: 0
+        }} transition={{
+          duration: 0.6
+        }}>
             <div className="bg-beach-50 p-6 border border-beach-100 sticky top-24 rounded-lg">
               <h3 className="font-display text-xl font-bold mb-4 text-beach-900">
                 {language === 'vi' ? 'Tóm Tắt' : 'Summary'}
@@ -501,16 +433,14 @@ const RoomDetailPage = () => {
                     <li className="flex gap-2 text-beach-700">
                       <Check className="h-4 w-4 text-beach-600" />
                       <span>
-                        {language === 'vi' 
-                          ? 'Hủy phòng miễn phí trước 3 ngày' 
-                          : 'Free cancellation before 3 days'}
+                        {language === 'vi' ? 'Hủy phòng miễn phí trước 3 ngày' : 'Free cancellation before 3 days'}
                       </span>
                     </li>
                   </ul>
                 </div>
               </div>
               
-              <Button asChild className="w-full bg-beach-600 hover:bg-beach-700 text-black">
+              <Button asChild className="w-full bg-beach-600 hover:bg-beach-700 text-white">
                 <Link to={`/dat-phong?roomType=${roomType.id}`}>
                   <Calendar className="mr-2 h-4 w-4" />
                   {language === 'vi' ? 'Đặt Phòng Ngay' : 'Book Now'}
@@ -525,35 +455,20 @@ const RoomDetailPage = () => {
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
         <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-transparent border-none" onKeyDown={handleKeyDown}>
           <div className="relative h-full w-full flex items-center justify-center">
-            <button 
-              onClick={closeLightbox} 
-              className="absolute top-4 right-4 z-50 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
-            >
+            <button onClick={closeLightbox} className="absolute top-4 right-4 z-50 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors">
               <X className="h-6 w-6" />
             </button>
             
-            <button 
-              onClick={goToPrevImage} 
-              className="absolute left-4 z-50 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
-            >
+            <button onClick={goToPrevImage} className="absolute left-4 z-50 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors">
               <ChevronLeft className="h-6 w-6" />
             </button>
             
-            <button 
-              onClick={goToNextImage} 
-              className="absolute right-4 z-50 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
-            >
+            <button onClick={goToNextImage} className="absolute right-4 z-50 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors">
               <ChevronRight className="h-6 w-6" />
             </button>
             
             <div className="relative h-full w-full flex items-center justify-center">
-              {images[currentImageIndex] && (
-                <img 
-                  src={images[currentImageIndex]} 
-                  alt={`${getName()} - Full size ${currentImageIndex + 1}`} 
-                  className="max-h-[85vh] max-w-[85vw] object-contain" 
-                />
-              )}
+              {images[currentImageIndex] && <img src={images[currentImageIndex]} alt={`${getName()} - Full size ${currentImageIndex + 1}`} className="max-h-[85vh] max-w-[85vw] object-contain" />}
             </div>
             
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-black/50 text-white px-4 py-2 rounded-full">
@@ -562,8 +477,6 @@ const RoomDetailPage = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </MainLayout>
-  );
+    </MainLayout>;
 };
-
 export default RoomDetailPage;
