@@ -11,6 +11,7 @@ import { Loader2, Users, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import RoomSearchFilter from '@/components/booking/RoomSearchFilter';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 interface SearchFilters {
   checkIn: string;
@@ -276,24 +277,26 @@ const RoomTypesPage = () => {
                   viewport={{ once: true }}
                 >
                   <Card className="overflow-hidden h-full flex flex-col hover:shadow-md transition-shadow">
-                    <div className="h-60 overflow-hidden relative">
-                      <img 
-                        src={room.image_url} 
-                        alt={getRoomName(room)} 
-                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" 
-                      />
-                      {room.is_popular && (
-                        <Badge className="absolute top-3 right-3 bg-coral-500 bg-[#747911]">
-                          {language === 'vi' ? 'Phổ biến' : 'Popular'}
-                        </Badge>
-                      )}
-                      {room.remainingRooms !== undefined && (
-                        <Badge className="absolute top-3 left-3 bg-beach-600">
-                          {language === 'vi' 
-                            ? `Còn ${room.remainingRooms} phòng` 
-                            : `${room.remainingRooms} rooms left`}
-                        </Badge>
-                      )}
+                    <div className="relative">
+                      <AspectRatio ratio={1/1} className="bg-gray-100">
+                        <img 
+                          src={room.image_url} 
+                          alt={getRoomName(room)} 
+                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" 
+                        />
+                        {room.is_popular && (
+                          <Badge className="absolute top-3 right-3 bg-coral-500 bg-[#747911]">
+                            {language === 'vi' ? 'Phổ biến' : 'Popular'}
+                          </Badge>
+                        )}
+                        {room.remainingRooms !== undefined && (
+                          <Badge className="absolute top-3 left-3 bg-beach-600">
+                            {language === 'vi' 
+                              ? `Còn ${room.remainingRooms} phòng` 
+                              : `${room.remainingRooms} rooms left`}
+                          </Badge>
+                        )}
+                      </AspectRatio>
                     </div>
                     <CardContent className="py-6 flex-grow flex flex-col">
                       <div className="flex justify-between items-start mb-3">
@@ -360,7 +363,7 @@ const RoomTypesPage = () => {
       </section>
       
       <section className="py-16 md:py-24 bg-white">
-        <div className="container mx-auto px-4 text-center bg-slate-100">
+        <div className="container mx-auto px-4 text-center">
           <h2 className="font-display text-3xl font-bold mb-6 text-beach-900">
             {language === 'vi' ? 'Cần Hỗ Trợ Chọn Phòng?' : 'Need Help Choosing a Room?'}
           </h2>
@@ -370,7 +373,7 @@ const RoomTypesPage = () => {
               : 'Contact our customer care team for advice on choosing the most suitable room for your needs.'}
           </p>
           <Button asChild size="lg" className="bg-beach-600 hover:bg-beach-700 text-white">
-            <Link to="/lien-he" className="gray-900">
+            <Link to="/lien-he">
               {language === 'vi' ? 'Liên Hệ Ngay' : 'Contact Now'}
             </Link>
           </Button>
