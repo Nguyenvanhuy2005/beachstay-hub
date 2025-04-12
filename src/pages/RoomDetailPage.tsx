@@ -510,7 +510,7 @@ const RoomDetailPage = () => {
                 </div>
               </div>
               
-              <Button asChild className="w-full bg-beach-600 hover:bg-beach-700 text-white">
+              <Button asChild className="w-full bg-beach-600 hover:bg-beach-700 text-black">
                 <Link to={`/dat-phong?roomType=${roomType.id}`}>
                   <Calendar className="mr-2 h-4 w-4" />
                   {language === 'vi' ? 'Đặt Phòng Ngay' : 'Book Now'}
