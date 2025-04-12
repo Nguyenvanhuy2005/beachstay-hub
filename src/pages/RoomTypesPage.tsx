@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -130,7 +129,6 @@ const RoomTypesPage = () => {
   };
 
   const getRoomDescription = (room) => {
-    // Ưu tiên sử dụng mô tả ngắn nếu có
     if (room.short_description && language === 'vi') {
       return room.short_description;
     }
@@ -139,7 +137,6 @@ const RoomTypesPage = () => {
       return room.short_description_en;
     }
     
-    // Nếu không có mô tả ngắn, dùng mô tả đầy đủ
     return language === 'vi' ? room.description : room.description_en;
   };
 
@@ -170,11 +167,10 @@ const RoomTypesPage = () => {
     }));
   };
 
-  // Hàm cắt mô tả nếu quá dài
   const truncateDescription = (description, roomId) => {
     const isExpanded = expandedDescriptions[roomId];
-    const maxLength = 150; // Độ dài tối đa cho mô tả rút gọn
-    
+    const maxLength = 150;
+
     if (!description) return '';
     
     if (description.length <= maxLength || isExpanded) {
@@ -278,7 +274,7 @@ const RoomTypesPage = () => {
                 >
                   <Card className="overflow-hidden h-full flex flex-col hover:shadow-md transition-shadow">
                     <div className="relative">
-                      <AspectRatio ratio={1/1} className="bg-gray-100">
+                      <AspectRatio ratio={4/3} className="bg-gray-100">
                         <img 
                           src={room.image_url} 
                           alt={getRoomName(room)} 

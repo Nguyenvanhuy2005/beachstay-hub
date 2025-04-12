@@ -235,61 +235,100 @@ const RoomDetailPage = () => {
             {language === 'vi' ? 'Hình Ảnh Phòng' : 'Room Gallery'}
           </h2>
           
-          {/* Desktop Gallery Layout - Square Format */}
+          {/* Desktop Gallery Layout - Grid Format */}
           <div className="hidden md:block">
             {images.length > 0 ? (
-              <div className="grid grid-cols-3 gap-4">
-                {/* Main large image - square aspect ratio */}
+              <div className="grid grid-cols-4 grid-rows-2 gap-3 h-[400px]">
+                {/* Main large image */}
                 <div className="col-span-2 row-span-2">
                   <div className="relative cursor-pointer overflow-hidden rounded-lg border border-beach-100 h-full" onClick={() => openLightbox(0)}>
-                    <AspectRatio ratio={1/1} className="bg-gray-100">
-                      <img 
-                        src={images[0]} 
-                        alt={`${getName()} - 1`} 
-                        className="h-full w-full object-cover hover:scale-105 transition-transform duration-500" 
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
-                        <div className="bg-black/50 p-3 rounded-full">
-                          <Maximize2 className="h-6 w-6 text-white" />
-                        </div>
+                    <img 
+                      src={images[0]} 
+                      alt={`${getName()} - 1`} 
+                      className="h-full w-full object-cover hover:scale-105 transition-transform duration-500" 
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
+                      <div className="bg-black/50 p-3 rounded-full">
+                        <Maximize2 className="h-6 w-6 text-white" />
                       </div>
-                    </AspectRatio>
+                    </div>
                   </div>
                 </div>
                 
-                {/* Right side grid - 4 square images */}
-                {images.slice(1, 5).map((image, index) => (
-                  <div key={index + 1} className="aspect-square">
-                    <div className="relative cursor-pointer overflow-hidden rounded-lg border border-beach-100 h-full" onClick={() => openLightbox(index + 1)}>
-                      <AspectRatio ratio={1/1} className="bg-gray-100">
-                        <img 
-                          src={image} 
-                          alt={`${getName()} - ${index + 2}`} 
-                          className="h-full w-full object-cover hover:scale-105 transition-transform duration-500" 
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
-                          <div className="bg-black/50 p-2 rounded-full">
-                            <Maximize2 className="h-4 w-4 text-white" />
-                          </div>
-                        </div>
-                      </AspectRatio>
+                {/* Top right */}
+                <div className="col-span-1 row-span-1">
+                  <div className="relative cursor-pointer overflow-hidden rounded-lg border border-beach-100 h-full" 
+                       onClick={() => openLightbox(images.length > 1 ? 1 : 0)}>
+                    <img 
+                      src={images.length > 1 ? images[1] : images[0]} 
+                      alt={`${getName()} - ${images.length > 1 ? 2 : 1}`} 
+                      className="h-full w-full object-cover hover:scale-105 transition-transform duration-500" 
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
+                      <div className="bg-black/50 p-2 rounded-full">
+                        <Maximize2 className="h-4 w-4 text-white" />
+                      </div>
                     </div>
                   </div>
-                ))}
+                </div>
                 
-                {/* "View all" button if more than 5 images */}
-                {images.length > 5 && (
-                  <div className="col-span-3 mt-2">
-                    <Button 
-                      variant="outline" 
-                      onClick={() => openLightbox(0)} 
-                      className="w-full flex items-center justify-center gap-2 border-beach-200"
-                    >
-                      <Maximize2 className="h-4 w-4" />
-                      {language === 'vi' ? `Xem tất cả ${images.length} ảnh` : `View all ${images.length} photos`}
-                    </Button>
+                {/* Top far right */}
+                <div className="col-span-1 row-span-1">
+                  <div className="relative cursor-pointer overflow-hidden rounded-lg border border-beach-100 h-full" 
+                       onClick={() => openLightbox(images.length > 2 ? 2 : 0)}>
+                    <img 
+                      src={images.length > 2 ? images[2] : images[0]} 
+                      alt={`${getName()} - ${images.length > 2 ? 3 : 1}`} 
+                      className="h-full w-full object-cover hover:scale-105 transition-transform duration-500" 
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
+                      <div className="bg-black/50 p-2 rounded-full">
+                        <Maximize2 className="h-4 w-4 text-white" />
+                      </div>
+                    </div>
                   </div>
-                )}
+                </div>
+                
+                {/* Bottom right */}
+                <div className="col-span-1 row-span-1">
+                  <div className="relative cursor-pointer overflow-hidden rounded-lg border border-beach-100 h-full" 
+                       onClick={() => openLightbox(images.length > 3 ? 3 : 0)}>
+                    <img 
+                      src={images.length > 3 ? images[3] : images[0]} 
+                      alt={`${getName()} - ${images.length > 3 ? 4 : 1}`} 
+                      className="h-full w-full object-cover hover:scale-105 transition-transform duration-500" 
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
+                      <div className="bg-black/50 p-2 rounded-full">
+                        <Maximize2 className="h-4 w-4 text-white" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Bottom far right */}
+                <div className="col-span-1 row-span-1 relative">
+                  <div className={`relative cursor-pointer overflow-hidden rounded-lg border border-beach-100 h-full ${images.length > 5 ? 'after:absolute after:inset-0 after:bg-black/50 after:flex after:items-center after:justify-center after:text-white after:font-bold' : ''}`} 
+                       onClick={() => openLightbox(images.length > 4 ? 4 : 0)}>
+                    <img 
+                      src={images.length > 4 ? images[4] : images[0]} 
+                      alt={`${getName()} - ${images.length > 4 ? 5 : 1}`} 
+                      className="h-full w-full object-cover hover:scale-105 transition-transform duration-500" 
+                    />
+                    
+                    {images.length > 5 ? (
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white font-semibold text-lg z-10">
+                        +{images.length - 5}
+                      </div>
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
+                        <div className="bg-black/50 p-2 rounded-full">
+                          <Maximize2 className="h-4 w-4 text-white" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="aspect-[2/1] flex items-center justify-center bg-gray-100 rounded-lg border border-beach-100">

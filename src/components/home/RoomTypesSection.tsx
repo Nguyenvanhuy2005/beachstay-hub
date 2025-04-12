@@ -346,7 +346,7 @@ const RoomTypesSection = () => {
               {roomTypes.map(room => (
                 <motion.div key={room.id} className="bg-white rounded-lg overflow-hidden shadow-lg border border-gray-100 hover:shadow-xl transition-shadow" variants={itemVariants}>
                   <div className="relative">
-                    <AspectRatio ratio={1/1} className="bg-gray-100">
+                    <AspectRatio ratio={4/3} className="bg-gray-100">
                       <img 
                         src={room.image_url} 
                         alt={getRoomName(room)} 
@@ -431,7 +431,7 @@ const RoomTypesSection = () => {
             {roomTypes.map(room => (
               <motion.div key={room.id} className="bg-white rounded-lg overflow-hidden shadow-lg border border-gray-100 hover:shadow-xl transition-shadow" variants={itemVariants}>
                 <div className="relative">
-                  <AspectRatio ratio={1/1} className="bg-gray-100">
+                  <AspectRatio ratio={4/3} className="bg-gray-100">
                     <img 
                       src={room.image_url} 
                       alt={getRoomName(room)} 
