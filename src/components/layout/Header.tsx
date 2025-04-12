@@ -1,16 +1,15 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X, Phone, AtSign, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
-
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { t } = useLanguage();
-
+  const {
+    t
+  } = useLanguage();
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -18,7 +17,6 @@ const Header = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
   return <header className="bg-slate-50">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between">
@@ -39,7 +37,7 @@ const Header = () => {
               <span className="text-green-900 font-bold">0933 669 154</span>
             </a>
             <LanguageSwitcher className={isScrolled ? "text-primary" : "text-white"} />
-            <Button size="sm" className="bg-primary hover:bg-green-800 text-white" onClick={() => window.location.href = '/dat-phong'}>
+            <Button size="sm" onClick={() => window.location.href = '/dat-phong'} className="text-white bg-slate-950 hover:bg-slate-800">
               {t('book_now')}
             </Button>
           </div>
@@ -79,12 +77,16 @@ const Header = () => {
         </div>}
     </header>;
 };
-
-const NavLinks = ({ isScrolled }: { isScrolled: boolean; }) => {
+const NavLinks = ({
+  isScrolled
+}: {
+  isScrolled: boolean;
+}) => {
   const textColor = isScrolled ? "text-primary" : "text-white";
   const hoverColor = isScrolled ? "hover:text-secondary" : "hover:text-accent";
-  const { t } = useLanguage();
-
+  const {
+    t
+  } = useLanguage();
   return <>
       <Link to="/" className="">
         {t('home')}
@@ -106,5 +108,4 @@ const NavLinks = ({ isScrolled }: { isScrolled: boolean; }) => {
       </Link>
     </>;
 };
-
 export default Header;

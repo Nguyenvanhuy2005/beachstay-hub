@@ -58,7 +58,7 @@ const Footer = () => {
               <motion.a href="https://www.instagram.com/a.nvillage_official/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-terra-300 transition-colors transform hover:scale-110 duration-300" whileHover={{
               y: -3
             }}>
-                <Instagram size={20} />
+                <Instagram size={20} className="=" />
               </motion.a>
               <motion.a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-terra-300 transition-colors transform hover:scale-110 duration-300" whileHover={{
               y: -3
@@ -109,7 +109,7 @@ const Footer = () => {
           <motion.div variants={footerAnimation} initial="initial" whileInView="animate" viewport={{
           once: true
         }} custom={3}>
-            <h3 className="font-display text-lg font-semibold mb-4">{t('contact')}</h3>
+            <h3 className="font-display text-lg font-semibold mb-4 text-slate-50">{t('contact')}</h3>
             <ul className="space-y-3">
               <li className="flex items-start">
                 <MapPin size={18} className="mr-2 mt-1 text-terra-400" />
@@ -129,7 +129,7 @@ const Footer = () => {
           <motion.div variants={footerAnimation} initial="initial" whileInView="animate" viewport={{
           once: true
         }} custom={4}>
-            <h3 className="font-display text-lg font-semibold mb-4">
+            <h3 className="font-display text-lg font-semibold mb-4 text-slate-50">
               {t('subscribe')}
             </h3>
             <p className="text-gray-300 mb-4">
