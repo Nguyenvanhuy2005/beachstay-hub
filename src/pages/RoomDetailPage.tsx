@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -510,7 +509,7 @@ const RoomDetailPage = () => {
                 </div>
               </div>
               
-              <Button asChild className="w-full bg-beach-600 hover:bg-beach-700 text-white">
+              <Button asChild className="w-full bg-beach-600 hover:bg-beach-700 text-beach-50">
                 <Link to={`/dat-phong?roomType=${roomType.id}`}>
                   <Calendar className="mr-2 h-4 w-4" />
                   {language === 'vi' ? 'Đặt Phòng Ngay' : 'Book Now'}
@@ -521,7 +520,6 @@ const RoomDetailPage = () => {
         </div>
       </div>
       
-      {/* Lightbox for image gallery */}
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
         <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-transparent border-none" onKeyDown={handleKeyDown}>
           <div className="relative h-full w-full flex items-center justify-center">
