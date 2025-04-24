@@ -24,7 +24,7 @@ export const useAuth = () => {
       if (error) {
         console.error('Login error:', error);
         if (error.message.includes('Invalid login credentials')) {
-          setErrorMessage('Invalid login credentials');
+          setErrorMessage('Invalid login credentials. If you are a new admin, please use the forgot password feature to set your password first.');
         } else {
           setErrorMessage(`Login error: ${error.message}`);
         }
@@ -79,7 +79,7 @@ export const useAuth = () => {
         toast.success('Password reset email has been sent');
         return true;
       } else {
-        setErrorMessage('Email does not have admin privileges.');
+        setErrorMessage('Email does not have admin privileges. If you believe this is an error, please contact the system administrator.');
         toast.error('Email does not have admin privileges');
       }
     } catch (error: any) {

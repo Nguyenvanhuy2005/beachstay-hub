@@ -17,9 +17,17 @@ export const LoginForm = ({ onForgotPasswordClick }: LoginFormProps) => {
   const { login, isLoading, errorMessage } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showTypo, setShowTypo] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if they're trying to use @annamvillage.com instead of @annamvillage.vn
+    if (email === 'admin@annamvillage.com') {
+      setShowTypo(true);
+      return;
+    }
+    
     await login(email, password);
   };
 
@@ -31,7 +39,10 @@ export const LoginForm = ({ onForgotPasswordClick }: LoginFormProps) => {
           id="email"
           type="email"
           value={email}
-          onChange={e => setEmail(e.target.value)}
+          onChange={e => {
+            setEmail(e.target.value);
+            setShowTypo(false);
+          }}
           placeholder="admin@annamvillage.vn"
           className="bg-white"
           required
@@ -53,6 +64,14 @@ export const LoginForm = ({ onForgotPasswordClick }: LoginFormProps) => {
         <Alert variant="destructive" className="text-sm">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
+      )}
+
+      {showTypo && (
+        <Alert className="bg-yellow-50 text-yellow-700 border-yellow-200 text-sm">
+          <AlertDescription>
+            Bạn đang sử dụng admin@annamvillage.com? Có thể bạn đã nhầm, hãy thử admin@annamvillage.vn
+          </AlertDescription>
         </Alert>
       )}
 

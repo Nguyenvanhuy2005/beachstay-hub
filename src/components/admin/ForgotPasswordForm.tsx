@@ -17,9 +17,17 @@ export const ForgotPasswordForm = ({ onBackToLogin }: ForgotPasswordFormProps) =
   const { resetPassword, isLoading, errorMessage } = useAuth();
   const [email, setEmail] = useState('');
   const [resetMessage, setResetMessage] = useState('');
+  const [showTypo, setShowTypo] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if they're trying to use @annamvillage.com instead of @annamvillage.vn
+    if (email === 'admin@annamvillage.com') {
+      setShowTypo(true);
+      return;
+    }
+    
     const success = await resetPassword(email);
     if (success) {
       setResetMessage(t('reset_password_sent'));
@@ -34,7 +42,10 @@ export const ForgotPasswordForm = ({ onBackToLogin }: ForgotPasswordFormProps) =
           id="forgot-email"
           type="email"
           value={email}
-          onChange={e => setEmail(e.target.value)}
+          onChange={e => {
+            setEmail(e.target.value);
+            setShowTypo(false);
+          }}
           placeholder="Enter your admin email"
           className="bg-white"
           required
@@ -45,6 +56,14 @@ export const ForgotPasswordForm = ({ onBackToLogin }: ForgotPasswordFormProps) =
         <Alert variant="destructive" className="text-sm">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
+      )}
+
+      {showTypo && (
+        <Alert className="bg-yellow-50 text-yellow-700 border-yellow-200 text-sm">
+          <AlertDescription>
+            Bạn đang sử dụng admin@annamvillage.com? Có thể bạn đã nhầm, hãy thử admin@annamvillage.vn thay thế.
+          </AlertDescription>
         </Alert>
       )}
 
