@@ -46,7 +46,7 @@ const AdminPage = () => {
       const isLoggedIn = !!session?.user;
       setIsAuthenticated(isLoggedIn);
       
-      if (!isLoggedIn) {
+      if (event === 'SIGNED_OUT') {
         navigate('/admin/login');
       }
     });
@@ -56,6 +56,7 @@ const AdminPage = () => {
     };
   }, [navigate]);
 
+  // Show loading state while checking authentication
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -64,7 +65,8 @@ const AdminPage = () => {
     );
   }
 
-  return isAuthenticated ? <AdminDashboardPage /> : null;
+  // If authenticated, show dashboard, otherwise redirect to login
+  return isAuthenticated ? <AdminDashboardPage /> : <Navigate to="/admin/login" />;
 };
 
 export default AdminPage;

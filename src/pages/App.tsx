@@ -17,11 +17,11 @@ import ContactPage from "@/pages/ContactPage";
 import BookingPage from "@/pages/BookingPage";
 import BookingSuccessPage from "@/pages/BookingSuccessPage";
 import AdminPage from "@/pages/AdminPage";
-import AdminLoginPage from "@/pages/AdminLoginPage";
 import TermsPage from "@/pages/TermsPage";
 import PrivacyPage from "@/pages/PrivacyPage";
 import CookiePage from "@/pages/CookiePage";
 import { supabase } from '@/lib/supabase';
+import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
 
 // Create QueryClient for React Query
@@ -35,6 +35,8 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
+  const { toast } = useToast();
+  
   useEffect(() => {
     // Ensure we have a storage bucket for images
     const createImageBucket = async () => {
@@ -72,12 +74,10 @@ const App = () => {
               <Route path="/lien-he" element={<ContactPage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/dat-phong" element={<BookingPage />} />
-              <Route path="/booking" element={<BookingPage />} />
               <Route path="/booking-success" element={<BookingSuccessPage />} />
               <Route path="/blog" element={<BlogPage />} />
               <Route path="/blog/:slug" element={<BlogPostPage />} />
-              <Route path="/admin/login" element={<AdminLoginPage />} />
-              <Route path="/admin" element={<AdminPage />} />
+              <Route path="/admin/*" element={<AdminPage />} />
               <Route path="/dieu-khoan" element={<TermsPage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/bao-mat" element={<PrivacyPage />} />
