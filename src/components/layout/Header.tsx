@@ -1,15 +1,20 @@
 
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X, Phone, AtSign, MapPin } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, X, Phone, AtSign, MapPin, LogIn, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,6 +23,48 @@ const Header = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        setIsAdmin(!!data.session);
+      } catch (error) {
+        console.error("Error checking admin status:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAdminStatus();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAdmin(!!session);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleAdminAction = () => {
+    if (isAdmin) {
+      navigate('/admin');
+    } else {
+      navigate('/admin/login');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast.success("Đăng xuất thành công");
+      navigate('/');
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast.error("Lỗi khi đăng xuất");
+    }
+  };
 
   return <header className="bg-slate-50">
       <div className="container mx-auto px-4 md:px-6">
@@ -42,6 +89,32 @@ const Header = () => {
             <Button size="sm" className="bg-primary hover:bg-green-800 text-white" onClick={() => window.location.href = '/dat-phong'}>
               {t('book_now')}
             </Button>
+            
+            {!isLoading && (
+              <>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex items-center gap-1"
+                  onClick={handleAdminAction}
+                >
+                  {isAdmin ? <Shield size={16} /> : <LogIn size={16} />}
+                  <span>{isAdmin ? "Quản trị" : "Admin"}</span>
+                </Button>
+                
+                {isAdmin && (
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    className="flex items-center gap-1"
+                    onClick={handleLogout}
+                  >
+                    <LogOut size={16} />
+                    <span>Đăng xuất</span>
+                  </Button>
+                )}
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -75,6 +148,32 @@ const Header = () => {
             <Button size="sm" className="bg-primary hover:bg-green-800 mt-2 text-white" onClick={() => window.location.href = '/dat-phong'}>
               {t('book_now')}
             </Button>
+            
+            {!isLoading && (
+              <div className="flex flex-col space-y-2 mt-2 pt-2 border-t border-gray-200">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex items-center gap-1 justify-center"
+                  onClick={handleAdminAction}
+                >
+                  {isAdmin ? <Shield size={16} /> : <LogIn size={16} />}
+                  <span>{isAdmin ? "Quản trị" : "Admin"}</span>
+                </Button>
+                
+                {isAdmin && (
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    className="flex items-center gap-1 justify-center"
+                    onClick={handleLogout}
+                  >
+                    <LogOut size={16} />
+                    <span>Đăng xuất</span>
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         </div>}
     </header>;

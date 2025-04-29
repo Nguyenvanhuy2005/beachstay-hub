@@ -273,6 +273,8 @@ export type Database = {
           name: string
           name_en: string
           price: number
+          short_description: string | null
+          short_description_en: string | null
           weekend_price: number | null
         }
         Insert: {
@@ -291,6 +293,8 @@ export type Database = {
           name: string
           name_en: string
           price: number
+          short_description?: string | null
+          short_description_en?: string | null
           weekend_price?: number | null
         }
         Update: {
@@ -309,6 +313,8 @@ export type Database = {
           name?: string
           name_en?: string
           price?: number
+          short_description?: string | null
+          short_description_en?: string | null
           weekend_price?: number | null
         }
         Relationships: []

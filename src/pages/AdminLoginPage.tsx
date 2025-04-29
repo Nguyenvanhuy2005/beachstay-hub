@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -7,13 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, UserPlus } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLanguage } from '@/contexts/LanguageContext';
+
 const AdminLoginPage = () => {
-  const {
-    t
-  } = useLanguage();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,19 +22,19 @@ const AdminLoginPage = () => {
   const [forgotEmail, setForgotEmail] = useState('');
   const [resetMessage, setResetMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isCreatingAccount, setIsCreatingAccount] = useState(false);
 
   // Check if user is already logged in
   React.useEffect(() => {
     const checkSession = async () => {
-      const {
-        data
-      } = await supabase.auth.getSession();
+      const { data } = await supabase.auth.getSession();
       if (data.session) {
         navigate('/admin');
       }
     };
     checkSession();
   }, [navigate]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -46,10 +46,7 @@ const AdminLoginPage = () => {
       const cleanEmail = email.trim().toLowerCase();
 
       // Sign in with email/password
-      const {
-        data,
-        error
-      } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: cleanEmail,
         password
       });
@@ -76,6 +73,7 @@ const AdminLoginPage = () => {
       setIsLoading(false);
     }
   };
+
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -89,10 +87,11 @@ const AdminLoginPage = () => {
       }
 
       // Kiểm tra xem email có tồn tại trong hệ thống không
-      const {
-        data: adminUsers,
-        error: adminError
-      } = await supabase.from('admin_users').select('*').eq('email', cleanEmail).maybeSingle();
+      const { data: adminUsers, error: adminError } = await supabase
+        .from('admin_users')
+        .select('*')
+        .eq('email', cleanEmail)
+        .maybeSingle();
       if (adminError && !adminError.message.includes('No rows found')) {
         console.error('Error checking admin email:', adminError);
       }
@@ -100,9 +99,7 @@ const AdminLoginPage = () => {
       // Nếu email là admin@annamvillage.vn hoặc có trong bảng admin_users
       if (cleanEmail === 'admin@annamvillage.vn' || adminUsers) {
         // Send password reset email
-        const {
-          error
-        } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+        const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
           redirectTo: `${window.location.origin}/admin/reset-password`
         });
         if (error) {
@@ -125,83 +122,143 @@ const AdminLoginPage = () => {
       setIsLoading(false);
     }
   };
+
+  const createAdminAccount = async () => {
+    setIsCreatingAccount(true);
+    setErrorMessage('');
+    try {
+      // First check if the account already exists
+      const { data: { user }, error: signUpError } = await supabase.auth.signUp({
+        email: 'nvh.adser@gmail.com',
+        password: 'Admin@123456'
+      });
+
+      if (signUpError) {
+        if (signUpError.message.includes('User already registered')) {
+          toast.info('Tài khoản admin đã tồn tại');
+        } else {
+          console.error('Error creating admin account:', signUpError);
+          setErrorMessage(`Lỗi: ${signUpError.message}`);
+          toast.error('Không thể tạo tài khoản admin');
+        }
+        return;
+      }
+
+      if (user) {
+        // Make sure user is in admin_users table
+        const { error: dbError } = await supabase
+          .from('admin_users')
+          .upsert({ email: 'nvh.adser@gmail.com', is_active: true })
+          .select();
+
+        if (dbError) {
+          console.error('Error updating admin_users:', dbError);
+          setErrorMessage(`Lỗi cập nhật admin_users: ${dbError.message}`);
+        } else {
+          toast.success('Tài khoản admin đã được tạo');
+          setEmail('nvh.adser@gmail.com');
+          setPassword('Admin@123456');
+        }
+      }
+    } catch (error: any) {
+      console.error('Error in creating account:', error);
+      setErrorMessage(`Lỗi: ${error.message}`);
+      toast.error('Lỗi tạo tài khoản admin');
+    } finally {
+      setIsCreatingAccount(false);
+    }
+  };
+
   const renderForgotPasswordForm = () => {
     return <form onSubmit={handleForgotPassword} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="forgot-email">{t('email')}</Label>
-          <Input id="forgot-email" type="email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} placeholder="Nhập email quản trị của bạn" className="bg-white" required />
-        </div>
-        
-        {errorMessage && <Alert variant="destructive" className="text-sm">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>{errorMessage}</AlertDescription>
-          </Alert>}
-        
-        {resetMessage && <Alert className="bg-green-50 text-green-600 border-green-200 text-sm">
-            <AlertDescription>{resetMessage}</AlertDescription>
-          </Alert>}
-        
-        <div className="flex flex-col space-y-2">
-          <Button type="submit" className="w-full bg-beach-600 hover:bg-beach-700" disabled={isLoading}>
-            {isLoading ? 'Đang gửi...' : t('send_reset')}
-          </Button>
-          
-          <Button type="button" variant="outline" className="w-full border-beach-300 text-beach-700" onClick={() => setIsForgotPassword(false)} disabled={isLoading}>
-            {t('back_to_login')}
-          </Button>
-        </div>
-      </form>;
+      <div className="space-y-2">
+        <Label htmlFor="forgot-email">{t('email')}</Label>
+        <Input id="forgot-email" type="email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} placeholder="Nhập email quản trị của bạn" className="bg-white" required />
+      </div>
+
+      {errorMessage && <Alert variant="destructive" className="text-sm">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertDescription>{errorMessage}</AlertDescription>
+      </Alert>}
+
+      {resetMessage && <Alert className="bg-green-50 text-green-600 border-green-200 text-sm">
+        <AlertDescription>{resetMessage}</AlertDescription>
+      </Alert>}
+
+      <div className="flex flex-col space-y-2">
+        <Button type="submit" className="w-full bg-beach-600 hover:bg-beach-700" disabled={isLoading}>
+          {isLoading ? 'Đang gửi...' : t('send_reset')}
+        </Button>
+
+        <Button type="button" variant="outline" className="w-full border-beach-300 text-beach-700" onClick={() => setIsForgotPassword(false)} disabled={isLoading}>
+          {t('back_to_login')}
+        </Button>
+      </div>
+    </form>;
   };
+
   const renderLoginForm = () => {
     return <form onSubmit={handleLogin} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="email">{t('email')}</Label>
-          <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="admin@annamvillage.vn" className="bg-white" required />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="password">{t('password')}</Label>
-          <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="bg-white" required />
-        </div>
-        
-        {errorMessage && <Alert variant="destructive" className="text-sm">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>{errorMessage}</AlertDescription>
-          </Alert>}
-        
-        <div className="text-sm bg-yellow-50 text-yellow-700 p-3 rounded border border-yellow-200">
-          
-          <p className="mt-1">Nếu bạn chưa có tài khoản hoặc quên mật khẩu, hãy sử dụng chức năng quên mật khẩu để thiết lập tài khoản.</p>
-        </div>
-        
-        <div className="flex flex-col space-y-2">
-          <Button type="submit" disabled={isLoading} className="w-full bg-beach-600 hover:bg-beach-700 text-slate-50 bg-slate-900 hover:bg-slate-800">
-            {isLoading ? t('signing_in') : t('login')}
-          </Button>
-          
-          <Button type="button" variant="link" className="text-beach-700" onClick={() => setIsForgotPassword(true)} disabled={isLoading}>
-            {t('forgot_password')}
-          </Button>
-        </div>
-      </form>;
-  };
-  return <MainLayout>
-      <div className="bg-beach-50 min-h-[80vh] py-12 flex items-center justify-center">
-        <div className="container mx-auto px-4 max-w-md">
-          <Card className="shadow-lg border-t-4 border-t-beach-600">
-            <CardHeader className="space-y-1 text-center">
-              <CardTitle className="text-2xl font-bold">
-                {isForgotPassword ? t('reset_password') : t('admin_login')}
-              </CardTitle>
-              <CardDescription>
-                {isForgotPassword ? 'Nhập email của bạn để đặt lại mật khẩu' : 'Nhập thông tin đăng nhập'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isForgotPassword ? renderForgotPasswordForm() : renderLoginForm()}
-            </CardContent>
-          </Card>
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="email">{t('email')}</Label>
+        <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="admin@annamvillage.vn" className="bg-white" required />
       </div>
-    </MainLayout>;
+      <div className="space-y-2">
+        <Label htmlFor="password">{t('password')}</Label>
+        <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="bg-white" required />
+      </div>
+
+      {errorMessage && <Alert variant="destructive" className="text-sm">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertDescription>{errorMessage}</AlertDescription>
+      </Alert>}
+
+      <div className="text-sm bg-yellow-50 text-yellow-700 p-3 rounded border border-yellow-200">
+        <p className="mt-1">Nếu bạn chưa có tài khoản hoặc quên mật khẩu, hãy sử dụng chức năng quên mật khẩu để thiết lập tài khoản.</p>
+      </div>
+
+      <div className="flex flex-col space-y-2">
+        <Button type="submit" disabled={isLoading} className="w-full bg-beach-600 hover:bg-beach-700 text-slate-50 bg-slate-900 hover:bg-slate-800">
+          {isLoading ? t('signing_in') : t('login')}
+        </Button>
+
+        <Button 
+          type="button" 
+          variant="outline"
+          className="w-full flex items-center gap-2 justify-center" 
+          onClick={createAdminAccount} 
+          disabled={isCreatingAccount}
+        >
+          <UserPlus size={16} />
+          {isCreatingAccount ? 'Đang tạo...' : 'Tạo tài khoản nvh.adser@gmail.com'}
+        </Button>
+
+        <Button type="button" variant="link" className="text-beach-700" onClick={() => setIsForgotPassword(true)} disabled={isLoading}>
+          {t('forgot_password')}
+        </Button>
+      </div>
+    </form>;
+  };
+
+  return <MainLayout>
+    <div className="bg-beach-50 min-h-[80vh] py-12 flex items-center justify-center">
+      <div className="container mx-auto px-4 max-w-md">
+        <Card className="shadow-lg border-t-4 border-t-beach-600">
+          <CardHeader className="space-y-1 text-center">
+            <CardTitle className="text-2xl font-bold">
+              {isForgotPassword ? t('reset_password') : t('admin_login')}
+            </CardTitle>
+            <CardDescription>
+              {isForgotPassword ? 'Nhập email của bạn để đặt lại mật khẩu' : 'Nhập thông tin đăng nhập'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isForgotPassword ? renderForgotPasswordForm() : renderLoginForm()}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  </MainLayout>;
 };
+
 export default AdminLoginPage;
