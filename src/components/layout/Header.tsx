@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X, Phone, AtSign, MapPin, LogIn, LogOut, Shield } from "lucide-react";
@@ -8,16 +7,16 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/lib/supabase";
 import { isAdmin } from "@/lib/supabase";
 import { toast } from "sonner";
-
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { t } = useLanguage();
+  const {
+    t
+  } = useLanguage();
   const navigate = useNavigate();
-
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -25,15 +24,16 @@ const Header = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
   useEffect(() => {
     const checkUserStatus = async () => {
       try {
         // Check authentication
-        const { data } = await supabase.auth.getSession();
+        const {
+          data
+        } = await supabase.auth.getSession();
         const hasSession = !!data.session;
         setIsAuthenticated(hasSession);
-        
+
         // If authenticated, check admin status
         if (hasSession) {
           const adminStatus = await isAdmin();
@@ -45,13 +45,12 @@ const Header = () => {
         setIsLoading(false);
       }
     };
-
     checkUserStatus();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const {
+      data: authListener
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       const hasSession = !!session;
       setIsAuthenticated(hasSession);
-      
       if (hasSession) {
         const adminStatus = await isAdmin();
         setIsAdminUser(adminStatus);
@@ -59,12 +58,10 @@ const Header = () => {
         setIsAdminUser(false);
       }
     });
-
     return () => {
       authListener.subscription.unsubscribe();
     };
   }, []);
-
   const handleAdminAction = () => {
     if (isAuthenticated) {
       navigate('/admin');
@@ -72,7 +69,6 @@ const Header = () => {
       navigate('/admin/login');
     }
   };
-
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
@@ -85,7 +81,6 @@ const Header = () => {
       toast.error("Lỗi khi đăng xuất");
     }
   };
-
   return <header className="bg-slate-50">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between">
@@ -110,31 +105,14 @@ const Header = () => {
               {t('book_now')}
             </Button>
             
-            {!isLoading && (
-              <>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="flex items-center gap-1"
-                  onClick={handleAdminAction}
-                >
-                  {isAuthenticated ? <Shield size={16} /> : <LogIn size={16} />}
-                  <span>{isAuthenticated ? "Quản trị" : "Admin"}</span>
-                </Button>
+            {!isLoading && <>
                 
-                {isAuthenticated && (
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    className="flex items-center gap-1"
-                    onClick={handleLogout}
-                  >
+                
+                {isAuthenticated && <Button size="sm" variant="ghost" className="flex items-center gap-1" onClick={handleLogout}>
                     <LogOut size={16} />
                     <span>Đăng xuất</span>
-                  </Button>
-                )}
-              </>
-            )}
+                  </Button>}
+              </>}
           </div>
 
           {/* Mobile Menu Button */}
@@ -169,41 +147,31 @@ const Header = () => {
               {t('book_now')}
             </Button>
             
-            {!isLoading && (
-              <div className="flex flex-col space-y-2 mt-2 pt-2 border-t border-gray-200">
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="flex items-center gap-1 justify-center"
-                  onClick={handleAdminAction}
-                >
+            {!isLoading && <div className="flex flex-col space-y-2 mt-2 pt-2 border-t border-gray-200">
+                <Button size="sm" variant="outline" className="flex items-center gap-1 justify-center" onClick={handleAdminAction}>
                   {isAuthenticated ? <Shield size={16} /> : <LogIn size={16} />}
                   <span>{isAuthenticated ? "Quản trị" : "Admin"}</span>
                 </Button>
                 
-                {isAuthenticated && (
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    className="flex items-center gap-1 justify-center"
-                    onClick={handleLogout}
-                  >
+                {isAuthenticated && <Button size="sm" variant="ghost" className="flex items-center gap-1 justify-center" onClick={handleLogout}>
                     <LogOut size={16} />
                     <span>Đăng xuất</span>
-                  </Button>
-                )}
-              </div>
-            )}
+                  </Button>}
+              </div>}
           </div>
         </div>}
     </header>;
 };
-
-const NavLinks = ({ isScrolled }: { isScrolled: boolean; }) => {
+const NavLinks = ({
+  isScrolled
+}: {
+  isScrolled: boolean;
+}) => {
   const textColor = isScrolled ? "text-primary" : "text-white";
   const hoverColor = isScrolled ? "hover:text-secondary" : "hover:text-accent";
-  const { t } = useLanguage();
-
+  const {
+    t
+  } = useLanguage();
   return <>
       <Link to="/" className="">
         {t('home')}
@@ -225,5 +193,4 @@ const NavLinks = ({ isScrolled }: { isScrolled: boolean; }) => {
       </Link>
     </>;
 };
-
 export default Header;
