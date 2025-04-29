@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -5,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, ExternalLink, ImageIcon } from 'lucide-react';
 import AddBlogPostModal from './AddBlogPostModal';
+import EditBlogPostModal from './EditBlogPostModal';
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -22,7 +24,9 @@ const ContentManagement = () => {
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
+  const [postToEdit, setPostToEdit] = useState<string | null>(null);
 
   useEffect(() => {
     fetchContent();
@@ -73,6 +77,11 @@ const ContentManagement = () => {
     } finally {
       setPostToDelete(null);
     }
+  };
+
+  const handleEditPost = (id: string) => {
+    setPostToEdit(id);
+    setEditModalOpen(true);
   };
 
   const togglePublished = async (id: string, currentValue: boolean) => {
@@ -211,7 +220,11 @@ const ContentManagement = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2 justify-end">
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleEditPost(post.id)}
+                      >
                         <Pencil className="h-4 w-4 mr-1" /> Sửa
                       </Button>
                       <Button 
@@ -246,6 +259,13 @@ const ContentManagement = () => {
         open={addModalOpen} 
         onOpenChange={setAddModalOpen} 
         onPostAdded={fetchContent} 
+      />
+
+      <EditBlogPostModal
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        onPostEdited={fetchContent}
+        postId={postToEdit}
       />
 
       <AlertDialog open={!!postToDelete} onOpenChange={(open) => !open && setPostToDelete(null)}>
