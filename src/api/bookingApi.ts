@@ -64,17 +64,36 @@ export const createBooking = async (bookingData: BookingFormData) => {
     // Booking successful, send email notification with enhanced logging
     try {
       console.log('Preparing to send email notification for booking...');
-      console.log('Booking data being sent to function:', JSON.stringify({
+      
+      // Get the admin email from admin_access table instead of hardcoding
+      const { data: adminData, error: adminError } = await supabase
+        .from('admin_access')
+        .select('email')
+        .eq('is_active', true)
+        .limit(1)
+        .single();
+      
+      if (adminError) {
+        console.error('Error fetching admin email:', adminError);
+        toast.error('Đặt phòng thành công nhưng không thể gửi email xác nhận. Chúng tôi sẽ liên hệ với bạn sớm.');
+        return { success: true, data, bookingId: data[0]?.id };
+      }
+      
+      const adminEmail = adminData?.email || "nvh.adser@gmail.com"; // Fallback to default if not found
+      console.log('Admin email for notification:', adminEmail);
+      
+      const requestBody = { 
         booking: bookingData,
-        adminEmail: "nvh.adser@gmail.com"
-      }));
+        adminEmail: adminEmail
+      };
+      
+      console.log('Sending notification request to edge function:', JSON.stringify(requestBody));
       
       const emailResponse = await supabase.functions.invoke('send-booking-notification', {
-        body: { 
-          booking: bookingData,
-          adminEmail: "nvh.adser@gmail.com" // Admin email
-        }
+        body: requestBody
       });
+      
+      console.log('Email notification response received:', emailResponse);
       
       if (emailResponse.error) {
         console.error('Email notification error:', emailResponse.error);
@@ -89,8 +108,9 @@ export const createBooking = async (bookingData: BookingFormData) => {
           toast.error('Đặt phòng thành công nhưng không thể gửi email xác nhận. Chúng tôi sẽ liên hệ với bạn sớm.');
         }
       } else {
-        console.log('Email notification response:', emailResponse.data);
+        console.log('Email notification response data:', emailResponse.data);
         console.log('Email notification sent successfully');
+        toast.success('Đặt phòng thành công! Email xác nhận đã được gửi.');
       }
     } catch (emailError) {
       console.error('Failed to send email notification:', emailError);

@@ -1,616 +1,411 @@
-import React, { useState, useRef } from 'react';
-import { supabase, getPublicUrl } from '@/lib/supabase';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
+import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { Loader2, Plus, X, Upload } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
+import { ImageUpload } from './ImageUpload';
+import { Loader2, AlertTriangle } from 'lucide-react';
 
-const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }) => {
-  // Basic content states
+interface AddBlogPostModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onPostAdded: () => void;
+}
+
+const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }: AddBlogPostModalProps) => {
   const [title, setTitle] = useState('');
   const [titleEn, setTitleEn] = useState('');
   const [slug, setSlug] = useState('');
+  const [author, setAuthor] = useState('Annam Village');
   const [content, setContent] = useState('');
   const [contentEn, setContentEn] = useState('');
   const [excerpt, setExcerpt] = useState('');
   const [excerptEn, setExcerptEn] = useState('');
-  const [author, setAuthor] = useState('');
-  const [tagInput, setTagInput] = useState('');
-  const [tags, setTags] = useState([]);
-  const [published, setPublished] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagsInput, setTagsInput] = useState('');
+  const [isPublished, setIsPublished] = useState(false);
+  const [featuredImage, setFeaturedImage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
-  // Media states
-  const [featuredImage, setFeaturedImage] = useState(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const [featuredImageUrl, setFeaturedImageUrl] = useState('');
-  
-  // Simple SEO states
-  const [metaTitle, setMetaTitle] = useState('');
-  const [metaDescription, setMetaDescription] = useState('');
-  const [metaKeywords, setMetaKeywords] = useState([]);
-  const [metaKeywordInput, setMetaKeywordInput] = useState('');
-  
-  const fileInputRef = useRef(null);
-
-  const quillModules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'indent': '-1'}, { 'indent': '+1' }],
-      ['link', 'image'],
-      ['clean']
-    ],
-  };
-
-  const quillFormats = [
-    'header',
-    'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'indent',
-    'link', 'image'
-  ];
-
-  const handleTitleChange = (e) => {
-    const newTitle = e.target.value;
-    setTitle(newTitle);
-    
-    // Generate slug from title if slug is empty
-    if (!slug) {
-      setSlug(generateSlug(newTitle));
-    }
-    
-    // Use title as meta title if empty
-    if (!metaTitle) {
-      setMetaTitle(newTitle);
-    }
-  };
-
-  const generateSlug = (text) => {
+  const generateSlug = (text: string) => {
     return text
-      .toString()
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+      .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase()
       .trim()
-      .replace(/\s+/g, '-') // Replace spaces with -
-      .replace(/[^\w\-]+/g, '') // Remove all non-word chars
-      .replace(/\-\-+/g, '-'); // Replace multiple - with single -
+      .replace(/\s+/g, '-')
+      .replace(/[^\w\-]+/g, '')
+      .replace(/\-\-+/g, '-');
   };
-
-  const handleAddTag = (e) => {
-    if (e.key === 'Enter' && tagInput.trim()) {
+  
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    setTitle(newTitle);
+    setSlug(generateSlug(newTitle));
+  };
+  
+  const handleTagsInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
-      if (!tags.includes(tagInput.trim())) {
-        setTags([...tags, tagInput.trim()]);
+      const tag = tagsInput.trim();
+      
+      if (tag && !tags.includes(tag)) {
+        setTags([...tags, tag]);
+        setTagsInput('');
       }
-      setTagInput('');
     }
   };
-
-  const handleRemoveTag = (tagToRemove) => {
+  
+  const removeTag = (tagToRemove: string) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
   
-  const handleAddMetaKeyword = (e) => {
-    if (e.key === 'Enter' && metaKeywordInput.trim()) {
-      e.preventDefault();
-      if (!metaKeywords.includes(metaKeywordInput.trim())) {
-        setMetaKeywords([...metaKeywords, metaKeywordInput.trim()]);
-      }
-      setMetaKeywordInput('');
-    }
-  };
-
-  const handleRemoveMetaKeyword = (keywordToRemove) => {
-    setMetaKeywords(metaKeywords.filter(keyword => keyword !== keywordToRemove));
-  };
-
-  const handleFeaturedImageChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    try {
-      setUploadingImage(true);
-      console.log('Starting image upload process...');
-      
-      // Check file size
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast.error('Kích thước tệp quá lớn (tối đa 5MB)');
-        return;
-      }
-      
-      // Check file type
-      if (!file.type.startsWith('image/')) {
-        toast.error('Chỉ chấp nhận tệp hình ảnh');
-        return;
-      }
-      
-      // Generate a unique path for the image
-      const timestamp = new Date().getTime();
-      const fileName = `${timestamp}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-      
-      console.log('Uploading image with filename:', fileName);
-      
-      // Upload to Supabase Storage with direct path (not nested)
-      const { data, error } = await supabase.storage
-        .from('blog-images')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-      
-      if (error) {
-        console.error('Error uploading image:', error);
-        toast.error(`Không thể tải lên hình ảnh: ${error.message}`);
-        return;
-      }
-      
-      console.log('Upload successful:', data);
-      
-      // Get public URL of the uploaded image
-      const publicUrl = getPublicUrl('blog-images', fileName);
-      console.log('Public URL:', publicUrl);
-      
-      setFeaturedImage(file);
-      setFeaturedImageUrl(publicUrl);
-      
-      toast.success('Đã tải lên hình ảnh thành công');
-      
-    } catch (error) {
-      console.error('Unexpected error uploading image:', error);
-      toast.error(`Không thể tải lên hình ảnh: ${error.message}`);
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
   const handleSubmit = async () => {
-    if (!title || !slug || !content || !contentEn || !author) {
-      toast.error('Vui lòng điền đầy đủ thông tin bắt buộc');
-      return;
-    }
-    
-    setIsSubmitting(true);
+    setIsLoading(true);
+    setError(null);
     
     try {
-      console.log('Checking if slug exists...');
+      if (!title) {
+        setError('Vui lòng nhập tiêu đề bài viết');
+        setIsLoading(false);
+        return;
+      }
+      
+      if (!slug) {
+        setError('Vui lòng nhập đường dẫn cho bài viết');
+        setIsLoading(false);
+        return;
+      }
+      
+      if (!content) {
+        setError('Vui lòng nhập nội dung bài viết');
+        setIsLoading(false);
+        return;
+      }
+      
+      console.log('Creating new blog post with data:', {
+        title,
+        title_en: titleEn,
+        slug,
+        author,
+        content,
+        content_en: contentEn,
+        excerpt,
+        excerpt_en: excerptEn,
+        tags,
+        published: isPublished,
+        featured_image: featuredImage,
+      });
+      
       // Check if slug already exists
-      const { data: existingPost, error: checkError } = await supabase
+      const { data: existingPost, error: slugCheckError } = await supabase
         .from('blog_posts')
         .select('id')
         .eq('slug', slug)
         .maybeSingle();
       
-      if (checkError) {
-        console.error('Error checking existing slug:', checkError);
-        throw checkError;
+      if (slugCheckError) {
+        console.error('Error checking for existing slug:', slugCheckError);
+        throw new Error('Không thể kiểm tra đường dẫn');
       }
       
       if (existingPost) {
-        toast.error('Đường dẫn (slug) đã tồn tại, vui lòng sử dụng một đường dẫn khác');
-        setIsSubmitting(false);
+        setError('Đường dẫn này đã tồn tại, vui lòng sử dụng đường dẫn khác');
+        setIsLoading(false);
         return;
       }
       
-      console.log('Creating blog post with data:', {
-        title,
-        slug,
-        content: content.substring(0, 50) + '...',
-        author,
-        tags,
-        published
-      });
-      
-      // Simple structured data
-      const structuredData = {
-        "@context": "https://schema.org",
-        "@type": "BlogPosting",
-        "headline": title,
-        "image": featuredImageUrl || "",
-        "author": {
-          "@type": "Person",
-          "name": author
-        },
-        "datePublished": new Date().toISOString(),
-        "dateModified": new Date().toISOString(),
-        "publisher": {
-          "@type": "Organization",
-          "name": "Annam Village",
-          "logo": {
-            "@type": "ImageObject",
-            "url": "https://annamvillage.vn/logo.png"
-          }
-        }
-      };
-      
-      // Create new blog post with basic SEO fields
-      const newPost = {
-        title,
-        title_en: titleEn,
-        slug,
-        content,
-        content_en: contentEn,
-        excerpt: excerpt || null,
-        excerpt_en: excerptEn || null,
-        author,
-        tags,
-        published,
-        published_at: published ? new Date().toISOString() : null,
-        featured_image: featuredImageUrl || null,
-        // Basic SEO fields
-        meta_title: metaTitle || title,
-        meta_description: metaDescription || excerpt,
-        meta_keywords: metaKeywords,
-        structured_data: structuredData
-      };
-      
-      console.log('Sending insert request to blog_posts table');
-      const { data, error } = await supabase
+      // Create post in database
+      const { data, error: insertError } = await supabase
         .from('blog_posts')
-        .insert(newPost)
-        .select();
+        .insert({
+          title,
+          title_en: titleEn || title, // Default to Vietnamese title if English not provided
+          slug,
+          author,
+          content,
+          content_en: contentEn || content, // Default to Vietnamese content if English not provided
+          excerpt: excerpt || title.substring(0, 150), // Default to first 150 chars of title if excerpt not provided
+          excerpt_en: excerptEn || titleEn?.substring(0, 150) || title.substring(0, 150),
+          tags,
+          published: isPublished,
+          published_at: isPublished ? new Date().toISOString() : null,
+          featured_image: featuredImage
+        })
+        .select()
+        .single();
       
-      if (error) {
-        console.error('Error inserting blog post:', error);
-        throw error;
+      if (insertError) {
+        console.error('Error creating blog post:', insertError);
+        throw new Error('Không thể tạo bài viết');
       }
       
       console.log('Blog post created successfully:', data);
       
-      // Send notification email to admin if blog post was created
+      // Send notification about new blog post
       try {
-        const blogPost = data[0];
-        if (blogPost) {
-          await fetch(`${import.meta.env.VITE_SUPABASE_FUNCTIONS_URL}/send-booking-notification`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              blogPost,
-              adminEmail: 'admin@annamvillage.vn' // You can replace with your actual admin email
-            }),
+        // Get admin email
+        const { data: adminData, error: adminError } = await supabase
+          .from('admin_access')
+          .select('email')
+          .eq('is_active', true)
+          .limit(1)
+          .maybeSingle();
+        
+        if (!adminError && adminData?.email) {
+          console.log('Sending blog post notification to:', adminData.email);
+          
+          await supabase.functions.invoke('send-booking-notification', {
+            body: { 
+              blogPost: data,
+              adminEmail: adminData.email
+            }
           });
         }
-      } catch (emailError) {
-        console.error("Error sending notification email:", emailError);
-        // Don't throw here, we don't want to fail the blog creation if just the email fails
+      } catch (notificationError) {
+        console.error('Error sending blog post notification:', notificationError);
+        // Don't throw - we already created the blog post successfully
       }
       
-      toast.success('Đã tạo bài viết thành công');
+      toast.success('Đã tạo bài viết thành công!');
       onPostAdded();
-      handleReset();
+      resetForm();
       onOpenChange(false);
       
-    } catch (error) {
-      console.error('Error creating blog post:', error);
-      toast.error(`Không thể tạo bài viết: ${error.message}`);
+    } catch (error: any) {
+      console.error('Error in blog post creation:', error);
+      setError(error.message || 'Đã xảy ra lỗi khi tạo bài viết');
+      toast.error('Không thể tạo bài viết');
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
-
-  const handleReset = () => {
+  
+  const resetForm = () => {
     setTitle('');
     setTitleEn('');
     setSlug('');
+    setAuthor('Annam Village');
     setContent('');
     setContentEn('');
     setExcerpt('');
     setExcerptEn('');
-    setAuthor('');
     setTags([]);
-    setTagInput('');
-    setPublished(false);
-    setFeaturedImage(null);
-    setFeaturedImageUrl('');
-    
-    // Reset SEO fields
-    setMetaTitle('');
-    setMetaDescription('');
-    setMetaKeywords([]);
-    setMetaKeywordInput('');
+    setTagsInput('');
+    setIsPublished(false);
+    setFeaturedImage('');
+    setError(null);
   };
 
   return (
     <Dialog open={open} onOpenChange={(newOpen) => {
-      if (!newOpen) {
-        handleReset();
-      }
+      if (!newOpen) resetForm();
       onOpenChange(newOpen);
     }}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Tạo Bài Viết Mới</DialogTitle>
+          <DialogTitle>Tạo bài viết mới</DialogTitle>
         </DialogHeader>
         
-        <div className="py-4 space-y-6">
-          <Tabs defaultValue="vietnamese">
-            <TabsList className="mb-4">
-              <TabsTrigger value="vietnamese">Tiếng Việt</TabsTrigger>
-              <TabsTrigger value="english">Tiếng Anh</TabsTrigger>
-              <TabsTrigger value="metadata">Thông tin khác</TabsTrigger>
-              <TabsTrigger value="seo">SEO</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="vietnamese" className="space-y-4">
-              <div>
-                <Label htmlFor="title">Tiêu Đề (Tiếng Việt) <span className="text-red-500">*</span></Label>
-                <Input 
-                  id="title" 
-                  value={title} 
-                  onChange={handleTitleChange} 
-                  placeholder="Nhập tiêu đề bài viết" 
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-md flex items-start gap-2 mb-4">
+            <AlertTriangle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+            <p>{error}</p>
+          </div>
+        )}
+        
+        <Tabs defaultValue="vietnamese">
+          <TabsList className="mb-4">
+            <TabsTrigger value="vietnamese">Tiếng Việt</TabsTrigger>
+            <TabsTrigger value="english">Tiếng Anh</TabsTrigger>
+            <TabsTrigger value="settings">Cài đặt</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="vietnamese" className="space-y-4">
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="title">Tiêu đề</Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={handleTitleChange}
+                  placeholder="Nhập tiêu đề bài viết"
                 />
               </div>
               
-              <div>
-                <Label htmlFor="excerpt">Tóm Tắt (Tiếng Việt)</Label>
-                <Textarea 
-                  id="excerpt" 
-                  value={excerpt} 
-                  onChange={(e) => setExcerpt(e.target.value)} 
-                  placeholder="Tóm tắt ngắn gọn về bài viết (sẽ hiển thị ở trang danh sách)" 
-                  rows={3} 
+              <div className="grid gap-2">
+                <Label htmlFor="excerpt">Tóm tắt</Label>
+                <Textarea
+                  id="excerpt"
+                  value={excerpt}
+                  onChange={(e) => setExcerpt(e.target.value)}
+                  placeholder="Nhập tóm tắt bài viết (150-200 ký tự)"
+                  rows={3}
                 />
               </div>
               
-              <div>
-                <Label htmlFor="content">Nội Dung (Tiếng Việt) <span className="text-red-500">*</span></Label>
-                <div className="mt-1 mb-8 h-64 border rounded-md">
+              <div className="grid gap-2">
+                <Label htmlFor="content">Nội dung</Label>
+                <div className="min-h-[300px]">
                   <ReactQuill 
                     theme="snow" 
                     value={content} 
                     onChange={setContent}
-                    modules={quillModules}
-                    formats={quillFormats}
-                    placeholder="Nhập nội dung b��i viết..."
-                    className="h-56"
+                    placeholder="Nhập nội dung bài viết..."
+                    modules={{
+                      toolbar: [
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link', 'image'],
+                        ['clean']
+                      ],
+                    }}
                   />
                 </div>
               </div>
-            </TabsContent>
-            
-            <TabsContent value="english" className="space-y-4">
-              <div>
-                <Label htmlFor="title_en">Tiêu Đề (Tiếng Anh) <span className="text-red-500">*</span></Label>
-                <Input 
-                  id="title_en" 
-                  value={titleEn} 
-                  onChange={(e) => setTitleEn(e.target.value)} 
-                  placeholder="Enter post title" 
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="english" className="space-y-4">
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="title-en">Title (English)</Label>
+                <Input
+                  id="title-en"
+                  value={titleEn}
+                  onChange={(e) => setTitleEn(e.target.value)}
+                  placeholder="Enter post title in English"
                 />
               </div>
               
-              <div>
-                <Label htmlFor="excerpt_en">Tóm Tắt (Tiếng Anh)</Label>
-                <Textarea 
-                  id="excerpt_en" 
-                  value={excerptEn} 
-                  onChange={(e) => setExcerptEn(e.target.value)} 
-                  placeholder="Brief excerpt about the post" 
-                  rows={3} 
+              <div className="grid gap-2">
+                <Label htmlFor="excerpt-en">Excerpt (English)</Label>
+                <Textarea
+                  id="excerpt-en"
+                  value={excerptEn}
+                  onChange={(e) => setExcerptEn(e.target.value)}
+                  placeholder="Enter post excerpt in English (150-200 characters)"
+                  rows={3}
                 />
               </div>
               
-              <div>
-                <Label htmlFor="content_en">Nội Dung (Tiếng Anh) <span className="text-red-500">*</span></Label>
-                <div className="mt-1 mb-8 h-64 border rounded-md">
+              <div className="grid gap-2">
+                <Label htmlFor="content-en">Content (English)</Label>
+                <div className="min-h-[300px]">
                   <ReactQuill 
                     theme="snow" 
                     value={contentEn} 
                     onChange={setContentEn}
-                    modules={quillModules}
-                    formats={quillFormats}
-                    placeholder="Enter post content..."
-                    className="h-56"
+                    placeholder="Enter post content in English..."
+                    modules={{
+                      toolbar: [
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link', 'image'],
+                        ['clean']
+                      ],
+                    }}
                   />
                 </div>
               </div>
-            </TabsContent>
-            
-            <TabsContent value="metadata" className="space-y-4">
-              <div>
-                <Label htmlFor="slug">Đường Dẫn (Slug) <span className="text-red-500">*</span></Label>
-                <Input 
-                  id="slug" 
-                  value={slug} 
-                  onChange={(e) => setSlug(e.target.value)} 
-                  placeholder="duong-dan-bai-viet" 
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="settings" className="space-y-4">
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="slug">Đường dẫn</Label>
+                <Input
+                  id="slug"
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  placeholder="URL friendly slug (e.g. my-blog-post)"
                 />
-                <p className="text-sm text-gray-500 mt-1">URL: /blog/{slug}</p>
+                <p className="text-sm text-muted-foreground">
+                  Blog sẽ được truy cập tại: /blog/{slug}
+                </p>
               </div>
               
-              <div>
-                <Label htmlFor="author">Tác Giả <span className="text-red-500">*</span></Label>
-                <Input 
-                  id="author" 
-                  value={author} 
-                  onChange={(e) => setAuthor(e.target.value)} 
-                  placeholder="Tên tác giả" 
+              <div className="grid gap-2">
+                <Label htmlFor="author">Tác giả</Label>
+                <Input
+                  id="author"
+                  value={author}
+                  onChange={(e) => setAuthor(e.target.value)}
+                  placeholder="Tên tác giả"
                 />
               </div>
               
-              <div>
-                <Label htmlFor="tags">Thẻ</Label>
+              <div className="grid gap-2">
+                <Label htmlFor="tags">Thẻ (tags)</Label>
                 <div className="flex flex-wrap gap-2 mb-2">
-                  {tags.map((tag, index) => (
-                    <Badge key={index} className="flex items-center gap-1">
-                      {tag}
+                  {tags.map((tag) => (
+                    <div key={tag} className="bg-gray-100 px-2 py-1 rounded-full flex items-center gap-1">
+                      <span>{tag}</span>
                       <button 
                         type="button" 
-                        onClick={() => handleRemoveTag(tag)}
-                        className="text-xs hover:bg-red-600 rounded-full h-4 w-4 inline-flex items-center justify-center"
+                        onClick={() => removeTag(tag)}
+                        className="h-4 w-4 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-xs"
                       >
-                        <X className="h-3 w-3" />
+                        ×
                       </button>
-                    </Badge>
+                    </div>
                   ))}
                 </div>
-                <Input 
-                  id="tags" 
-                  value={tagInput} 
-                  onChange={(e) => setTagInput(e.target.value)} 
-                  onKeyDown={handleAddTag} 
-                  placeholder="Nhập thẻ và nhấn Enter" 
+                <Input
+                  id="tags"
+                  value={tagsInput}
+                  onChange={(e) => setTagsInput(e.target.value)}
+                  onKeyDown={handleTagsInputKeyDown}
+                  placeholder="Nhập tag và nhấn Enter"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Nhập tag và nhấn Enter để thêm. Tags giúp phân loại bài viết.
+                </p>
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="featured-image">Hình ảnh chính</Label>
+                <ImageUpload
+                  value={featuredImage}
+                  onChange={setFeaturedImage}
+                  bucketName="blog-images"
+                  folderPath="featured"
                 />
               </div>
               
-              <div>
-                <Label htmlFor="featured-image">Ảnh Đại Diện</Label>
-                <div className="mt-2">
-                  {featuredImageUrl ? (
-                    <div className="relative w-full h-48 rounded-md overflow-hidden mb-2">
-                      <img 
-                        src={featuredImageUrl} 
-                        alt="Featured" 
-                        className="w-full h-full object-cover"
-                      />
-                      <button
-                        type="button"
-                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full"
-                        onClick={() => {
-                          setFeaturedImage(null);
-                          setFeaturedImageUrl('');
-                        }}
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <Button
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={uploadingImage}
-                      className="w-full h-24 border-dashed"
-                    >
-                      {uploadingImage ? (
-                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                      ) : (
-                        <Upload className="h-5 w-5 mr-2" />
-                      )}
-                      {uploadingImage ? 'Đang tải lên...' : 'Tải lên ảnh đại diện'}
-                    </Button>
-                  )}
-                  <input 
-                    type="file" 
-                    ref={fileInputRef}
-                    className="hidden" 
-                    accept="image/*"
-                    onChange={handleFeaturedImageChange}
-                  />
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <Switch 
                   id="published" 
-                  checked={published}
-                  onCheckedChange={setPublished}
+                  checked={isPublished}
+                  onCheckedChange={setIsPublished}
                 />
                 <Label htmlFor="published">Xuất bản ngay</Label>
               </div>
-            </TabsContent>
-            
-            <TabsContent value="seo" className="space-y-4">
-              <div>
-                <Label htmlFor="metaTitle">Tiêu đề SEO</Label>
-                <Input 
-                  id="metaTitle" 
-                  value={metaTitle} 
-                  onChange={(e) => setMetaTitle(e.target.value)} 
-                  placeholder={title || "Tiêu đề hiển thị trên kết quả tìm kiếm"} 
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Độ dài lý tưởng: 50-60 ký tự. Hiện tại: {metaTitle.length} ký tự
-                </p>
-              </div>
-              
-              <div>
-                <Label htmlFor="metaDescription">Mô tả SEO</Label>
-                <Textarea 
-                  id="metaDescription" 
-                  value={metaDescription} 
-                  onChange={(e) => setMetaDescription(e.target.value)} 
-                  placeholder={excerpt || "Mô tả ngắn hiển thị trên kết quả tìm kiếm"}
-                  rows={3}
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Độ dài lý tưởng: 150-160 ký tự. Hiện tại: {metaDescription.length} ký tự
-                </p>
-              </div>
-              
-              <div>
-                <Label htmlFor="metaKeywords">Từ khóa SEO</Label>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {metaKeywords.map((keyword, index) => (
-                    <Badge key={index} className="flex items-center gap-1">
-                      {keyword}
-                      <button 
-                        type="button" 
-                        onClick={() => handleRemoveMetaKeyword(keyword)}
-                        className="text-xs hover:bg-red-600 rounded-full h-4 w-4 inline-flex items-center justify-center"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-                <Input 
-                  id="metaKeywords" 
-                  value={metaKeywordInput} 
-                  onChange={(e) => setMetaKeywordInput(e.target.value)} 
-                  onKeyDown={handleAddMetaKeyword} 
-                  placeholder="Nhập từ khóa và nhấn Enter" 
-                />
-              </div>
-              
-              <div className="bg-muted/30 p-4 rounded-lg border border-muted">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="font-medium">SEO Preview</h3>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sky-600 text-base font-medium">
-                    {metaTitle || title || "Tiêu đề bài viết của bạn"}
-                  </p>
-                  <p className="text-green-700 text-sm">
-                    annamvillage.vn/blog/{slug || "duong-dan-bai-viet"}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {metaDescription || excerpt || "Mô tả bài viết của bạn sẽ xuất hiện ở đây..."}
-                  </p>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
+            </div>
+          </TabsContent>
+        </Tabs>
         
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Hủy
-          </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Đang Tạo...
-              </>
-            ) : (
-              <>
-                <Plus className="mr-2 h-4 w-4" />
-                Tạo Bài Viết
-              </>
-            )}
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Hủy</Button>
+          <Button 
+            onClick={handleSubmit} 
+            disabled={isLoading}
+            className="gap-2"
+          >
+            {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+            {isLoading ? 'Đang lưu...' : 'Tạo bài viết'}
           </Button>
         </DialogFooter>
       </DialogContent>

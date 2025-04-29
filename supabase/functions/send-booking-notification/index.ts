@@ -17,6 +17,7 @@ interface EmailData {
 async function sendEmail(emailData: EmailData) {
   const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
   if (!RESEND_API_KEY) {
+    console.error("RESEND_API_KEY is not set in environment variables");
     throw new Error("RESEND_API_KEY is not set");
   }
 
@@ -31,7 +32,7 @@ async function sendEmail(emailData: EmailData) {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Annam Village <no-reply@booking.annamvillage.com>", // Sử dụng domain mới đã xác minh
+        from: "Annam Village <no-reply@booking.annamvillage.com>",
         to: [emailData.to],
         subject: emailData.subject,
         html: emailData.html,
@@ -43,6 +44,8 @@ async function sendEmail(emailData: EmailData) {
     console.log("Email API response:", data);
     
     if (!response.ok) {
+      console.error(`Resend API error status: ${response.status}`);
+      console.error(`Resend API error body: ${JSON.stringify(data)}`);
       throw new Error(`Resend API error: ${response.status} ${JSON.stringify(data)}`);
     }
     
@@ -54,21 +57,26 @@ async function sendEmail(emailData: EmailData) {
 }
 
 serve(async (req) => {
+  console.log("🚀 Received request to send-booking-notification function");
+  
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
+    console.log("Handling CORS preflight request");
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    console.log("Received request to send-booking-notification function");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY");
     
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      {
-        auth: { persistSession: false }
-      }
-    );
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error("Missing Supabase environment variables");
+    }
+    
+    console.log("Initializing Supabase client");
+    const supabaseClient = createClient(supabaseUrl, supabaseKey, {
+      auth: { persistSession: false }
+    });
 
     let requestData;
     try {
@@ -122,7 +130,7 @@ serve(async (req) => {
           subject: `[Annam Village] Đặt Phòng Mới từ ${booking.fullName}`,
           html: adminEmailHtml,
         });
-        console.log("Admin email sent successfully");
+        console.log("Admin email sent successfully:", adminEmailResponse);
 
         // Prepare customer email content
         const customerEmailHtml = `
@@ -151,7 +159,7 @@ serve(async (req) => {
           subject: `Xác Nhận Đặt Phòng - Annam Village`,
           html: customerEmailHtml,
         });
-        console.log("Customer email sent successfully");
+        console.log("Customer email sent successfully:", customerEmailResponse);
 
         return new Response(JSON.stringify({ 
           success: true, 
@@ -172,6 +180,7 @@ serve(async (req) => {
     else if (requestData.blogPost) {
       // Handle blog post notification
       const { blogPost, adminEmail } = requestData;
+      console.log("Processing blog post notification:", blogPost.title);
       
       // Prepare email content for blog post
       const emailHtml = `
@@ -190,21 +199,31 @@ serve(async (req) => {
         <p>Xin cảm ơn,<br>Hệ thống Annam Village</p>
       `;
       
-      // Send email to admin
-      const emailResponse = await sendEmail({
-        to: adminEmail,
-        subject: `[Annam Village] Bài Viết Mới: ${blogPost.title}`,
-        html: emailHtml,
-      });
-      
-      return new Response(JSON.stringify(emailResponse), {
-        status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
+      try {
+        console.log("Sending blog post notification email to:", adminEmail);
+        // Send email to admin
+        const emailResponse = await sendEmail({
+          to: adminEmail,
+          subject: `[Annam Village] Bài Viết Mới: ${blogPost.title}`,
+          html: emailHtml,
+        });
+        console.log("Blog post notification email sent successfully:", emailResponse);
+        
+        return new Response(JSON.stringify(emailResponse), {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      } catch (emailError) {
+        console.error("Failed to send blog post notification:", emailError);
+        return new Response(JSON.stringify({ error: emailError.message }), {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      }
     }
     
     // If neither booking nor blogPost is provided
-    return new Response(JSON.stringify({ error: "Invalid request data" }), {
+    return new Response(JSON.stringify({ error: "Invalid request data - missing booking or blogPost object" }), {
       status: 400,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
