@@ -9,7 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { Loader2, CheckCircle, XCircle, Clock, RefreshCw } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 
 interface Booking {
   id: string;
@@ -88,10 +88,10 @@ const BookingsManagement = () => {
       console.log('Fetched bookings:', bookingsData);
       
       if (bookingsData && bookingsData.length > 0) {
-        // Enhance bookings with room names
+        // Enhance bookings with room names - FIX: Use roomTypes instead of roomTypeMap
         const enhancedBookings = bookingsData.map(booking => ({
           ...booking,
-          room_name: booking.room_type_id ? roomTypeMap[booking.room_type_id] || 'Unknown Room' : 'No Room Selected'
+          room_name: booking.room_type_id ? roomTypes[booking.room_type_id] || 'Unknown Room' : 'No Room Selected'
         }));
         
         setBookings(enhancedBookings);
@@ -262,7 +262,7 @@ const BookingsManagement = () => {
                       <div className="text-sm text-muted-foreground">{booking.phone}</div>
                     </TableCell>
                     <TableCell>
-                      {booking.room_name || roomTypes[booking.room_type_id] || (language === 'vi' ? 'Không xác định' : 'Unknown')}
+                      {booking.room_name || (booking.room_type_id && roomTypes[booking.room_type_id]) || (language === 'vi' ? 'Không xác định' : 'Unknown')}
                     </TableCell>
                     <TableCell>
                       <div>{formatDate(booking.check_in)}</div>
