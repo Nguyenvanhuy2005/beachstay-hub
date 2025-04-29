@@ -58,7 +58,7 @@ const Footer = () => {
               <motion.a href="https://www.instagram.com/a.nvillage_official/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-terra-300 transition-colors transform hover:scale-110 duration-300" whileHover={{
               y: -3
             }}>
-                <Instagram size={20} className="=" />
+                <Instagram size={20} />
               </motion.a>
               <motion.a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-terra-300 transition-colors transform hover:scale-110 duration-300" whileHover={{
               y: -3
@@ -109,11 +109,13 @@ const Footer = () => {
           <motion.div variants={footerAnimation} initial="initial" whileInView="animate" viewport={{
           once: true
         }} custom={3}>
-            <h3 className="font-display text-lg font-semibold mb-4 text-slate-50">{t('contact')}</h3>
+            <h3 className="font-display text-lg font-semibold mb-4">{t('contact')}</h3>
             <ul className="space-y-3">
               <li className="flex items-start">
                 <MapPin size={18} className="mr-2 mt-1 text-terra-400" />
-                <span className="text-slate-50">234 Phan Chu Trinh, Phường 2, Vũng Tàu, Bà Rịa - Vũng Tàu</span>
+                <span className="text-slate-50">
+                  234 Phan Chu Trinh, Phường 2, TP. Vũng Tàu, Việt Nam
+                </span>
               </li>
               <li className="flex items-center">
                 <Phone size={18} className="mr-2 text-terra-400" />
@@ -121,7 +123,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center">
                 <Mail size={18} className="mr-2 text-terra-400" />
-                <a href="mailto:annamvillage.vn@gmail.com" className="text-gray-50 hover:text-terra-300 transition-colors">annamvillage.vn@gmail.com</a>
+                <a href="mailto:info@annamvillage.vn" className="text-gray-50 hover:text-terra-300 transition-colors">info@annamvillage.vn</a>
               </li>
             </ul>
           </motion.div>
@@ -129,7 +131,7 @@ const Footer = () => {
           <motion.div variants={footerAnimation} initial="initial" whileInView="animate" viewport={{
           once: true
         }} custom={4}>
-            <h3 className="font-display text-lg font-semibold mb-4 text-slate-50">
+            <h3 className="font-display text-lg font-semibold mb-4">
               {t('subscribe')}
             </h3>
             <p className="text-gray-300 mb-4">

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Users, Wifi, Coffee, Bath, Tv, Loader2, Car, Umbrella, Ban, Plane, LifeBuoy, UtensilsCrossed, ShowerHead, Bed, FlameKindling, Refrigerator } from "lucide-react";
+import { ArrowRight, Users, Wifi, Coffee, Bath, Tv, Loader2, Car, Umbrella, Ban, Plane, LifeBuoy, UtensilsCrossed, ShowerHead, Bed, FlameKindling, Refrigerator, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import AnimationWrapper from "@/components/utils/AnimationWrapper";
 import { useToast } from "@/hooks/use-toast";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const fallbackRooms = [{
   id: "fallback-1",
@@ -346,21 +345,14 @@ const RoomTypesSection = () => {
               {roomTypes.map(room => (
                 <motion.div key={room.id} className="bg-white rounded-lg overflow-hidden shadow-lg border border-gray-100 hover:shadow-xl transition-shadow" variants={itemVariants}>
                   <div className="relative">
-                    <AspectRatio ratio={4/3} className="bg-gray-100">
-                      <img 
-                        src={room.image_url} 
-                        alt={getRoomName(room)} 
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
-                        onError={e => {
-                          e.currentTarget.src = "/placeholder.svg";
-                        }} 
-                      />
-                      {room.is_popular && (
-                        <Badge className="absolute top-4 right-4 bg-coral-500 bg-[#24490f]">
-                          {language === 'vi' ? 'Phổ biến' : 'Popular'}
-                        </Badge>
-                      )}
-                    </AspectRatio>
+                    <img src={room.image_url} alt={getRoomName(room)} className="w-full h-60 object-cover" onError={e => {
+                      e.currentTarget.src = "/placeholder.svg";
+                    }} />
+                    {room.is_popular && (
+                      <Badge className="absolute top-4 right-4 bg-coral-500 bg-[#24490f]">
+                        {language === 'vi' ? 'Phổ biến' : 'Popular'}
+                      </Badge>
+                    )}
                   </div>
                   <div className="p-6">
                     <h3 className="font-display font-bold text-xl text-gray-900 mb-2">
@@ -431,21 +423,14 @@ const RoomTypesSection = () => {
             {roomTypes.map(room => (
               <motion.div key={room.id} className="bg-white rounded-lg overflow-hidden shadow-lg border border-gray-100 hover:shadow-xl transition-shadow" variants={itemVariants}>
                 <div className="relative">
-                  <AspectRatio ratio={4/3} className="bg-gray-100">
-                    <img 
-                      src={room.image_url} 
-                      alt={getRoomName(room)} 
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
-                      onError={e => {
-                        e.currentTarget.src = "/placeholder.svg";
-                      }} 
-                    />
-                    {room.is_popular && (
-                      <Badge className="absolute top-4 right-4 bg-coral-500 bg-[#24490f]">
-                        {language === 'vi' ? 'Phổ biến' : 'Popular'}
-                      </Badge>
-                    )}
-                  </AspectRatio>
+                  <img src={room.image_url} alt={getRoomName(room)} className="w-full h-60 object-cover" onError={e => {
+                    e.currentTarget.src = "/placeholder.svg";
+                  }} />
+                  {room.is_popular && (
+                    <Badge className="absolute top-4 right-4 bg-coral-500 bg-[#24490f]">
+                      {language === 'vi' ? 'Phổ biến' : 'Popular'}
+                    </Badge>
+                  )}
                 </div>
                 <div className="p-6">
                   <h3 className="font-display font-bold text-xl text-gray-900 mb-2">
@@ -502,7 +487,7 @@ const RoomTypesSection = () => {
         )}
 
         <AnimationWrapper direction="up" delay={0.3} once={true}>
-          <div className="text-center mt-12">
+          <div className="text-center mt-12 bg-[#275101]">
             <Button asChild className="bg-beach-600 hover:bg-beach-700 text-white px-8 py-6">
               <Link to="/loai-phong">
                 {language === 'vi' ? 'Xem Tất Cả Loại Phòng' : 'View All Room Types'} <ArrowRight className="ml-2 h-5 w-5" />

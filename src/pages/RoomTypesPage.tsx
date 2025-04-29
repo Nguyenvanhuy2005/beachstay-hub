@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -10,7 +11,6 @@ import { Loader2, Users, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import RoomSearchFilter from '@/components/booking/RoomSearchFilter';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 interface SearchFilters {
   checkIn: string;
@@ -129,6 +129,7 @@ const RoomTypesPage = () => {
   };
 
   const getRoomDescription = (room) => {
+    // Ưu tiên sử dụng mô tả ngắn nếu có
     if (room.short_description && language === 'vi') {
       return room.short_description;
     }
@@ -137,6 +138,7 @@ const RoomTypesPage = () => {
       return room.short_description_en;
     }
     
+    // Nếu không có mô tả ngắn, dùng mô tả đầy đủ
     return language === 'vi' ? room.description : room.description_en;
   };
 
@@ -167,10 +169,11 @@ const RoomTypesPage = () => {
     }));
   };
 
+  // Hàm cắt mô tả nếu quá dài
   const truncateDescription = (description, roomId) => {
     const isExpanded = expandedDescriptions[roomId];
-    const maxLength = 150;
-
+    const maxLength = 150; // Độ dài tối đa cho mô tả rút gọn
+    
     if (!description) return '';
     
     if (description.length <= maxLength || isExpanded) {
@@ -273,26 +276,24 @@ const RoomTypesPage = () => {
                   viewport={{ once: true }}
                 >
                   <Card className="overflow-hidden h-full flex flex-col hover:shadow-md transition-shadow">
-                    <div className="relative">
-                      <AspectRatio ratio={4/3} className="bg-gray-100">
-                        <img 
-                          src={room.image_url} 
-                          alt={getRoomName(room)} 
-                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" 
-                        />
-                        {room.is_popular && (
-                          <Badge className="absolute top-3 right-3 bg-coral-500 bg-[#747911]">
-                            {language === 'vi' ? 'Phổ biến' : 'Popular'}
-                          </Badge>
-                        )}
-                        {room.remainingRooms !== undefined && (
-                          <Badge className="absolute top-3 left-3 bg-beach-600">
-                            {language === 'vi' 
-                              ? `Còn ${room.remainingRooms} phòng` 
-                              : `${room.remainingRooms} rooms left`}
-                          </Badge>
-                        )}
-                      </AspectRatio>
+                    <div className="h-60 overflow-hidden relative">
+                      <img 
+                        src={room.image_url} 
+                        alt={getRoomName(room)} 
+                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" 
+                      />
+                      {room.is_popular && (
+                        <Badge className="absolute top-3 right-3 bg-coral-500 bg-[#747911]">
+                          {language === 'vi' ? 'Phổ biến' : 'Popular'}
+                        </Badge>
+                      )}
+                      {room.remainingRooms !== undefined && (
+                        <Badge className="absolute top-3 left-3 bg-beach-600">
+                          {language === 'vi' 
+                            ? `Còn ${room.remainingRooms} phòng` 
+                            : `${room.remainingRooms} rooms left`}
+                        </Badge>
+                      )}
                     </div>
                     <CardContent className="py-6 flex-grow flex flex-col">
                       <div className="flex justify-between items-start mb-3">
@@ -359,7 +360,7 @@ const RoomTypesPage = () => {
       </section>
       
       <section className="py-16 md:py-24 bg-white">
-        <div className="container mx-auto px-4 text-center">
+        <div className="container mx-auto px-4 text-center bg-slate-100">
           <h2 className="font-display text-3xl font-bold mb-6 text-beach-900">
             {language === 'vi' ? 'Cần Hỗ Trợ Chọn Phòng?' : 'Need Help Choosing a Room?'}
           </h2>
@@ -369,7 +370,7 @@ const RoomTypesPage = () => {
               : 'Contact our customer care team for advice on choosing the most suitable room for your needs.'}
           </p>
           <Button asChild size="lg" className="bg-beach-600 hover:bg-beach-700 text-white">
-            <Link to="/lien-he">
+            <Link to="/lien-he" className="gray-900">
               {language === 'vi' ? 'Liên Hệ Ngay' : 'Contact Now'}
             </Link>
           </Button>
