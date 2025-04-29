@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 interface ImageUploadProps {
   value: string;
   onChange: (url: string) => void;
+  onRemove?: () => void;
   bucketName: string;
   folderPath?: string;
 }
@@ -16,6 +17,7 @@ interface ImageUploadProps {
 export const ImageUpload: React.FC<ImageUploadProps> = ({
   value,
   onChange,
+  onRemove,
   bucketName,
   folderPath = ''
 }) => {
@@ -103,7 +105,11 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   };
   
   const handleRemove = () => {
-    onChange('');
+    if (onRemove) {
+      onRemove();
+    } else {
+      onChange('');
+    }
   };
   
   return (

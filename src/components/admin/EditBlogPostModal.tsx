@@ -418,6 +418,7 @@ const EditBlogPostModal: React.FC<EditBlogPostModalProps> = ({
                     value={featuredImage}
                     onChange={(url) => setFeaturedImage(url)}
                     onRemove={() => setFeaturedImage('')}
+                    bucketName="blog-images"
                   />
                 </div>
               </div>
