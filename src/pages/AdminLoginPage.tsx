@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '@/components/layout/MainLayout';
@@ -11,9 +10,10 @@ import { toast } from 'sonner';
 import { AlertTriangle, UserPlus } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLanguage } from '@/contexts/LanguageContext';
-
 const AdminLoginPage = () => {
-  const { t } = useLanguage();
+  const {
+    t
+  } = useLanguage();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,12 +28,14 @@ const AdminLoginPage = () => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const { data, error } = await supabase.auth.getSession();
+        const {
+          data,
+          error
+        } = await supabase.auth.getSession();
         if (error) {
           console.error('Session check error:', error);
           return;
         }
-        
         if (data.session) {
           console.log('User already logged in, redirecting to admin');
           navigate('/admin');
@@ -42,15 +44,12 @@ const AdminLoginPage = () => {
         console.error('Unexpected error during session check:', error);
       }
     };
-    
     checkSession();
   }, [navigate]);
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMessage('');
-    
     try {
       console.log(`Attempting to log in with: ${email}`);
 
@@ -58,11 +57,13 @@ const AdminLoginPage = () => {
       const cleanEmail = email.trim().toLowerCase();
 
       // Sign in with email/password
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const {
+        data,
+        error
+      } = await supabase.auth.signInWithPassword({
         email: cleanEmail,
         password
       });
-      
       if (error) {
         console.error('Login error:', error);
         setErrorMessage(error.message);
@@ -82,13 +83,11 @@ const AdminLoginPage = () => {
       setIsLoading(false);
     }
   };
-
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMessage('');
     setResetMessage('');
-    
     try {
       const cleanEmail = forgotEmail.trim().toLowerCase();
       if (!cleanEmail) {
@@ -98,17 +97,17 @@ const AdminLoginPage = () => {
       }
 
       // Send password reset email
-      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+      const {
+        error
+      } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
         redirectTo: `${window.location.origin}/admin/reset-password`
       });
-      
       if (error) {
         console.error('Reset password error:', error);
         setErrorMessage(error.message);
         toast.error('Không thể gửi email đặt lại mật khẩu');
         return;
       }
-      
       setResetMessage(t('reset_password_sent'));
       toast.success('Email đặt lại mật khẩu đã được gửi');
     } catch (error: any) {
@@ -119,18 +118,20 @@ const AdminLoginPage = () => {
       setIsLoading(false);
     }
   };
-
   const createAdminAccount = async () => {
     setIsCreatingAccount(true);
     setErrorMessage('');
-    
     try {
       // First check if the account already exists
-      const { data: { user }, error: signUpError } = await supabase.auth.signUp({
+      const {
+        data: {
+          user
+        },
+        error: signUpError
+      } = await supabase.auth.signUp({
         email: 'nvh.adser@gmail.com',
         password: 'Admin@123456'
       });
-
       if (signUpError) {
         if (signUpError.message.includes('User already registered')) {
           toast.info('Tài khoản admin đã tồn tại');
@@ -143,14 +144,14 @@ const AdminLoginPage = () => {
         }
         return;
       }
-
       if (user) {
         // Make sure user is in admin_access table
-        const { error: dbError } = await supabase
-          .from('admin_access')
-          .upsert({ email: 'nvh.adser@gmail.com', is_active: true })
-          .select();
-
+        const {
+          error: dbError
+        } = await supabase.from('admin_access').upsert({
+          email: 'nvh.adser@gmail.com',
+          is_active: true
+        }).select();
         if (dbError) {
           console.error('Error updating admin_access:', dbError);
           setErrorMessage(`Lỗi cập nhật admin_access: ${dbError.message}`);
@@ -168,7 +169,6 @@ const AdminLoginPage = () => {
       setIsCreatingAccount(false);
     }
   };
-
   const renderForgotPasswordForm = () => {
     return <form onSubmit={handleForgotPassword} className="space-y-4">
       <div className="space-y-2">
@@ -196,7 +196,6 @@ const AdminLoginPage = () => {
       </div>
     </form>;
   };
-
   const renderLoginForm = () => {
     return <form onSubmit={handleLogin} className="space-y-4">
       <div className="space-y-2">
@@ -222,16 +221,7 @@ const AdminLoginPage = () => {
           {isLoading ? t('signing_in') : t('login')}
         </Button>
 
-        <Button 
-          type="button" 
-          variant="outline"
-          className="w-full flex items-center gap-2 justify-center" 
-          onClick={createAdminAccount} 
-          disabled={isCreatingAccount}
-        >
-          <UserPlus size={16} />
-          {isCreatingAccount ? 'Đang tạo...' : 'Tạo tài khoản nvh.adser@gmail.com'}
-        </Button>
+        
 
         <Button type="button" variant="link" className="text-beach-700" onClick={() => setIsForgotPassword(true)} disabled={isLoading}>
           {t('forgot_password')}
@@ -239,7 +229,6 @@ const AdminLoginPage = () => {
       </div>
     </form>;
   };
-
   return <MainLayout>
     <div className="bg-beach-50 min-h-[80vh] py-12 flex items-center justify-center">
       <div className="container mx-auto px-4 max-w-md">
@@ -260,5 +249,4 @@ const AdminLoginPage = () => {
     </div>
   </MainLayout>;
 };
-
 export default AdminLoginPage;
