@@ -5,7 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
-import RoomManagement from './RoomManagement';
+import { isAdmin } from '@/lib/supabase';
+import RoomsManagement from './RoomsManagement';
 import BookingsManagement from './BookingsManagement';
 import ContentManagement from './ContentManagement';
 import GalleryManagement from './GalleryManagement';
@@ -15,70 +16,40 @@ import { LogOut } from 'lucide-react';
 
 const AdminDashboard = () => {
   const { t } = useLanguage();
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdminUser, setIsAdminUser] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const checkAdminStatus = async () => {
       try {
+        // First check if we have a session
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
         
-        if (sessionError) {
-          console.error('Session error:', sessionError);
-          setIsAdmin(false);
+        if (sessionError || !sessionData?.session?.user) {
+          console.log('No active session found');
+          setIsAdminUser(false);
           setLoading(false);
           navigate('/admin/login');
           return;
         }
         
-        if (!sessionData?.session?.user) {
-          console.log('No session found');
-          setIsAdmin(false);
-          setLoading(false);
-          navigate('/admin/login');
-          return;
-        }
+        // Then check if the user is an admin
+        const adminStatus = await isAdmin();
+        console.log('Admin status check result:', adminStatus);
         
-        const userEmail = sessionData.session.user.email;
-        console.log('User email:', userEmail);
-        
-        if (userEmail) {
-          if (userEmail === 'admin@annamvillage.vn') {
-            console.log('Default admin email detected');
-            setIsAdmin(true);
-            setLoading(false);
-            return;
-          }
-          
-          const { data: adminData, error } = await supabase
-            .from('admin_users')
-            .select('*')
-            .eq('email', userEmail)
-            .maybeSingle();
-
-          if (error) {
-            console.error('Error fetching admin data:', error);
-            setIsAdmin(false);
-            navigate('/admin/login');
-          } else if (adminData) {
-            console.log('Admin data found:', adminData);
-            setIsAdmin(true);
-          } else {
-            console.log('User is not an admin');
-            toast.error('Tài khoản không có quyền quản trị');
-            await supabase.auth.signOut();
-            setIsAdmin(false);
-            navigate('/admin/login');
-          }
+        if (adminStatus) {
+          setIsAdminUser(true);
         } else {
-          console.log('No user email found');
-          setIsAdmin(false);
+          console.log('User is not an admin');
+          toast.error('Tài khoản không có quyền quản trị');
+          await supabase.auth.signOut();
+          setIsAdminUser(false);
           navigate('/admin/login');
         }
       } catch (error) {
-        console.error('Session check error:', error);
-        setIsAdmin(false);
+        console.error('Error checking admin status:', error);
+        setIsAdminUser(false);
         navigate('/admin/login');
       } finally {
         setLoading(false);
@@ -115,7 +86,7 @@ const AdminDashboard = () => {
     );
   }
 
-  if (!isAdmin) {
+  if (!isAdminUser) {
     return null;
   }
 
@@ -131,7 +102,7 @@ const AdminDashboard = () => {
         </Button>
       </div>
       
-      <Tabs defaultValue="bookings" className="w-full">
+      <Tabs defaultValue="rooms" className="w-full">
         <TabsList className="grid grid-cols-4">
           <TabsTrigger value="rooms">
             Quản lý phòng
@@ -148,7 +119,7 @@ const AdminDashboard = () => {
         </TabsList>
         
         <TabsContent value="rooms" className="mt-6">
-          <RoomManagement />
+          <RoomsManagement />
         </TabsContent>
         
         <TabsContent value="bookings" className="mt-6">

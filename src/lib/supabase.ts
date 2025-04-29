@@ -7,15 +7,43 @@ import { supabase as supabaseClient } from '@/integrations/supabase/client';
 // Export imported client to maintain backward compatibility
 export const supabase: SupabaseClient = supabaseClient;
 
-// For admin checking (simplified to always return true to bypass authentication)
-export const isAdmin = async () => {
-  return true;
+// Helper function for admin checking (uses our new SQL function)
+export const isAdmin = async (): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase.rpc('is_admin');
+    
+    if (error) {
+      console.error('Error checking admin status:', error);
+      return false;
+    }
+    
+    return data === true;
+  } catch (err) {
+    console.error('Unexpected error checking admin status:', err);
+    return false;
+  }
 };
 
-// Helper function for admin account creation (retained for future use)
-export const createAdminAccount = async () => {
-  // Keep the functionality for future use
-  return true;
+// Helper function for admin account creation
+export const createAdminAccount = async (email: string): Promise<boolean> => {
+  try {
+    // Insert the email into admin_access
+    const { error } = await supabase
+      .from('admin_access')
+      .upsert({ email, is_active: true })
+      .select()
+      .single();
+      
+    if (error) {
+      console.error('Error creating admin account:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (err) {
+    console.error('Unexpected error creating admin account:', err);
+    return false;
+  }
 };
 
 // Helper function to get public URL for a file in storage

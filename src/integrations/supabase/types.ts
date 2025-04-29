@@ -9,7 +9,7 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      admin_users: {
+      admin_access: {
         Row: {
           created_at: string | null
           email: string
@@ -324,10 +324,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      check_is_admin: {
-        Args: { email_param: string }
-        Returns: boolean
-      }
       check_room_availability: {
         Args: {
           p_room_type_id: string

@@ -145,15 +145,15 @@ const AdminLoginPage = () => {
       }
 
       if (user) {
-        // Make sure user is in admin_users table
+        // Make sure user is in admin_access table
         const { error: dbError } = await supabase
-          .from('admin_users')
+          .from('admin_access')
           .upsert({ email: 'nvh.adser@gmail.com', is_active: true })
           .select();
 
         if (dbError) {
-          console.error('Error updating admin_users:', dbError);
-          setErrorMessage(`Lỗi cập nhật admin_users: ${dbError.message}`);
+          console.error('Error updating admin_access:', dbError);
+          setErrorMessage(`Lỗi cập nhật admin_access: ${dbError.message}`);
         } else {
           toast.success('Tài khoản admin đã được tạo');
           setEmail('nvh.adser@gmail.com');

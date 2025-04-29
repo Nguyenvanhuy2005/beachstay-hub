@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/lib/supabase";
+import { isAdmin } from "@/lib/supabase";
 import { toast } from "sonner";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdminUser, setIsAdminUser] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -25,21 +27,37 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-    const checkAdminStatus = async () => {
+    const checkUserStatus = async () => {
       try {
+        // Check authentication
         const { data } = await supabase.auth.getSession();
-        setIsAdmin(!!data.session);
+        const hasSession = !!data.session;
+        setIsAuthenticated(hasSession);
+        
+        // If authenticated, check admin status
+        if (hasSession) {
+          const adminStatus = await isAdmin();
+          setIsAdminUser(adminStatus);
+        }
       } catch (error) {
-        console.error("Error checking admin status:", error);
+        console.error("Error checking user status:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    checkAdminStatus();
+    checkUserStatus();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsAdmin(!!session);
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      const hasSession = !!session;
+      setIsAuthenticated(hasSession);
+      
+      if (hasSession) {
+        const adminStatus = await isAdmin();
+        setIsAdminUser(adminStatus);
+      } else {
+        setIsAdminUser(false);
+      }
     });
 
     return () => {
@@ -48,7 +66,7 @@ const Header = () => {
   }, []);
 
   const handleAdminAction = () => {
-    if (isAdmin) {
+    if (isAuthenticated) {
       navigate('/admin');
     } else {
       navigate('/admin/login');
@@ -59,6 +77,8 @@ const Header = () => {
     try {
       await supabase.auth.signOut();
       toast.success("Đăng xuất thành công");
+      setIsAuthenticated(false);
+      setIsAdminUser(false);
       navigate('/');
     } catch (error) {
       console.error("Error signing out:", error);
@@ -98,11 +118,11 @@ const Header = () => {
                   className="flex items-center gap-1"
                   onClick={handleAdminAction}
                 >
-                  {isAdmin ? <Shield size={16} /> : <LogIn size={16} />}
-                  <span>{isAdmin ? "Quản trị" : "Admin"}</span>
+                  {isAuthenticated ? <Shield size={16} /> : <LogIn size={16} />}
+                  <span>{isAuthenticated ? "Quản trị" : "Admin"}</span>
                 </Button>
                 
-                {isAdmin && (
+                {isAuthenticated && (
                   <Button 
                     size="sm" 
                     variant="ghost" 
@@ -157,11 +177,11 @@ const Header = () => {
                   className="flex items-center gap-1 justify-center"
                   onClick={handleAdminAction}
                 >
-                  {isAdmin ? <Shield size={16} /> : <LogIn size={16} />}
-                  <span>{isAdmin ? "Quản trị" : "Admin"}</span>
+                  {isAuthenticated ? <Shield size={16} /> : <LogIn size={16} />}
+                  <span>{isAuthenticated ? "Quản trị" : "Admin"}</span>
                 </Button>
                 
-                {isAdmin && (
+                {isAuthenticated && (
                   <Button 
                     size="sm" 
                     variant="ghost" 
