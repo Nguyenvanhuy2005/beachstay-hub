@@ -1,4 +1,3 @@
-
 import { supabase, checkRoomAvailability } from '@/lib/supabase';
 import { toast } from 'sonner';
 
@@ -133,15 +132,14 @@ export const getRoomTypes = async () => {
     console.log('Fetching room types from Supabase...');
     const { data, error } = await supabase
       .from('room_types')
-      .select('*')
-      .order('price', { ascending: false });
+      .select('*');
 
     if (error) {
       console.error('Error fetching room types:', error);
       return [];
     }
 
-    console.log('Room types fetched successfully:', data?.length || 0);
+    console.log('Room types fetched successfully:', data);
     return data || [];
   } catch (error) {
     console.error('Unexpected error in getRoomTypes:', error);

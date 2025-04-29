@@ -22,7 +22,7 @@ const BookingPage = () => {
       try {
         console.log('Fetching room types for booking page...');
         const roomTypesData = await getRoomTypes();
-        console.log(`Fetched ${roomTypesData.length} room types`);
+        console.log(`Fetched ${roomTypesData.length} room types:`, roomTypesData);
         setRoomTypes(roomTypesData);
         
         if (roomTypesData.length === 0) {

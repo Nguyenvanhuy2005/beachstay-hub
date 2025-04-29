@@ -44,56 +44,54 @@ const BookingsManagement = () => {
     setLoading(true);
     
     try {
-      // Build the query
+      // Fetch room types first to ensure we have them for mapping
+      const { data: roomTypesData, error: roomTypesError } = await supabase
+        .from('room_types')
+        .select('id, name');
+      
+      if (roomTypesError) {
+        console.error('Error fetching room types:', roomTypesError);
+      } else if (roomTypesData) {
+        // Create map of room type ids to names
+        const roomTypeMap: {[key: string]: string} = {};
+        roomTypesData.forEach((room: RoomType) => {
+          roomTypeMap[room.id] = room.name;
+        });
+        
+        console.log('Room type map:', roomTypeMap);
+        setRoomTypes(roomTypeMap);
+      }
+      
+      // Build the query for bookings
       let query = supabase
         .from('bookings')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*');
       
       // Apply status filter if not set to 'all'
       if (statusFilter !== 'all') {
         query = query.eq('status', statusFilter);
       }
       
-      // Execute the query
-      const { data, error } = await query;
+      // Add sorting to get newest bookings first
+      query = query.order('created_at', { ascending: false });
       
-      if (error) {
-        console.error('Error fetching bookings:', error);
+      // Execute the query
+      const { data: bookingsData, error: bookingsError } = await query;
+      
+      if (bookingsError) {
+        console.error('Error fetching bookings:', bookingsError);
         toast.error(language === 'vi' ? 'Không thể tải dữ liệu đặt phòng' : 'Could not load booking data');
         setLoading(false);
         return;
       }
       
-      console.log('Fetched bookings:', data);
+      console.log('Fetched bookings:', bookingsData);
       
-      // Fetch room types to display room names
-      if (data && data.length > 0) {
-        // Get all unique room type IDs from bookings
-        const roomTypeIds = [...new Set(data.map(booking => booking.room_type_id))].filter(Boolean);
-        
-        if (roomTypeIds.length > 0) {
-          const { data: roomTypesData, error: roomTypesError } = await supabase
-            .from('room_types')
-            .select('id, name')
-            .in('id', roomTypeIds);
-          
-          if (!roomTypesError && roomTypesData) {
-            // Create map of room type ids to names
-            const roomTypeMap: {[key: string]: string} = {};
-            roomTypesData.forEach((room: RoomType) => {
-              roomTypeMap[room.id] = room.name;
-            });
-            
-            console.log('Room type map:', roomTypeMap);
-            setRoomTypes(roomTypeMap);
-          }
-        }
-        
+      if (bookingsData && bookingsData.length > 0) {
         // Enhance bookings with room names
-        const enhancedBookings = data.map(booking => ({
+        const enhancedBookings = bookingsData.map(booking => ({
           ...booking,
-          room_name: booking.room_type_id ? roomTypes[booking.room_type_id] || 'Unknown Room' : 'No Room Selected'
+          room_name: booking.room_type_id ? roomTypeMap[booking.room_type_id] || 'Unknown Room' : 'No Room Selected'
         }));
         
         setBookings(enhancedBookings);
@@ -112,31 +110,7 @@ const BookingsManagement = () => {
 
   // Load data on component mount and when filter changes
   useEffect(() => {
-    // First fetch room types
-    const fetchRoomTypes = async () => {
-      try {
-        const { data: roomTypesData, error: roomTypesError } = await supabase
-          .from('room_types')
-          .select('id, name');
-        
-        if (!roomTypesError && roomTypesData) {
-          const roomTypeMap: {[key: string]: string} = {};
-          roomTypesData.forEach((room: RoomType) => {
-            roomTypeMap[room.id] = room.name;
-          });
-          
-          console.log('Initial room types:', roomTypeMap);
-          setRoomTypes(roomTypeMap);
-        }
-      } catch (err) {
-        console.error('Error fetching room types:', err);
-      }
-    };
-    
-    // Fetch room types first, then bookings
-    fetchRoomTypes().then(() => {
-      fetchBookings();
-    });
+    fetchBookings();
   }, [statusFilter]);
 
   // Update booking status
@@ -197,6 +171,17 @@ const BookingsManagement = () => {
         return <Badge variant="outline" className="text-amber-500 border-amber-500">{language === 'vi' ? 'Đang chờ' : 'Pending'}</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
+    }
+  };
+
+  // Format date to display in Vietnamese format
+  const formatDate = (dateStr: string) => {
+    try {
+      const date = new Date(dateStr);
+      return format(date, 'dd/MM/yyyy');
+    } catch (error) {
+      console.error(`Error formatting date ${dateStr}:`, error);
+      return dateStr;
     }
   };
 
@@ -280,9 +265,9 @@ const BookingsManagement = () => {
                       {booking.room_name || roomTypes[booking.room_type_id] || (language === 'vi' ? 'Không xác định' : 'Unknown')}
                     </TableCell>
                     <TableCell>
-                      <div>{format(new Date(booking.check_in), 'dd/MM/yyyy')}</div>
+                      <div>{formatDate(booking.check_in)}</div>
                       <div className="text-sm text-muted-foreground">
-                        {language === 'vi' ? 'đến' : 'to'} {format(new Date(booking.check_out), 'dd/MM/yyyy')}
+                        {language === 'vi' ? 'đến' : 'to'} {formatDate(booking.check_out)}
                       </div>
                     </TableCell>
                     <TableCell>
