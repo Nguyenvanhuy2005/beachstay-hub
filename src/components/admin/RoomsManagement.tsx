@@ -28,15 +28,19 @@ const RoomsManagement = () => {
     const fetchRooms = async () => {
       try {
         setLoading(true);
+        console.log('Fetching rooms data...');
+        
         const { data, error } = await supabase
           .from('room_types')
           .select('id, name, name_en, price, weekend_price, image_url, is_popular, created_at')
           .order('created_at', { ascending: false });
           
         if (error) {
+          console.error('Error fetching rooms:', error);
           throw error;
         }
         
+        console.log('Rooms data fetched:', data);
         setRooms(data || []);
       } catch (error: any) {
         console.error('Error fetching rooms:', error);

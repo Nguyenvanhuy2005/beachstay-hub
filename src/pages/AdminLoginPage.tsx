@@ -25,13 +25,24 @@ const AdminLoginPage = () => {
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
 
   // Check if user is already logged in
-  React.useEffect(() => {
+  useEffect(() => {
     const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        navigate('/admin');
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Session check error:', error);
+          return;
+        }
+        
+        if (data.session) {
+          console.log('User already logged in, redirecting to admin');
+          navigate('/admin');
+        }
+      } catch (error) {
+        console.error('Unexpected error during session check:', error);
       }
     };
+    
     checkSession();
   }, [navigate]);
 
@@ -39,6 +50,7 @@ const AdminLoginPage = () => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMessage('');
+    
     try {
       console.log(`Attempting to log in with: ${email}`);
 
@@ -50,13 +62,10 @@ const AdminLoginPage = () => {
         email: cleanEmail,
         password
       });
+      
       if (error) {
         console.error('Login error:', error);
-        if (error.message.includes('Invalid login credentials')) {
-          setErrorMessage(t('login_error'));
-        } else {
-          setErrorMessage(`Lỗi đăng nhập: ${error.message}`);
-        }
+        setErrorMessage(error.message);
         toast.error('Đăng nhập thất bại');
         return;
       }
@@ -79,41 +88,29 @@ const AdminLoginPage = () => {
     setIsLoading(true);
     setErrorMessage('');
     setResetMessage('');
+    
     try {
       const cleanEmail = forgotEmail.trim().toLowerCase();
       if (!cleanEmail) {
         setErrorMessage('Vui lòng nhập email');
+        setIsLoading(false);
         return;
       }
 
-      // Kiểm tra xem email có tồn tại trong hệ thống không
-      const { data: adminUsers, error: adminError } = await supabase
-        .from('admin_users')
-        .select('*')
-        .eq('email', cleanEmail)
-        .maybeSingle();
-      if (adminError && !adminError.message.includes('No rows found')) {
-        console.error('Error checking admin email:', adminError);
+      // Send password reset email
+      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+        redirectTo: `${window.location.origin}/admin/reset-password`
+      });
+      
+      if (error) {
+        console.error('Reset password error:', error);
+        setErrorMessage(error.message);
+        toast.error('Không thể gửi email đặt lại mật khẩu');
+        return;
       }
-
-      // Nếu email là admin@annamvillage.vn hoặc có trong bảng admin_users
-      if (cleanEmail === 'admin@annamvillage.vn' || adminUsers) {
-        // Send password reset email
-        const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
-          redirectTo: `${window.location.origin}/admin/reset-password`
-        });
-        if (error) {
-          console.error('Reset password error:', error);
-          setErrorMessage(error.message);
-          toast.error('Không thể gửi email đặt lại mật khẩu');
-          return;
-        }
-        setResetMessage(t('reset_password_sent'));
-        toast.success('Email đặt lại mật khẩu đã được gửi');
-      } else {
-        setErrorMessage('Email không có quyền quản trị.');
-        toast.error('Email không có quyền quản trị');
-      }
+      
+      setResetMessage(t('reset_password_sent'));
+      toast.success('Email đặt lại mật khẩu đã được gửi');
     } catch (error: any) {
       console.error('Error in forgot password:', error);
       setErrorMessage('Lỗi gửi email đặt lại mật khẩu');
@@ -126,6 +123,7 @@ const AdminLoginPage = () => {
   const createAdminAccount = async () => {
     setIsCreatingAccount(true);
     setErrorMessage('');
+    
     try {
       // First check if the account already exists
       const { data: { user }, error: signUpError } = await supabase.auth.signUp({
@@ -136,6 +134,8 @@ const AdminLoginPage = () => {
       if (signUpError) {
         if (signUpError.message.includes('User already registered')) {
           toast.info('Tài khoản admin đã tồn tại');
+          setEmail('nvh.adser@gmail.com');
+          setPassword('Admin@123456');
         } else {
           console.error('Error creating admin account:', signUpError);
           setErrorMessage(`Lỗi: ${signUpError.message}`);
