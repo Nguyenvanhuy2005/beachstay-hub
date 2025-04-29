@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,6 +35,7 @@ const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }: AddBlogPostModalP
   const [featuredImage, setFeaturedImage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const quillRef = useRef<ReactQuill>(null);
   
   const generateSlug = (text: string) => {
     return text
@@ -67,6 +68,98 @@ const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }: AddBlogPostModalP
   
   const removeTag = (tagToRemove: string) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+  
+  // Custom image upload handler for ReactQuill
+  const imageHandler = () => {
+    // Create an input element
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+    
+    // When a file is selected
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      
+      try {
+        // Check file type and size
+        if (!file.type.includes('image/')) {
+          toast.error('Chỉ chấp nhận file hình ảnh');
+          return;
+        }
+        
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error('Kích thước file tối đa là 5MB');
+          return;
+        }
+        
+        // Show loading toast
+        const loadingToast = toast.loading('Đang tải hình ảnh...');
+        
+        // Create unique filename
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+        const filePath = `content/${fileName}`;
+        
+        // Try to upload to blog-images bucket first
+        let uploadResult = await supabase.storage
+          .from('blog-images')
+          .upload(filePath, file);
+          
+        // If there's an error with blog-images bucket, try the images bucket
+        if (uploadResult.error) {
+          console.log('Trying fallback bucket:', uploadResult.error);
+          uploadResult = await supabase.storage
+            .from('images')
+            .upload(filePath, file);
+            
+          if (uploadResult.error) {
+            toast.error('Không thể tải lên hình ảnh');
+            toast.dismiss(loadingToast);
+            return;
+          }
+        }
+        
+        // Get the URL for the uploaded image
+        const bucket = uploadResult.error ? 'images' : 'blog-images';
+        const { data: urlData } = supabase.storage
+          .from(bucket)
+          .getPublicUrl(filePath);
+          
+        // Insert the image into the editor
+        const quill = quillRef.current?.getEditor();
+        const range = quill?.getSelection(true);
+        
+        if (quill && range) {
+          quill.insertEmbed(range.index, 'image', urlData.publicUrl);
+        }
+        
+        toast.dismiss(loadingToast);
+        toast.success('Đã tải lên hình ảnh thành công');
+        
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        toast.error('Lỗi khi tải lên hình ảnh');
+      }
+    };
+  };
+  
+  // Configure Quill modules with custom handlers
+  const quillModules = {
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['link', 'image'],
+        ['clean']
+      ],
+      handlers: {
+        image: imageHandler
+      }
+    }
   };
   
   const handleSubmit = async () => {
@@ -257,21 +350,17 @@ const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }: AddBlogPostModalP
                 <Label htmlFor="content">Nội dung</Label>
                 <div className="min-h-[300px]">
                   <ReactQuill 
+                    ref={quillRef}
                     theme="snow" 
                     value={content} 
                     onChange={setContent}
                     placeholder="Nhập nội dung bài viết..."
-                    modules={{
-                      toolbar: [
-                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                        ['bold', 'italic', 'underline', 'strike'],
-                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                        ['link', 'image'],
-                        ['clean']
-                      ],
-                    }}
+                    modules={quillModules}
                   />
                 </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Nhấp vào biểu tượng hình ảnh để chèn ảnh vào nội dung bài viết.
+                </p>
               </div>
             </div>
           </TabsContent>
@@ -307,17 +396,12 @@ const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }: AddBlogPostModalP
                     value={contentEn} 
                     onChange={setContentEn}
                     placeholder="Enter post content in English..."
-                    modules={{
-                      toolbar: [
-                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                        ['bold', 'italic', 'underline', 'strike'],
-                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                        ['link', 'image'],
-                        ['clean']
-                      ],
-                    }}
+                    modules={quillModules}
                   />
                 </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Click on the image icon to insert images into the post content.
+                </p>
               </div>
             </div>
           </TabsContent>
