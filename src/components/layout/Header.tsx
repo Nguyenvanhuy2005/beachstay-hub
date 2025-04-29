@@ -1,22 +1,63 @@
+
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X, Phone, AtSign, MapPin } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, X, Phone, AtSign, MapPin, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
+
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const {
-    t
-  } = useLanguage();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+  const { t } = useLanguage();
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    // Kiểm tra trạng thái đăng nhập
+    const checkLoginStatus = async () => {
+      const { data } = await supabase.auth.getSession();
+      setIsLoggedIn(!!data.session);
+    };
+
+    checkLoginStatus();
+    
+    // Lắng nghe sự thay đổi trạng thái xác thực
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsLoggedIn(!!session);
+    });
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      authListener.subscription.unsubscribe();
+    };
   }, []);
+
+  const handleAdminClick = () => {
+    if (isLoggedIn) {
+      navigate('/admin');
+    } else {
+      navigate('/admin/login');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast.success("Đăng xuất thành công");
+    } catch (error) {
+      console.error("Lỗi khi đăng xuất:", error);
+      toast.error("Đã xảy ra lỗi khi đăng xuất");
+    }
+  };
+
   return <header className="bg-slate-50">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between">
@@ -40,6 +81,18 @@ const Header = () => {
             <Button size="sm" onClick={() => window.location.href = '/dat-phong'} className="text-white bg-slate-950 hover:bg-slate-800">
               {t('book_now')}
             </Button>
+            
+            {/* Nút Quản trị */}
+            {isLoggedIn ? (
+              <Button size="sm" onClick={handleLogout} variant="outline" className="border-green-700 text-green-700 hover:bg-green-50">
+                Đăng xuất
+              </Button>
+            ) : (
+              <Button size="sm" onClick={handleAdminClick} variant="outline" className="border-green-700 text-green-700 hover:bg-green-50">
+                <LogIn className="mr-1 h-4 w-4" />
+                Quản trị
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -73,10 +126,23 @@ const Header = () => {
             <Button size="sm" className="bg-primary hover:bg-green-800 mt-2 text-white" onClick={() => window.location.href = '/dat-phong'}>
               {t('book_now')}
             </Button>
+            
+            {/* Nút đăng nhập quản trị trên mobile */}
+            {isLoggedIn ? (
+              <Button size="sm" onClick={handleLogout} variant="outline" className="border-green-700 text-green-700 hover:bg-green-50">
+                Đăng xuất
+              </Button>
+            ) : (
+              <Button size="sm" onClick={handleAdminClick} variant="outline" className="border-green-700 text-green-700 hover:bg-green-50">
+                <LogIn className="mr-1 h-4 w-4" />
+                Quản trị
+              </Button>
+            )}
           </div>
         </div>}
     </header>;
 };
+
 const NavLinks = ({
   isScrolled
 }: {
@@ -108,4 +174,5 @@ const NavLinks = ({
       </Link>
     </>;
 };
+
 export default Header;

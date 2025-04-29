@@ -23,6 +23,7 @@ const AdminLoginPage = () => {
   const [resetMessage, setResetMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isResetAdmin, setIsResetAdmin] = useState(false);
+  const [loginStatus, setLoginStatus] = useState('');
 
   // Check if user is already logged in
   useEffect(() => {
@@ -32,8 +33,35 @@ const AdminLoginPage = () => {
         const { data } = await supabase.auth.getSession();
         
         if (data.session) {
-          console.log('AdminLoginPage: User already authenticated, redirecting to admin dashboard');
-          navigate('/admin');
+          console.log('AdminLoginPage: User already authenticated, checking admin status');
+          
+          const email = data.session.user.email;
+          
+          if (email === 'admin@annamvillage.vn') {
+            console.log('AdminLoginPage: Default admin email verified');
+            setLoginStatus('Đã đăng nhập với tài khoản quản trị');
+            setTimeout(() => navigate('/admin'), 1500);
+            return;
+          }
+          
+          // Check if admin
+          const { data: adminData, error: adminError } = await supabase
+            .from('admin_users')
+            .select('*')
+            .eq('email', email)
+            .maybeSingle();
+            
+          if (adminError) {
+            console.error('Error checking admin status:', adminError);
+          } else if (adminData) {
+            console.log('AdminLoginPage: Admin user verified');
+            setLoginStatus('Đã đăng nhập với tài khoản quản trị');
+            setTimeout(() => navigate('/admin'), 1500);
+            return;
+          } else {
+            console.log('AdminLoginPage: User is not an admin, signing out');
+            await supabase.auth.signOut();
+          }
         }
       } catch (error) {
         console.error('AdminLoginPage: Error checking session:', error);
@@ -85,6 +113,14 @@ const AdminLoginPage = () => {
           throw adminError;
         }
         
+        // For default admin
+        if (cleanEmail === 'admin@annamvillage.vn' || adminData) {
+          console.log('Login successful:', data);
+          toast.success('Đăng nhập thành công');
+          navigate('/admin');
+          return;
+        }
+        
         if (!adminData) {
           console.error('Not an admin user:', 'No admin record found');
           // Sign out the user since they're not an admin
@@ -94,11 +130,6 @@ const AdminLoginPage = () => {
           setIsLoading(false);
           return;
         }
-
-        // If we reached here, the login was successful and user is an admin
-        console.log('Login successful:', data);
-        toast.success('Đăng nhập thành công');
-        navigate('/admin');
       } catch (adminCheckError) {
         console.error('Error checking admin status:', adminCheckError);
         await supabase.auth.signOut();
@@ -122,44 +153,35 @@ const AdminLoginPage = () => {
 
     try {
       // Reset password for admin@annamvillage.vn to Admin@123456
-      const adminEmail = 'admin@annamvillage.vn';
+      const { data, error } = await supabase.functions.invoke('reset-admin-password');
       
-      // First check if the user exists
-      const { data: userData, error: userError } = await supabase.auth
-        .signInWithPassword({
-          email: adminEmail,
-          password: 'any-password-to-check-existence' // Just to check if user exists
-        });
-      
-      if (userError && !userError.message.includes('Invalid login credentials')) {
-        console.error('Error checking admin user:', userError);
-        setErrorMessage('Lỗi kiểm tra tài khoản quản trị');
+      if (error) {
+        console.error('Error calling reset-admin-password function:', error);
+        setErrorMessage(`Lỗi đặt lại mật khẩu: ${error.message}`);
+        toast.error('Không thể đặt lại mật khẩu');
         setIsLoading(false);
         return;
       }
       
-      // Use admin API to reset password (requires service role key)
-      const { error: resetError } = await supabase.auth.admin.updateUserById(
-        'admin-user-id', // The user ID will not actually be used due to our custom implementation
-        { password: 'Admin@123456' }
-      );
+      console.log('Reset password response:', data);
       
-      if (resetError) {
-        console.error('Error resetting admin password:', resetError);
-        // Fallback to password reset email
-        await handleForgotPassword(e, adminEmail);
-        return;
+      if (data && data.success) {
+        setResetMessage('Đã đặt lại mật khẩu quản trị thành công!');
+        toast.success('Đặt lại mật khẩu quản trị thành công');
+        
+        // Pre-fill the form for admin login
+        setEmail('admin@annamvillage.vn');
+        setPassword('Admin@123456');
+        setIsResetAdmin(false);
+      } else {
+        setErrorMessage('Không thể đặt lại mật khẩu. Vui lòng thử lại sau.');
+        toast.error('Đặt lại mật khẩu thất bại');
       }
-      
-      setResetMessage('Đã đặt lại mật khẩu quản trị thành công!');
-      toast.success('Đặt lại mật khẩu quản trị thành công');
-      // Pre-fill the form for admin login
-      setEmail(adminEmail);
-      setPassword('Admin@123456');
-      setIsResetAdmin(false);
-      
     } catch (error: any) {
       console.error('Error in reset admin password:', error);
+      setErrorMessage(`Lỗi: ${error.message}`);
+      toast.error('Đã xảy ra lỗi khi đặt lại mật khẩu');
+      
       // Fallback to password reset email
       await handleForgotPassword(e, 'admin@annamvillage.vn');
     } finally {
@@ -283,6 +305,10 @@ const AdminLoginPage = () => {
         
         {resetMessage && <Alert className="bg-green-50 text-green-600 border-green-200 text-sm">
             <AlertDescription>{resetMessage}</AlertDescription>
+          </Alert>}
+        
+        {loginStatus && <Alert className="bg-green-50 text-green-600 border-green-200 text-sm">
+            <AlertDescription>{loginStatus}</AlertDescription>
           </Alert>}
         
         <div className="text-sm bg-yellow-50 text-yellow-700 p-3 rounded border border-yellow-200">
