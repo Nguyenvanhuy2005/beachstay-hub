@@ -38,20 +38,25 @@ const App = () => {
   const { toast } = useToast();
   
   useEffect(() => {
-    // Ensure we have a storage bucket for images
-    const createImageBucket = async () => {
+    // Initialize storage buckets
+    const initializeStorage = async () => {
       try {
-        const { error } = await supabase.functions.invoke('create-image-bucket');
+        console.log('Initializing storage buckets...');
+        // This function will create all required buckets if they don't exist
+        const { error } = await supabase.functions.invoke('create-storage-buckets');
         
         if (error) {
-          console.error('Error creating image bucket:', error);
+          console.error('Error initializing storage buckets:', error);
+          // Don't show error to user as this is a background task
+        } else {
+          console.log('Storage buckets initialized successfully');
         }
       } catch (err) {
-        console.error('Failed to initialize image bucket:', err);
+        console.error('Failed to initialize storage buckets:', err);
       }
     };
     
-    createImageBucket();
+    initializeStorage();
   }, []);
   
   return (

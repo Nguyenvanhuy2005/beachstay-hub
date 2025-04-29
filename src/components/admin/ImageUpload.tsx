@@ -47,41 +47,40 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       
       console.log('Uploading file to', bucketName, filePath);
       
-      // First check if bucket exists, if not create it
-      const { data: buckets, error: bucketsError } = await supabase
-        .storage
-        .listBuckets();
-        
-      if (bucketsError) {
-        console.error('Error checking buckets:', bucketsError);
-        throw new Error('Could not check storage buckets');
-      }
-      
-      const bucketExists = buckets.some(bucket => bucket.name === bucketName);
-      
-      if (!bucketExists) {
-        console.log('Bucket does not exist, creating:', bucketName);
-        const { error: createBucketError } = await supabase
-          .storage
-          .createBucket(bucketName, {
-            public: true
-          });
-          
-        if (createBucketError) {
-          console.error('Error creating bucket:', createBucketError);
-          throw new Error('Could not create storage bucket');
-        }
-      }
-      
-      // Upload file
+      // Try to upload directly without checking/creating bucket first
+      // This assumes buckets are already created by the edge function
       const { error: uploadError } = await supabase
         .storage
         .from(bucketName)
         .upload(filePath, file);
       
-      if (uploadError) {
+      // Handle specific error for bucket not found
+      if (uploadError && (uploadError.message.includes('bucket not found') || uploadError.message.includes('does not exist'))) {
+        console.log('Bucket not found, trying to use default images bucket instead');
+        
+        // Try using a fallback bucket instead
+        const { error: fallbackError } = await supabase
+          .storage
+          .from('images') // Use the default images bucket as fallback
+          .upload(filePath, file);
+        
+        if (fallbackError) {
+          console.error('Fallback upload error:', fallbackError);
+          throw new Error('Không thể tải lên hình ảnh, vui lòng thử lại sau');
+        }
+        
+        // Get URL from fallback bucket
+        const { data: urlData } = supabase
+          .storage
+          .from('images')
+          .getPublicUrl(filePath);
+        
+        onChange(urlData.publicUrl);
+        toast.success('Tải lên hình ảnh thành công');
+        return;
+      } else if (uploadError) {
         console.error('Upload error:', uploadError);
-        throw new Error('Upload failed');
+        throw new Error('Không thể tải lên hình ảnh');
       }
       
       // Get public URL

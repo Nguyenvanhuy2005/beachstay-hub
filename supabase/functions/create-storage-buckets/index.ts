@@ -29,39 +29,52 @@ serve(async (req) => {
     const { data: buckets, error: listError } = await supabase.storage.listBuckets();
 
     if (listError) {
+      console.error("Error listing buckets:", listError);
       throw listError;
     }
 
-    console.log("Existing buckets:", buckets.map(b => b.name).join(", ") || "none");
+    console.log("Existing buckets:", buckets?.map(b => b.name).join(", ") || "none");
 
     // Define buckets we want to ensure exist
     const requiredBuckets = [
       { name: "blog-images", public: true },
       { name: "room-images", public: true },
-      { name: "gallery", public: true }
+      { name: "gallery", public: true },
+      { name: "images", public: true }
     ];
 
     const results = [];
 
     // Create any missing buckets
     for (const bucket of requiredBuckets) {
-      if (!buckets.find(b => b.name === bucket.name)) {
-        console.log(`Creating bucket: ${bucket.name}`);
-        const { data, error } = await supabase.storage.createBucket(
-          bucket.name, 
-          { public: bucket.public }
-        );
+      try {
+        if (!buckets?.find(b => b.name === bucket.name)) {
+          console.log(`Creating bucket: ${bucket.name}`);
+          const { data, error } = await supabase.storage.createBucket(
+            bucket.name, 
+            { public: bucket.public }
+          );
 
-        if (error) {
-          console.error(`Error creating bucket ${bucket.name}:`, error);
-          results.push({ bucket: bucket.name, success: false, error: error.message });
+          if (error) {
+            // Check if the error is "already exists" - this can happen due to race conditions
+            if (error.message.includes("already exists")) {
+              console.log(`Bucket ${bucket.name} already exists (race condition)`);
+              results.push({ bucket: bucket.name, success: true, note: "already existed (race condition)" });
+            } else {
+              console.error(`Error creating bucket ${bucket.name}:`, error);
+              results.push({ bucket: bucket.name, success: false, error: error.message });
+            }
+          } else {
+            console.log(`Successfully created bucket: ${bucket.name}`);
+            results.push({ bucket: bucket.name, success: true, created: true });
+          }
         } else {
-          console.log(`Successfully created bucket: ${bucket.name}`);
-          results.push({ bucket: bucket.name, success: true });
+          console.log(`Bucket already exists: ${bucket.name}`);
+          results.push({ bucket: bucket.name, success: true, existed: true });
         }
-      } else {
-        console.log(`Bucket already exists: ${bucket.name}`);
-        results.push({ bucket: bucket.name, success: true, existed: true });
+      } catch (bucketError) {
+        console.error(`Error processing bucket ${bucket.name}:`, bucketError);
+        results.push({ bucket: bucket.name, success: false, error: bucketError.message });
       }
     }
 
