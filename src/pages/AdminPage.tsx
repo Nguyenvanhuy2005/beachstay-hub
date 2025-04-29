@@ -62,7 +62,7 @@ const AdminPage = () => {
   }
 
   // Updated routing to handle auth properly
-  // This prevents redirect loops and ensures AdminLoginPage is always accessible
+  // This ensures AdminLoginPage is always accessible
   return (
     <Routes>
       <Route path="/login" element={<AdminLoginPage />} />

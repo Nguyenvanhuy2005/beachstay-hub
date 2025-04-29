@@ -68,29 +68,43 @@ const AdminLoginPage = () => {
           setErrorMessage(`Lỗi đăng nhập: ${error.message}`);
         }
         toast.error('Đăng nhập thất bại');
+        setIsLoading(false);
         return;
       }
 
       // After successful login, check if the user is an admin
-      const { data: adminData, error: adminError } = await supabase
-        .from('admin_users')
-        .select('*')
-        .eq('email', cleanEmail)
-        .single();
+      try {
+        const { data: adminData, error: adminError } = await supabase
+          .from('admin_users')
+          .select('*')
+          .eq('email', cleanEmail)
+          .maybeSingle();
+          
+        if (adminError) {
+          console.error('Admin check error:', adminError);
+          throw adminError;
+        }
         
-      if (adminError || !adminData) {
-        console.error('Not an admin user:', adminError || 'No admin record found');
-        // Sign out the user since they're not an admin
-        await supabase.auth.signOut();
-        setErrorMessage('Email này không có quyền quản trị');
-        toast.error('Email không có quyền quản trị');
-        return;
-      }
+        if (!adminData) {
+          console.error('Not an admin user:', 'No admin record found');
+          // Sign out the user since they're not an admin
+          await supabase.auth.signOut();
+          setErrorMessage('Email này không có quyền quản trị');
+          toast.error('Email không có quyền quản trị');
+          setIsLoading(false);
+          return;
+        }
 
-      // If we reached here, the login was successful and user is an admin
-      console.log('Login successful:', data);
-      toast.success('Đăng nhập thành công');
-      navigate('/admin');
+        // If we reached here, the login was successful and user is an admin
+        console.log('Login successful:', data);
+        toast.success('Đăng nhập thành công');
+        navigate('/admin');
+      } catch (adminCheckError) {
+        console.error('Error checking admin status:', adminCheckError);
+        await supabase.auth.signOut();
+        setErrorMessage('Lỗi kiểm tra quyền quản trị. Vui lòng thử lại sau.');
+        toast.error('Lỗi kiểm tra quyền quản trị');
+      }
     } catch (error: any) {
       console.error('Error logging in:', error);
       setErrorMessage('Đã xảy ra lỗi. Vui lòng thử lại sau.');
@@ -99,6 +113,7 @@ const AdminLoginPage = () => {
       setIsLoading(false);
     }
   };
+
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -110,45 +125,27 @@ const AdminLoginPage = () => {
       
       if (!cleanEmail) {
         setErrorMessage('Vui lòng nhập email');
+        setIsLoading(false);
         return;
       }
 
       console.log(`Checking if ${cleanEmail} is an admin email`);
       
-      // Check if the email exists in the admin_users table
-      const { data: adminUsers, error: adminError } = await supabase
-        .from('admin_users')
-        .select('*')
-        .eq('email', cleanEmail)
-        .maybeSingle();
-        
-      if (adminError && !adminError.message.includes('No rows found')) {
-        console.error('Error checking admin email:', adminError);
+      // Send password reset email without prior admin check
+      // The RLS policy will allow reading the admin_users table for this purpose
+      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+        redirectTo: `${window.location.origin}/admin/reset-password`
+      });
+      
+      if (error) {
+        console.error('Reset password error:', error);
+        setErrorMessage(error.message);
+        toast.error('Không thể gửi email đặt lại mật khẩu');
+        return;
       }
-
-      // Allow password reset only for admin emails
-      if (cleanEmail === 'admin@annamvillage.vn' || adminUsers) {
-        console.log('Admin email verified, sending password reset email');
-        
-        // Send password reset email
-        const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
-          redirectTo: `${window.location.origin}/admin/reset-password`
-        });
-        
-        if (error) {
-          console.error('Reset password error:', error);
-          setErrorMessage(error.message);
-          toast.error('Không thể gửi email đặt lại mật khẩu');
-          return;
-        }
-        
-        setResetMessage(t('reset_password_sent'));
-        toast.success('Email đặt lại mật khẩu đã được gửi');
-      } else {
-        console.log('Email not found in admin_users');
-        setErrorMessage('Email không có quyền quản trị.');
-        toast.error('Email không có quyền quản trị');
-      }
+      
+      setResetMessage(t('reset_password_sent'));
+      toast.success('Email đặt lại mật khẩu đã được gửi');
     } catch (error: any) {
       console.error('Error in forgot password:', error);
       setErrorMessage('Lỗi gửi email đặt lại mật khẩu');
@@ -157,6 +154,7 @@ const AdminLoginPage = () => {
       setIsLoading(false);
     }
   };
+
   const renderForgotPasswordForm = () => {
     return <form onSubmit={handleForgotPassword} className="space-y-4">
         <div className="space-y-2">
@@ -184,6 +182,7 @@ const AdminLoginPage = () => {
         </div>
       </form>;
   };
+
   const renderLoginForm = () => {
     return <form onSubmit={handleLogin} className="space-y-4">
         <div className="space-y-2">
@@ -216,6 +215,7 @@ const AdminLoginPage = () => {
         </div>
       </form>;
   };
+
   return <MainLayout>
       <div className="bg-beach-50 min-h-[80vh] py-12 flex items-center justify-center">
         <div className="container mx-auto px-4 max-w-md">
