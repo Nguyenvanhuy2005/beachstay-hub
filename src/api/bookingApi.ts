@@ -156,7 +156,7 @@ export const getBookingsByStatus = async (status?: string) => {
       .select('*')
       .order('created_at', { ascending: false });
     
-    if (status) {
+    if (status && status !== 'all') {
       query = query.eq('status', status);
     }
     
@@ -164,14 +164,14 @@ export const getBookingsByStatus = async (status?: string) => {
     
     if (error) {
       console.error('Error fetching bookings:', error);
-      return [];
+      return { success: false, error, data: [] };
     }
     
     console.log('Bookings fetched:', data?.length || 0);
-    return data || [];
+    return { success: true, data: data || [] };
   } catch (error) {
     console.error('Unexpected error in getBookingsByStatus:', error);
-    return [];
+    return { success: false, error, data: [] };
   }
 };
 
