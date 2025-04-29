@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { AlertTriangle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLanguage } from '@/contexts/LanguageContext';
+
 const AdminLoginPage = () => {
   const {
     t
@@ -24,21 +25,29 @@ const AdminLoginPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   // Check if user is already logged in
-  React.useEffect(() => {
+  useEffect(() => {
     const checkSession = async () => {
-      const {
-        data
-      } = await supabase.auth.getSession();
-      if (data.session) {
-        navigate('/admin');
+      try {
+        console.log('AdminLoginPage: Checking for existing session');
+        const { data } = await supabase.auth.getSession();
+        
+        if (data.session) {
+          console.log('AdminLoginPage: User already authenticated, redirecting to admin dashboard');
+          navigate('/admin');
+        }
+      } catch (error) {
+        console.error('AdminLoginPage: Error checking session:', error);
       }
     };
+    
     checkSession();
   }, [navigate]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMessage('');
+    
     try {
       console.log(`Attempting to log in with: ${email}`);
 
@@ -46,13 +55,11 @@ const AdminLoginPage = () => {
       const cleanEmail = email.trim().toLowerCase();
 
       // Sign in with email/password
-      const {
-        data,
-        error
-      } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: cleanEmail,
         password
       });
+      
       if (error) {
         console.error('Login error:', error);
         if (error.message.includes('Invalid login credentials')) {
@@ -64,7 +71,23 @@ const AdminLoginPage = () => {
         return;
       }
 
-      // If we reached here, the login was successful
+      // After successful login, check if the user is an admin
+      const { data: adminData, error: adminError } = await supabase
+        .from('admin_users')
+        .select('*')
+        .eq('email', cleanEmail)
+        .single();
+        
+      if (adminError || !adminData) {
+        console.error('Not an admin user:', adminError || 'No admin record found');
+        // Sign out the user since they're not an admin
+        await supabase.auth.signOut();
+        setErrorMessage('Email này không có quyền quản trị');
+        toast.error('Email không có quyền quản trị');
+        return;
+      }
+
+      // If we reached here, the login was successful and user is an admin
       console.log('Login successful:', data);
       toast.success('Đăng nhập thành công');
       navigate('/admin');
@@ -81,39 +104,48 @@ const AdminLoginPage = () => {
     setIsLoading(true);
     setErrorMessage('');
     setResetMessage('');
+    
     try {
       const cleanEmail = forgotEmail.trim().toLowerCase();
+      
       if (!cleanEmail) {
         setErrorMessage('Vui lòng nhập email');
         return;
       }
 
-      // Kiểm tra xem email có tồn tại trong hệ thống không
-      const {
-        data: adminUsers,
-        error: adminError
-      } = await supabase.from('admin_users').select('*').eq('email', cleanEmail).maybeSingle();
+      console.log(`Checking if ${cleanEmail} is an admin email`);
+      
+      // Check if the email exists in the admin_users table
+      const { data: adminUsers, error: adminError } = await supabase
+        .from('admin_users')
+        .select('*')
+        .eq('email', cleanEmail)
+        .maybeSingle();
+        
       if (adminError && !adminError.message.includes('No rows found')) {
         console.error('Error checking admin email:', adminError);
       }
 
-      // Nếu email là admin@annamvillage.vn hoặc có trong bảng admin_users
+      // Allow password reset only for admin emails
       if (cleanEmail === 'admin@annamvillage.vn' || adminUsers) {
+        console.log('Admin email verified, sending password reset email');
+        
         // Send password reset email
-        const {
-          error
-        } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+        const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
           redirectTo: `${window.location.origin}/admin/reset-password`
         });
+        
         if (error) {
           console.error('Reset password error:', error);
           setErrorMessage(error.message);
           toast.error('Không thể gửi email đặt lại mật khẩu');
           return;
         }
+        
         setResetMessage(t('reset_password_sent'));
         toast.success('Email đặt lại mật khẩu đã được gửi');
       } else {
+        console.log('Email not found in admin_users');
         setErrorMessage('Email không có quyền quản trị.');
         toast.error('Email không có quyền quản trị');
       }
@@ -204,4 +236,5 @@ const AdminLoginPage = () => {
       </div>
     </MainLayout>;
 };
+
 export default AdminLoginPage;

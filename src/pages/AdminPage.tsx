@@ -1,8 +1,9 @@
 
 import React from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
+import { useNavigate, Navigate, Routes, Route } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import AdminDashboardPage from './AdminDashboardPage';
+import AdminLoginPage from './AdminLoginPage';
 import { toast } from 'sonner';
 
 const AdminPage = () => {
@@ -26,11 +27,6 @@ const AdminPage = () => {
         console.log('Session data:', data);
         const isLoggedIn = !!data.session?.user;
         setIsAuthenticated(isLoggedIn);
-        
-        if (!isLoggedIn) {
-          toast.error('Vui lòng đăng nhập để truy cập trang quản trị');
-          navigate('/admin/login');
-        }
       } catch (error) {
         console.error('Unexpected error during session check:', error);
         setIsAuthenticated(false);
@@ -65,8 +61,14 @@ const AdminPage = () => {
     );
   }
 
-  // If authenticated, show dashboard, otherwise redirect to login
-  return isAuthenticated ? <AdminDashboardPage /> : <Navigate to="/admin/login" />;
+  // Updated routing to handle auth properly
+  // This prevents redirect loops and ensures AdminLoginPage is always accessible
+  return (
+    <Routes>
+      <Route path="/login" element={<AdminLoginPage />} />
+      <Route path="/*" element={isAuthenticated ? <AdminDashboardPage /> : <Navigate to="/admin/login" />} />
+    </Routes>
+  );
 };
 
 export default AdminPage;
