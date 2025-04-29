@@ -30,7 +30,7 @@ import { supabase } from '@/lib/supabase';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import ImageUpload from './ImageUpload';
+import { ImageUpload } from './ImageUpload';
 import { v4 as uuidv4 } from 'uuid';
 
 interface EditBlogPostModalProps {
