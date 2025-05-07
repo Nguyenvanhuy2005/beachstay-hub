@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -256,7 +255,7 @@ const EditBlogPostModal: React.FC<EditBlogPostModalProps> = ({
       onPostEdited();
     } catch (error: any) {
       console.error('Error updating post:', error);
-      toast.error(`Không thể cập nhật bài viết: ${error.message}`);
+      toast.error(`Không thể cập nhật b��i viết: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
