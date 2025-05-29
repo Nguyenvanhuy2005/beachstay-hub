@@ -92,22 +92,22 @@ const viTranslations: Record<TranslationKey, string> = {
   amenity_open_space: "Không gian mở",
   amenity_open_space_desc: "Một khoảng xanh đủ yên để bạn ngồi lại với chính mình. Cũng đủ thoáng để cùng bạn bè hay gia đình tụ họp, kể cho nhau nghe vài câu chuyện vội quên giữa cuộc sống thường ngày.",
   
-  // About section
+  // About section - NEW TEXT
   about_title: "Về AnNam Village",
-  about_subtitle: "Không gian nghỉ dưỡng sang trọng bên bờ biển",
-  about_description: "Villa AnNam - Nơi kiến trúc #XanhHóa từng trải nghiệm nghỉ dưỡng. Lấy cảm hứng từ kiến trúc Sinh Khí Hậu - nơi con người thật sự chan hòa cùng thiên nhiên, từng căn villa tại AnNam được thiết kế để bạn tìm thấy sự bình yên — vừa đủ riêng tư để an trú, vừa đủ cởi mở để tâm hồn được tắm mát cùng gió, nắng và biển trời Vũng Tàu.",
+  about_subtitle: "Một khoảng dừng bình yên giữa lòng Vũng Tàu",
+  about_description: "AnNam không chỉ là nơi lưu trú – mà là nơi để mỗi người tìm thấy khoảng lặng riêng mình trong nắng, trong cây, trong gió.. Từ kiến trúc xanh mát đến bài trí gần gũi, từng căn villa tại AnNam ở đó để chở che tâm hồn, làm dịu lại những \"vết hằn\" từ chốn ồn ào thường ngày...",
   about_annam: "Về AnNam Village",
-  villa_description: "Ở AnNam, mỗi căn villa không chỉ là một chốn nghỉ chân — mà là một khoảng lặng rất riêng, đủ xanh để chở che, đủ gió để làm dịu tâm hồn, và đủ nắng để sưởi ấm những khoảnh khắc tưởng chừng bình thường nhất. Từ căn villa rộng rãi dành cho nhóm bạn đông người, đến không gian riêng tư cho những cặp đôi cần khoảng lặng - AnNam vẫn giữ nguyên một tinh thần: \"Xanh hóa từng trải nghiệm nghỉ dưỡng, để du khách ghé lại đều có thể thở thật sâu, sống thật chậm và lắng mình lại giữa miền gió mát.\"",
+  villa_description: "Ở đây, có những niềm vui khác với thường nhật: một bữa ngon cùng đại gia đình, một buổi chiều bên hồ bơi cùng mấy đứa bạn thân, một khoảng sân rù rì tiếng lá reo trong gió, một khoảng tụ tập vang lên tiếng cười... AnNam không bán một đêm nghỉ, AnNam là nhiều chốn, để bạn tìm thấy những khoảnh khắc tưởng chừng bình thường - mà lâu rồi bạn chưa chạm đến...",
   
-  // Room types section
+  // ... keep existing code (room types section)
   room_types_title: "Lựa chọn không gian lưu trú của riêng bạn",
   room_types_subtitle: "Từ những căn hộ nhỏ xinh giữa lòng thành phố, đến villa theo kiến trúc #XanhHóa để bạn tha hồ \"thả mình\" cùng hội bạn hay người thân - AnNam có đủ những lựa chọn gần gũi và thoải mái cho từng chuyến đi của bạn.",
   
-  // Testimonials section
+  // ... keep existing code (testimonials section)
   testimonials_title: "Đánh Giá Từ Khách Hàng",
   testimonials_subtitle: "Khách hàng nói gì về chúng tôi",
   
-  // Gallery section
+  // ... keep existing code (gallery section)
   gallery_title: "Thư Viện Ảnh",
   gallery_subtitle: "Khám phá vẻ đẹp của AnNam Village",
   gallery: "Thư Viện Ảnh",
@@ -116,12 +116,12 @@ const viTranslations: Record<TranslationKey, string> = {
   view_more_images: "Xem Thêm Hình Ảnh",
   all: "Tất Cả",
   
-  // CTA section
+  // ... keep existing code (CTA section)
   cta_title: "Đặt Phòng Ngay Hôm Nay",
   cta_subtitle: "Và Nhận Ưu Đãi Đặc Biệt",
   cta_description: "Đặt phòng trực tiếp trên website chính thức của chúng tôi để nhận được giá tốt nhất cùng nhiều ưu đãi hấp dẫn chỉ dành riêng cho khách hàng đặt phòng online.",
   
-  // Footer
+  // ... keep existing code (footer, about page, room types page, services page, blog page, contact page, booking page, admin, admin login, error page, error messages)
   links: "Liên Kết",
   subscribe: "Đăng Ký Nhận Tin",
   subscribe_desc: "Đăng ký để nhận thông tin ưu đãi mới nhất từ chúng tôi",
@@ -132,14 +132,12 @@ const viTranslations: Record<TranslationKey, string> = {
   privacy: "Chính Sách Bảo Mật",
   cookies: "Cookies",
   
-  // About page
   our_story: "Câu Chuyện Của Chúng Tôi",
   our_mission: "Sứ Mệnh",
   our_vision: "Tầm Nhìn",
   our_values: "Giá Trị Cốt Lõi",
   our_team: "Đội Ngũ Của Chúng Tôi",
   
-  // Room types page
   filter_by: "Lọc Theo",
   price_range: "Khoảng Giá",
   guests: "Số Khách",
@@ -150,18 +148,15 @@ const viTranslations: Record<TranslationKey, string> = {
   from_price: "Từ",
   per_night: "/đêm",
   
-  // Services page
   spa_wellness: "Spa & Sức Khỏe",
   restaurant: "Nhà Hàng",
   activities: "Hoạt Động",
   
-  // Blog page
   latest_posts: "Bài Viết Mới Nhất",
   categories: "Danh Mục",
   popular_tags: "Thẻ Phổ Biến",
   search_placeholder: "Tìm kiếm bài viết...",
   
-  // Contact page
   get_in_touch: "Liên Hệ Với Chúng Tôi",
   address: "Địa Chỉ",
   phone: "Điện Thoại",
@@ -172,7 +167,6 @@ const viTranslations: Record<TranslationKey, string> = {
   form_message: "Nội Dung",
   form_submit: "Gửi",
   
-  // Booking page
   booking_title: "Đặt Phòng",
   check_in: "Nhận Phòng",
   check_out: "Trả Phòng",
@@ -194,7 +188,6 @@ const viTranslations: Record<TranslationKey, string> = {
   taxes_fees: "Thuế & Phí",
   total_price: "Tổng Cộng",
   
-  // Admin
   admin_title: "Quản Trị",
   dashboard: "Bảng Điều Khiển",
   bookings: "Đặt Phòng",
@@ -203,7 +196,6 @@ const viTranslations: Record<TranslationKey, string> = {
   settings: "Cài Đặt",
   logout: "Đăng Xuất",
 
-  // Admin Login
   admin_login: "Đăng Nhập Quản Trị",
   password: "Mật Khẩu",
   login: "Đăng Nhập",
@@ -216,12 +208,10 @@ const viTranslations: Record<TranslationKey, string> = {
   signing_in: "Đang đăng nhập...",
   send_reset: "Gửi yêu cầu đặt lại mật khẩu",
   
-  // Error page
   error_title: "Không Tìm Thấy Trang",
   error_description: "Trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển.",
   back_to_home: "Về Trang Chủ",
   
-  // Error messages
   error_loading_data: "Lỗi tải dữ liệu",
   error_loading_gallery: "Không thể tải thư viện ảnh. Vui lòng thử lại sau.",
   try_again: "Thử Lại"
@@ -286,22 +276,22 @@ const enTranslations: Record<TranslationKey, string> = {
   amenity_open_space: "Open Space",
   amenity_open_space_desc: "A green space peaceful enough for self-reflection. Also spacious enough for friends and family to gather, sharing stories that are often forgotten in everyday life.",
   
-  // About section
+  // About section - NEW TEXT
   about_title: "About AnNam Village",
-  about_subtitle: "Luxury beachfront resort",
-  about_description: "Villa AnNam - Where architecture #Greenifies every vacation experience. Inspired by Bioclimatic Architecture - where humans truly commune with nature, each villa at AnNam is designed for you to find peace — private enough for sanctuary, yet open enough for your soul to bathe in the wind, sun, and coastal horizon of Vung Tau.",
+  about_subtitle: "A peaceful pause in the heart of Vung Tau",
+  about_description: "AnNam is not just accommodation – but a place for everyone to find their own quiet moments in the sun, among trees, in the breeze... From cool green architecture to intimate layouts, each villa at AnNam is there to shelter the soul, soothing the \"worn edges\" from everyday hustle and bustle...",
   about_annam: "About AnNam Village",
-  villa_description: "At AnNam, each villa is not just a place to stay — but a very personal retreat, green enough to shelter, breezy enough to soothe the soul, and sunny enough to warm life's seemingly ordinary moments. From spacious villas for large groups of friends, to private spaces for couples seeking solitude - AnNam maintains one spirit: \"Greenifying every vacation experience, so visitors can breathe deeply, live slowly, and immerse themselves in the gentle breeze.\"",
+  villa_description: "Here, there are joys different from the everyday: a delicious meal with the extended family, an afternoon by the pool with close friends, a courtyard rustling with leaves singing in the wind, a gathering space echoing with laughter... AnNam doesn't sell a night's stay, AnNam is many places, for you to find those seemingly ordinary moments - that you haven't touched in a long time...",
   
-  // Room types section
+  // ... keep existing code (room types section)
   room_types_title: "Choose your own living space",
   room_types_subtitle: "From charming apartments in the heart of the city to villas with #Greenified architecture where you can \"unwind\" with friends or family - AnNam has comfortable, welcoming options for all your journeys.",
   
-  // Testimonials section
+  // ... keep existing code (testimonials section)
   testimonials_title: "Guest Testimonials",
   testimonials_subtitle: "What our guests say about us",
   
-  // Gallery section
+  // ... keep existing code (gallery section)
   gallery_title: "Gallery",
   gallery_subtitle: "Explore the beauty of AnNam Village",
   gallery: "Gallery",
@@ -310,12 +300,12 @@ const enTranslations: Record<TranslationKey, string> = {
   view_more_images: "View More Images",
   all: "All",
   
-  // CTA section
+  // ... keep existing code (CTA section)
   cta_title: "Book Your Stay Today",
   cta_subtitle: "And Get Special Offers",
   cta_description: "Book directly on our official website to get the best price and many attractive offers exclusively for online booking customers.",
   
-  // Footer
+  // ... keep existing code (footer, about page, room types page, services page, blog page, contact page, booking page, admin, admin login, error page, error messages)
   links: "Links",
   subscribe: "Subscribe",
   subscribe_desc: "Subscribe to receive our latest offers",
@@ -326,14 +316,12 @@ const enTranslations: Record<TranslationKey, string> = {
   privacy: "Privacy Policy",
   cookies: "Cookies",
   
-  // About page
   our_story: "Our Story",
   our_mission: "Our Mission",
   our_vision: "Our Vision",
   our_values: "Our Values",
   our_team: "Our Team",
   
-  // Room types page
   filter_by: "Filter By",
   price_range: "Price Range",
   guests: "Guests",
@@ -344,18 +332,15 @@ const enTranslations: Record<TranslationKey, string> = {
   from_price: "From",
   per_night: "/night",
   
-  // Services page
   spa_wellness: "Spa & Wellness",
   restaurant: "Restaurant",
   activities: "Activities",
   
-  // Blog page
   latest_posts: "Latest Posts",
   categories: "Categories",
   popular_tags: "Popular Tags",
   search_placeholder: "Search posts...",
   
-  // Contact page
   get_in_touch: "Get In Touch",
   address: "Address",
   phone: "Phone",
@@ -366,7 +351,6 @@ const enTranslations: Record<TranslationKey, string> = {
   form_message: "Message",
   form_submit: "Submit",
   
-  // Booking page
   booking_title: "Booking",
   check_in: "Check In",
   check_out: "Check Out",
@@ -388,7 +372,6 @@ const enTranslations: Record<TranslationKey, string> = {
   taxes_fees: "Taxes & Fees",
   total_price: "Total Price",
   
-  // Admin
   admin_title: "Admin",
   dashboard: "Dashboard",
   bookings: "Bookings",
@@ -397,7 +380,6 @@ const enTranslations: Record<TranslationKey, string> = {
   settings: "Settings",
   logout: "Logout",
 
-  // Admin Login
   admin_login: "Admin Login",
   password: "Password",
   login: "Login",
@@ -410,12 +392,10 @@ const enTranslations: Record<TranslationKey, string> = {
   signing_in: "Signing in...",
   send_reset: "Send Reset Request",
   
-  // Error page
   error_title: "Page Not Found",
   error_description: "The page you are looking for does not exist or has been moved.",
   back_to_home: "Back to Home",
   
-  // Error messages
   error_loading_data: "Error Loading Data",
   error_loading_gallery: "Could not load gallery images. Please try again later.",
   try_again: "Try Again"
