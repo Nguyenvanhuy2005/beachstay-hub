@@ -99,9 +99,9 @@ const viTranslations: Record<TranslationKey, string> = {
   about_annam: "Về AnNam Village",
   villa_description: "Ở đây, có những niềm vui khác với thường nhật: một bữa ngon cùng đại gia đình, một buổi chiều bên hồ bơi cùng mấy đứa bạn thân, một khoảng sân rù rì tiếng lá reo trong gió, một khoảng tụ tập vang lên tiếng cười... AnNam không bán một đêm nghỉ, AnNam là nhiều chốn, để bạn tìm thấy những khoảnh khắc tưởng chừng bình thường - mà lâu rồi bạn chưa chạm đến...",
   
-  // ... keep existing code (room types section)
-  room_types_title: "Lựa chọn không gian lưu trú của riêng bạn",
-  room_types_subtitle: "Từ những căn hộ nhỏ xinh giữa lòng thành phố, đến villa theo kiến trúc #XanhHóa để bạn tha hồ \"thả mình\" cùng hội bạn hay người thân - AnNam có đủ những lựa chọn gần gũi và thoải mái cho từng chuyến đi của bạn.",
+  // Room types section - UPDATED TEXT
+  room_types_title: "Hãy chọn một nơi nghỉ… vừa đủ để bạn an yên",
+  room_types_subtitle: "AnNam có \"trọn\" các lựa chọn cho bạn và những người thân yêu để chuyến đi thêm \"vẹn\" tròn hơn: Một căn phòng ngủ yên bình bên tiếng sóng biển.. Một căn villa chứa đựng cả hệ sinh thái rừng mini… Một không gian để con trẻ nô đùa bên sân cỏ… Hay một góc yên tĩnh để ngồi bộc bạch cùng nhau… Chọn căn nào không quan trọng bằng việc: bạn muốn giữ lại khoảnh khắc nào cho kỳ nghỉ của mình?",
   
   // ... keep existing code (testimonials section)
   testimonials_title: "Đánh Giá Từ Khách Hàng",
@@ -283,9 +283,9 @@ const enTranslations: Record<TranslationKey, string> = {
   about_annam: "About AnNam Village",
   villa_description: "Here, there are joys different from the everyday: a delicious meal with the extended family, an afternoon by the pool with close friends, a courtyard rustling with leaves singing in the wind, a gathering space echoing with laughter... AnNam doesn't sell a night's stay, AnNam is many places, for you to find those seemingly ordinary moments - that you haven't touched in a long time...",
   
-  // ... keep existing code (room types section)
-  room_types_title: "Choose your own living space",
-  room_types_subtitle: "From charming apartments in the heart of the city to villas with #Greenified architecture where you can \"unwind\" with friends or family - AnNam has comfortable, welcoming options for all your journeys.",
+  // Room types section - UPDATED TEXT
+  room_types_title: "Choose a place to rest... just enough for your peace",
+  room_types_subtitle: "AnNam has \"complete\" options for you and your loved ones to make your trip more \"perfect\": A peaceful bedroom by the sound of ocean waves.. A villa containing an entire mini forest ecosystem... A space for children to play on the grass... Or a quiet corner to sit and confide together... Which one you choose doesn't matter as much as: what moments do you want to keep for your vacation?",
   
   // ... keep existing code (testimonials section)
   testimonials_title: "Guest Testimonials",
