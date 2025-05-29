@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     rollupOptions: {
-      external: mode === 'production' ? ['uuid'] : [],
+      // Removed external configuration to allow uuid to be bundled
     },
   },
 }));
