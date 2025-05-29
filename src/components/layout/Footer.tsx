@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { toast } from "sonner";
+
 const Footer = () => {
   const {
     language,
@@ -44,7 +45,7 @@ const Footer = () => {
           once: true
         }} custom={1}>
             <Link to="/" className="inline-block mb-4">
-              <img alt="Annam Village Logo" className="h-32" src="/lovable-uploads/11b55939-121b-4727-b0b8-d207b802ccfd.png" />
+              <img alt="Annam Village Logo" className="h-32" src="/lovable-uploads/92600fbe-d6bd-43bb-a23f-9a3f0589e9e5.png" />
             </Link>
             <p className="mb-4 text-slate-50">
               {language === 'vi' ? 'Nơi hòa quyện giữa thiên nhiên và không gian nghỉ dưỡng sang trọng tại thành phố biển Vũng Tàu.' : 'A harmonious blend of nature and luxury retreat space in the coastal city of Vung Tau.'}
@@ -175,4 +176,5 @@ const Footer = () => {
       </div>
     </footer>;
 };
+
 export default Footer;

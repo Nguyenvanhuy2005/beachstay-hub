@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X, Phone, AtSign, MapPin, LogIn, LogOut, Shield } from "lucide-react";
@@ -7,16 +8,16 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/lib/supabase";
 import { isAdmin } from "@/lib/supabase";
 import { toast } from "sonner";
+
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const {
-    t
-  } = useLanguage();
+  const { t } = useLanguage();
   const navigate = useNavigate();
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -24,17 +25,14 @@ const Header = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
   useEffect(() => {
     const checkUserStatus = async () => {
       try {
-        // Check authentication
-        const {
-          data
-        } = await supabase.auth.getSession();
+        const { data } = await supabase.auth.getSession();
         const hasSession = !!data.session;
         setIsAuthenticated(hasSession);
 
-        // If authenticated, check admin status
         if (hasSession) {
           const adminStatus = await isAdmin();
           setIsAdminUser(adminStatus);
@@ -45,10 +43,10 @@ const Header = () => {
         setIsLoading(false);
       }
     };
+
     checkUserStatus();
-    const {
-      data: authListener
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       const hasSession = !!session;
       setIsAuthenticated(hasSession);
       if (hasSession) {
@@ -58,10 +56,12 @@ const Header = () => {
         setIsAdminUser(false);
       }
     });
+
     return () => {
       authListener.subscription.unsubscribe();
     };
   }, []);
+
   const handleAdminAction = () => {
     if (isAuthenticated) {
       navigate('/admin');
@@ -69,6 +69,7 @@ const Header = () => {
       navigate('/admin/login');
     }
   };
+
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
@@ -81,12 +82,18 @@ const Header = () => {
       toast.error("Lỗi khi đăng xuất");
     }
   };
-  return <header className="bg-slate-50">
+
+  return (
+    <header className="bg-slate-50">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img alt="AnNam Village Logo" className="h-12 md:h-16" src="/lovable-uploads/1421d474-c744-4bd5-b508-7ecc1b135ee4.png" />
+            <img 
+              alt="AnNam Village Logo" 
+              className="h-12 md:h-16" 
+              src="/lovable-uploads/92600fbe-d6bd-43bb-a23f-9a3f0589e9e5.png" 
+            />
           </Link>
 
           {/* Desktop Navigation */}
@@ -101,32 +108,48 @@ const Header = () => {
               <span className="text-green-900 font-bold">0933 669 154</span>
             </a>
             <LanguageSwitcher className={isScrolled ? "text-primary" : "text-white"} />
-            <Button size="sm" className="bg-primary hover:bg-green-800 text-white" onClick={() => window.location.href = '/dat-phong'}>
+            <Button 
+              size="sm" 
+              className="bg-primary hover:bg-green-800 text-white" 
+              onClick={() => window.location.href = '/dat-phong'}
+            >
               {t('book_now')}
             </Button>
             
-            {!isLoading && <>
-                
-                
-                {isAuthenticated && <Button size="sm" variant="ghost" className="flex items-center gap-1" onClick={handleLogout}>
+            {!isLoading && (
+              <>
+                {isAuthenticated && (
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    className="flex items-center gap-1" 
+                    onClick={handleLogout}
+                  >
                     <LogOut size={16} />
                     <span>Đăng xuất</span>
-                  </Button>}
-              </>}
+                  </Button>
+                )}
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center space-x-2">
             <LanguageSwitcher className={isScrolled ? "text-primary" : "text-white"} />
             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-              {isMobileMenuOpen ? <X className="bg-slate-50" /> : <Menu className={isScrolled ? "text-primary" : "text-white"} />}
+              {isMobileMenuOpen ? (
+                <X className="bg-slate-50" />
+              ) : (
+                <Menu className={isScrolled ? "text-primary" : "text-white"} />
+              )}
             </button>
           </div>
         </div>
       </div>
 
       {/* Mobile Menu */}
-      {isMobileMenuOpen && <div className="md:hidden bg-neutral mt-2 py-4 px-6 shadow-md">
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-neutral mt-2 py-4 px-6 shadow-md">
           <nav className="flex flex-col space-y-4">
             <NavLinks isScrolled={true} />
           </nav>
@@ -143,54 +166,73 @@ const Header = () => {
               <MapPin size={16} />
               <span>234 Phan Chu Trinh, Phường 2, Vũng Tàu</span>
             </a>
-            <Button size="sm" className="bg-primary hover:bg-green-800 mt-2 text-white" onClick={() => window.location.href = '/dat-phong'}>
+            <Button 
+              size="sm" 
+              className="bg-primary hover:bg-green-800 mt-2 text-white" 
+              onClick={() => window.location.href = '/dat-phong'}
+            >
               {t('book_now')}
             </Button>
             
-            {!isLoading && <div className="flex flex-col space-y-2 mt-2 pt-2 border-t border-gray-200">
-                <Button size="sm" variant="outline" className="flex items-center gap-1 justify-center" onClick={handleAdminAction}>
+            {!isLoading && (
+              <div className="flex flex-col space-y-2 mt-2 pt-2 border-t border-gray-200">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex items-center gap-1 justify-center" 
+                  onClick={handleAdminAction}
+                >
                   {isAuthenticated ? <Shield size={16} /> : <LogIn size={16} />}
                   <span>{isAuthenticated ? "Quản trị" : "Admin"}</span>
                 </Button>
                 
-                {isAuthenticated && <Button size="sm" variant="ghost" className="flex items-center gap-1 justify-center" onClick={handleLogout}>
+                {isAuthenticated && (
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    className="flex items-center gap-1 justify-center" 
+                    onClick={handleLogout}
+                  >
                     <LogOut size={16} />
                     <span>Đăng xuất</span>
-                  </Button>}
-              </div>}
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
-        </div>}
-    </header>;
+        </div>
+      )}
+    </header>
+  );
 };
-const NavLinks = ({
-  isScrolled
-}: {
-  isScrolled: boolean;
-}) => {
+
+const NavLinks = ({ isScrolled }: { isScrolled: boolean }) => {
   const textColor = isScrolled ? "text-primary" : "text-white";
   const hoverColor = isScrolled ? "hover:text-secondary" : "hover:text-accent";
-  const {
-    t
-  } = useLanguage();
-  return <>
-      <Link to="/" className="">
+  const { t } = useLanguage();
+
+  return (
+    <>
+      <Link to="/" className={`${textColor} ${hoverColor}`}>
         {t('home')}
       </Link>
-      <Link to="/ve-chung-toi" className="">
+      <Link to="/ve-chung-toi" className={`${textColor} ${hoverColor}`}>
         {t('about')}
       </Link>
-      <Link to="/loai-phong" className="">
+      <Link to="/loai-phong" className={`${textColor} ${hoverColor}`}>
         {t('rooms')}
       </Link>
-      <Link to="/dich-vu" className="">
+      <Link to="/dich-vu" className={`${textColor} ${hoverColor}`}>
         {t('services')}
       </Link>
-      <Link to="/blog" className="">
+      <Link to="/blog" className={`${textColor} ${hoverColor}`}>
         {t('blog')}
       </Link>
-      <Link to="/lien-he" className="">
+      <Link to="/lien-he" className={`${textColor} ${hoverColor}`}>
         {t('contact')}
       </Link>
-    </>;
+    </>
+  );
 };
+
 export default Header;

@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -6,7 +7,7 @@
  
 @layer base {
   :root {
-    --background: 195 25% 95%; /* #edf6f9 background color */
+    --background: 115 100% 97%; /* #f3fff9 background color */
     --foreground: 157 72% 25%; /* #137252 text color */
 
     --card: 60 100% 97%; /* #fffff0 */
@@ -21,7 +22,7 @@
     --secondary: 146 45% 80%; /* #b7e1cd secondary color */
     --secondary-foreground: 157 72% 25%; /* #137252 text on secondary */
  
-    --muted: 146 45% 90%; /* Lighter version of #b7e1cd */
+    --muted: 115 100% 95%; /* Lighter version of #f3fff9 */
     --muted-foreground: 157 72% 35%; /* Lighter version of primary */
  
     --accent: 49 100% 88%; /* #fff4c5 accent color */
@@ -266,7 +267,7 @@
 }
 
 .text-glitter {
-  background-image: linear-gradient(90deg, #edf6f9, #b7e1cd, #137252, #b7e1cd, #edf6f9);
+  background-image: linear-gradient(90deg, #f3fff9, #b7e1cd, #137252, #b7e1cd, #f3fff9);
   background-size: 200% auto;
   color: transparent;
   background-clip: text;
@@ -283,7 +284,7 @@
 .nature-bg {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(to bottom, #edf6f9, #b7e1cd);
+  background: linear-gradient(to bottom, #f3fff9, #b7e1cd);
 }
 
 .nature-bg::before {

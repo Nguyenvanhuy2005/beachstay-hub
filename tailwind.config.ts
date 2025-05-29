@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -25,7 +26,7 @@ export default {
 			colors: {
 				primary: '#137252', // Dark green
 				secondary: '#b7e1cd', // Light green
-				background: '#edf6f9', // Light blue-gray
+				background: '#f3fff9', // Very light green
 				accent: '#fff4c5', // Light yellow
 				neutral: '#fffff0', // Off-white
 
@@ -73,52 +74,52 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				green: {
-					50: '#e6f2ed',
-					100: '#cce6dc',
-					200: '#b3d9ca',
-					300: '#99ccb9',
-					400: '#80bfa7',
-					500: '#66b396',
-					600: '#4da684',
-					700: '#339973',
-					800: '#1a8c61',
+					50: '#f3fff9',
+					100: '#e6f7ed',
+					200: '#cceede',
+					300: '#b7e1cd',
+					400: '#9dd4bc',
+					500: '#82c7ab',
+					600: '#68ba9a',
+					700: '#4dad89',
+					800: '#339a78',
 					900: '#137252', // Base color
 				},
 				mint: {
-					50: '#f4fbf8',
-					100: '#e8f7f1',
-					200: '#dcf3e9',
-					300: '#d0efe2',
-					400: '#c4ebdb',
+					50: '#f3fff9', // Very light green
+					100: '#e6f7ed',
+					200: '#d9f0e0',
+					300: '#cce8d4',
+					400: '#bfe1c7',
 					500: '#b7e1cd', // Base color
-					600: '#9ad7bc',
-					700: '#7dcdac',
-					800: '#60c39b',
-					900: '#43b98b',
+					600: '#a0d4b6',
+					700: '#89c79f',
+					800: '#72ba88',
+					900: '#5bad71',
 				},
 				cream: {
-					50: '#fffff8',
-					100: '#fffff5',
-					200: '#fffff2',
-					300: '#fffff0', // Base color
-					400: '#fffceb',
-					500: '#fff9e6',
-					600: '#fff6e0',
-					700: '#fff4c5', // Base color
+					50: '#fffff0', // Off-white
+					100: '#fffef5',
+					200: '#fffdf0',
+					300: '#fffceb',
+					400: '#fffbe6',
+					500: '#fff9e1',
+					600: '#fff8dc',
+					700: '#fff4c5', // Light yellow
 					800: '#fff1c0',
 					900: '#ffeebc',
 				},
 				pale: {
-					50: '#fbfcfd',
-					100: '#f7f9fb',
-					200: '#f3f7f9',
-					300: '#eff4f7',
-					400: '#edf6f9', // Base color
-					500: '#e6f0f4',
-					600: '#dfe9ee',
-					700: '#d8e3e9',
-					800: '#d1dce3',
-					900: '#cad6de',
+					50: '#f3fff9', // Very light green
+					100: '#eefdf5',
+					200: '#e9fcf1',
+					300: '#e4faed',
+					400: '#dff9e9',
+					500: '#daf7e5',
+					600: '#d5f6e1',
+					700: '#d0f4dd',
+					800: '#cbf3d9',
+					900: '#c6f1d5',
 				}
 			},
 			borderRadius: {
