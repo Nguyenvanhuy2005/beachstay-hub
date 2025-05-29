@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { Bath, Utensils, Wifi, Coffee, Bike, LayoutGrid } from "lucide-react";
+import { Bath, Utensils, Wifi, Coffee, LayoutGrid } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
 
@@ -67,14 +67,6 @@ const AmenitiesSection = () => {
     },
     {
       id: 5,
-      name: "Cho thuê xe đạp",
-      name_en: "Bicycle Rental",
-      description: "Nhẹ nhàng đạp xe qua những con phố đầy nắng, nghe gió biển lùa qua vai áo — là cách chậm rãi nhất để cảm nhận Vũng Tàu.",
-      description_en: "Gently cycling through sunny streets, feeling the sea breeze on your shoulders — the slowest way to experience Vung Tau.",
-      icon: <Bike className="text-beach-600 h-6 w-6" />
-    },
-    {
-      id: 6,
       name: "Không gian mở",
       name_en: "Open Space",
       description: "Một khoảng xanh đủ yên để bạn ngồi lại với chính mình. Cũng đủ thoáng để cùng bạn bè hay gia đình tụ họp, kể cho nhau nghe vài câu chuyện vội quên giữa cuộc sống thường ngày.",

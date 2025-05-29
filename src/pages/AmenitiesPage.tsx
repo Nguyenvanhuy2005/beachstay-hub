@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import MainLayout from '@/components/layout/MainLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Bath, Wifi, Coffee, Utensils, Bike, LayoutGrid } from 'lucide-react';
+import { Bath, Wifi, Coffee, Utensils, LayoutGrid } from 'lucide-react';
 
 const AmenitiesPage = () => {
   const [loading, setLoading] = useState(false);
@@ -48,14 +48,6 @@ const AmenitiesPage = () => {
     },
     {
       id: '5',
-      name: 'Cho thuê xe đạp',
-      name_en: 'Bicycle Rental',
-      description: 'Nhẹ nhàng đạp xe qua những con phố đầy nắng, nghe gió biển lùa qua vai áo — là cách chậm rãi nhất để cảm nhận Vũng Tàu.',
-      description_en: 'Gently cycling through sunny streets, feeling the sea breeze on your shoulders — the slowest way to experience Vung Tau.',
-      icon: 'Bike'
-    },
-    {
-      id: '6',
       name: 'Không gian mở',
       name_en: 'Open Space',
       description: 'Một khoảng xanh đủ yên để bạn ngồi lại với chính mình. Cũng đủ thoáng để cùng bạn bè hay gia đình tụ họp, kể cho nhau nghe vài câu chuyện vội quên giữa cuộc sống thường ngày.',
@@ -70,7 +62,6 @@ const AmenitiesPage = () => {
       case 'Wifi': return <Wifi className="h-10 w-10 text-beach-600" />;
       case 'Coffee': return <Coffee className="h-10 w-10 text-beach-600" />;
       case 'Utensils': return <Utensils className="h-10 w-10 text-beach-600" />;
-      case 'Bike': return <Bike className="h-10 w-10 text-beach-600" />;
       case 'LayoutGrid': return <LayoutGrid className="h-10 w-10 text-beach-600" />;
       default: return <Bath className="h-10 w-10 text-beach-600" />;
     }
@@ -195,10 +186,10 @@ const AmenitiesPage = () => {
               
               <div className="bg-white p-6 rounded-lg shadow-md border border-beach-100">
                 <h3 className="font-bold text-lg mb-3 text-beach-900">
-                  {language === 'vi' ? 'Cho thuê xe đạp' : 'Bicycle Rental'}
+                  {language === 'vi' ? 'Gợi ý ẩm thực' : 'Food Recommendations'}
                 </h3>
                 <p className="text-beach-700 mb-1">
-                  {language === 'vi' ? 'Hàng ngày: 7:00 - 18:00' : 'Daily: 7:00 AM - 6:00 PM'}
+                  {language === 'vi' ? 'Có sẵn Travel Maps' : 'Travel Maps Available'}
                 </p>
               </div>
             </motion.div>

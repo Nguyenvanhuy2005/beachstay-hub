@@ -31,7 +31,7 @@ export type TranslationKey =
   | 'core_values' | 'dedication' | 'dedication_desc' | 'wisdom' | 'wisdom_desc' | 'nature' | 'nature_desc'
   | 'amenity_pool' | 'amenity_pool_desc' | 'amenity_kitchen' | 'amenity_kitchen_desc'
   | 'amenity_wifi' | 'amenity_wifi_desc' | 'amenity_food_guide' | 'amenity_food_guide_desc'
-  | 'amenity_bicycle' | 'amenity_bicycle_desc' | 'amenity_open_space' | 'amenity_open_space_desc';
+  | 'amenity_open_space' | 'amenity_open_space_desc';
 
 const viTranslations: Record<TranslationKey, string> = {
   // Home page
@@ -87,8 +87,6 @@ const viTranslations: Record<TranslationKey, string> = {
   amenity_wifi_desc: "Luôn kết nối dễ dàng với wifi tốc độ cao phủ khắp khu vực nghỉ ngơi - dù làm việc hay giải trí cũng đều trọn vẹn.",
   amenity_food_guide: "Gợi ý ẩm thực địa phương",
   amenity_food_guide_desc: "AnNam luôn sẵn lòng gửi bạn các Travel Maps về những địa điểm ẩm thực & du ngoạn nội địa - từ hải sản tươi ngon đến những hàng quán lâu năm chỉ người bản xứ mới rành.",
-  amenity_bicycle: "Cho thuê xe đạp",
-  amenity_bicycle_desc: "Nhẹ nhàng đạp xe qua những con phố đầy nắng, nghe gió biển lùa qua vai áo — là cách chậm rãi nhất để cảm nhận Vũng Tàu.",
   amenity_open_space: "Không gian mở",
   amenity_open_space_desc: "Một khoảng xanh đủ yên để bạn ngồi lại với chính mình. Cũng đủ thoáng để cùng bạn bè hay gia đình tụ họp, kể cho nhau nghe vài câu chuyện vội quên giữa cuộc sống thường ngày.",
   
@@ -271,8 +269,6 @@ const enTranslations: Record<TranslationKey, string> = {
   amenity_wifi_desc: "Stay easily connected with high-speed wifi throughout the accommodation area - perfect for both work and entertainment.",
   amenity_food_guide: "Local Cuisine Recommendations",
   amenity_food_guide_desc: "AnNam is always happy to provide you with Travel Maps of local dining & sightseeing spots - from fresh seafood to long-established eateries only locals know about.",
-  amenity_bicycle: "Bicycle Rental",
-  amenity_bicycle_desc: "Gently cycling through sunny streets, feeling the sea breeze on your shoulders — the slowest way to experience Vung Tau.",
   amenity_open_space: "Open Space",
   amenity_open_space_desc: "A green space peaceful enough for self-reflection. Also spacious enough for friends and family to gather, sharing stories that are often forgotten in everyday life.",
   
