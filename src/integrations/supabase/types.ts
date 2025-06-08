@@ -224,6 +224,59 @@ export type Database = {
         }
         Relationships: []
       }
+      holiday_prices: {
+        Row: {
+          created_at: string | null
+          day: number
+          holiday_name: string
+          holiday_name_en: string
+          holiday_type: string
+          id: string
+          is_active: boolean | null
+          month: number
+          multiplier: number | null
+          price: number
+          room_type_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          day: number
+          holiday_name: string
+          holiday_name_en: string
+          holiday_type: string
+          id?: string
+          is_active?: boolean | null
+          month: number
+          multiplier?: number | null
+          price: number
+          room_type_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          day?: number
+          holiday_name?: string
+          holiday_name_en?: string
+          holiday_type?: string
+          id?: string
+          is_active?: boolean | null
+          month?: number
+          multiplier?: number | null
+          price?: number
+          room_type_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "holiday_prices_room_type_id_fkey"
+            columns: ["room_type_id"]
+            isOneToOne: false
+            referencedRelation: "room_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       room_date_prices: {
         Row: {
           created_at: string | null

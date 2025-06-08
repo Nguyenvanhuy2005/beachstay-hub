@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { Loader2, Save } from 'lucide-react';
 import DatePriceManagement from './DatePriceManagement';
+import HolidayPriceManagement from './HolidayPriceManagement';
 
 interface RoomType {
   id: string;
@@ -226,6 +226,9 @@ const PricingManagement = () => {
             <TabsTrigger value="date-prices">
               Giá theo ngày
             </TabsTrigger>
+            <TabsTrigger value="holiday-prices">
+              Giá ngày lễ
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="base-prices" className="mt-4 space-y-4">
@@ -291,6 +294,12 @@ const PricingManagement = () => {
                 regularPrice={parseFloat(regularPrice) || 0}
                 weekendPrice={parseFloat(weekendPrice) || 0}
               />
+            )}
+          </TabsContent>
+          
+          <TabsContent value="holiday-prices" className="mt-4">
+            {selectedRoomId && (
+              <HolidayPriceManagement roomId={selectedRoomId} />
             )}
           </TabsContent>
         </Tabs>

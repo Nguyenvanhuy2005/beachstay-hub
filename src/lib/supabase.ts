@@ -1,4 +1,3 @@
-
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 // Use client from integrations to ensure consistency
@@ -130,10 +129,36 @@ export const getAllBookedDates = async () => {
   }
 };
 
-// Get room price for a specific date
+// Get room price for a specific date with holiday pricing support
 export const getRoomPriceForDate = async (roomTypeId: string, date: string) => {
   try {
-    // First check if there's a custom price for this date
+    const dateObj = new Date(date);
+    const month = dateObj.getMonth() + 1; // getMonth() returns 0-11
+    const day = dateObj.getDate();
+    
+    // First check if there's a holiday price for this date (solar calendar)
+    const { data: solarHolidayPrice, error: solarHolidayError } = await supabase
+      .from('holiday_prices')
+      .select('price')
+      .eq('room_type_id', roomTypeId)
+      .eq('holiday_type', 'solar')
+      .eq('month', month)
+      .eq('day', day)
+      .eq('is_active', true)
+      .maybeSingle();
+      
+    if (solarHolidayError) {
+      console.error('Error fetching solar holiday price:', solarHolidayError);
+    }
+    
+    if (solarHolidayPrice) {
+      console.log('Found solar holiday price for date:', date, solarHolidayPrice.price);
+      return solarHolidayPrice.price;
+    }
+    
+    // TODO: Add lunar calendar holiday check here when lunar calendar conversion is implemented
+    
+    // Then check if there's a custom price for this date
     const { data: customPrice, error: customPriceError } = await supabase
       .from('room_date_prices')
       .select('price')
@@ -162,7 +187,6 @@ export const getRoomPriceForDate = async (roomTypeId: string, date: string) => {
     }
     
     // Check if the date is a Saturday (day 6)
-    const dateObj = new Date(date);
     const isSaturday = dateObj.getDay() === 6;
     
     return isSaturday && room.weekend_price ? room.weekend_price : room.price;
@@ -197,5 +221,26 @@ export const getCustomPricesForRoom = async (roomTypeId: string, startDate: stri
   } catch (error) {
     console.error('Unexpected error in getCustomPricesForRoom:', error);
     return {};
+  }
+};
+
+// Get holiday prices for a room type
+export const getHolidayPricesForRoom = async (roomTypeId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('holiday_prices')
+      .select('*')
+      .eq('room_type_id', roomTypeId)
+      .eq('is_active', true);
+      
+    if (error) {
+      console.error('Error fetching holiday prices:', error);
+      return [];
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error('Unexpected error in getHolidayPricesForRoom:', error);
+    return [];
   }
 };
