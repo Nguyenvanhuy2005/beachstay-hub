@@ -33,13 +33,20 @@ const PricingManagement = () => {
   const fetchRoomTypes = async () => {
     setLoading(true);
     try {
+      console.log('Fetching room types...');
+      
       const { data, error } = await supabase
         .from('room_types')
         .select('id, name, price, weekend_price')
         .order('name');
         
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching room types:', error);
+        toast.error(`Không thể tải loại phòng: ${error.message}`);
+        return;
+      }
       
+      console.log('Fetched room types:', data);
       setRoomTypes(data || []);
       
       if (data && data.length > 0) {
@@ -48,8 +55,8 @@ const PricingManagement = () => {
         setWeekendPrice(data[0].weekend_price?.toString() || data[0].price.toString());
       }
     } catch (error) {
-      console.error('Lỗi khi tải loại phòng:', error);
-      toast.error('Không thể tải loại phòng');
+      console.error('Unexpected error fetching room types:', error);
+      toast.error('Lỗi không mong đợi khi tải loại phòng');
     } finally {
       setLoading(false);
     }
@@ -65,28 +72,69 @@ const PricingManagement = () => {
     }
   }, [selectedRoomId, roomTypes]);
   
+  const validateBasePrices = () => {
+    if (!selectedRoomId) {
+      toast.error('Vui lòng chọn loại phòng');
+      return false;
+    }
+    
+    if (!regularPrice || regularPrice.trim() === '') {
+      toast.error('Vui lòng nhập giá ngày thường');
+      return false;
+    }
+    
+    if (!weekendPrice || weekendPrice.trim() === '') {
+      toast.error('Vui lòng nhập giá cuối tuần');
+      return false;
+    }
+    
+    const regularPriceValue = parseFloat(regularPrice);
+    const weekendPriceValue = parseFloat(weekendPrice);
+    
+    if (isNaN(regularPriceValue) || regularPriceValue <= 0) {
+      toast.error('Giá ngày thường phải là số dương lớn hơn 0');
+      return false;
+    }
+    
+    if (isNaN(weekendPriceValue) || weekendPriceValue <= 0) {
+      toast.error('Giá cuối tuần phải là số dương lớn hơn 0');
+      return false;
+    }
+    
+    return true;
+  };
+  
   const handleSaveBasePrices = async () => {
-    if (!selectedRoomId || !regularPrice) return;
+    if (!validateBasePrices()) return;
     
     setSaving(true);
     try {
       const regularPriceValue = parseFloat(regularPrice);
-      const weekendPriceValue = weekendPrice ? parseFloat(weekendPrice) : regularPriceValue;
+      const weekendPriceValue = parseFloat(weekendPrice);
       
-      if (isNaN(regularPriceValue) || isNaN(weekendPriceValue)) {
-        toast.error('Giá không hợp lệ');
-        return;
-      }
+      console.log('Saving base prices:', {
+        room_id: selectedRoomId,
+        regular_price: regularPriceValue,
+        weekend_price: weekendPriceValue
+      });
       
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('room_types')
         .update({
           price: regularPriceValue,
           weekend_price: weekendPriceValue
         })
-        .eq('id', selectedRoomId);
+        .eq('id', selectedRoomId)
+        .select('*')
+        .single();
         
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating base prices:', error);
+        toast.error(`Không thể cập nhật giá: ${error.message}`);
+        return;
+      }
+      
+      console.log('Successfully updated base prices:', data);
       
       // Cập nhật dữ liệu trong state
       setRoomTypes(prev => 
@@ -99,8 +147,8 @@ const PricingManagement = () => {
       
       toast.success('Đã cập nhật giá cơ bản');
     } catch (error) {
-      console.error('Lỗi khi cập nhật giá:', error);
-      toast.error('Không thể cập nhật giá');
+      console.error('Unexpected error updating base prices:', error);
+      toast.error('Lỗi không mong đợi khi cập nhật giá');
     } finally {
       setSaving(false);
     }
@@ -184,20 +232,18 @@ const PricingManagement = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="regular-price">
-                  Giá ngày thường
+                  Giá ngày thường (VND)
                 </Label>
-                <div className="flex items-center space-x-2">
-                  <Input
-                    id="regular-price"
-                    type="number"
-                    min="0"
-                    step="10000"
-                    value={regularPrice}
-                    onChange={(e) => setRegularPrice(e.target.value)}
-                    className="w-full"
-                  />
-                  <span className="text-muted-foreground">VND</span>
-                </div>
+                <Input
+                  id="regular-price"
+                  type="number"
+                  min="0"
+                  step="10000"
+                  value={regularPrice}
+                  onChange={(e) => setRegularPrice(e.target.value)}
+                  className="w-full"
+                  placeholder="Nhập giá ngày thường..."
+                />
                 <p className="text-sm text-muted-foreground">
                   Áp dụng cho các ngày trong tuần (trừ Thứ 7)
                 </p>
@@ -205,20 +251,18 @@ const PricingManagement = () => {
               
               <div className="space-y-2">
                 <Label htmlFor="weekend-price">
-                  Giá cuối tuần
+                  Giá cuối tuần (VND)
                 </Label>
-                <div className="flex items-center space-x-2">
-                  <Input
-                    id="weekend-price"
-                    type="number"
-                    min="0"
-                    step="10000"
-                    value={weekendPrice}
-                    onChange={(e) => setWeekendPrice(e.target.value)}
-                    className="w-full"
-                  />
-                  <span className="text-muted-foreground">VND</span>
-                </div>
+                <Input
+                  id="weekend-price"
+                  type="number"
+                  min="0"
+                  step="10000"
+                  value={weekendPrice}
+                  onChange={(e) => setWeekendPrice(e.target.value)}
+                  className="w-full"
+                  placeholder="Nhập giá cuối tuần..."
+                />
                 <p className="text-sm text-muted-foreground">
                   Áp dụng cho Thứ 7
                 </p>
@@ -235,7 +279,7 @@ const PricingManagement = () => {
                 ) : (
                   <Save className="mr-2 h-4 w-4" />
                 )}
-                Lưu giá cơ bản
+                {saving ? 'Đang lưu...' : 'Lưu giá cơ bản'}
               </Button>
             </div>
           </TabsContent>

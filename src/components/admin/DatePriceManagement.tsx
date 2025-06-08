@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,17 +39,24 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
     const fetchCustomPrices = async () => {
       setIsLoading(true);
       try {
+        console.log('Fetching custom prices for room:', roomId);
+        
         const { data, error } = await supabase
           .from('room_date_prices')
           .select('*')
           .eq('room_type_id', roomId);
           
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching custom prices:', error);
+          toast.error(`Không thể tải giá tùy chỉnh: ${error.message}`);
+          return;
+        }
         
+        console.log('Fetched custom prices:', data);
         setCustomPrices(data || []);
       } catch (error) {
-        console.error('Error fetching custom prices:', error);
-        toast.error('Không thể tải giá tùy chỉnh');
+        console.error('Unexpected error fetching custom prices:', error);
+        toast.error('Lỗi không mong đợi khi tải giá tùy chỉnh');
       } finally {
         setIsLoading(false);
       }
@@ -74,30 +82,66 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
     }
   }, [selectedDate, customPrices, regularPrice, weekendPrice]);
 
+  const validateInput = () => {
+    if (!selectedDate) {
+      toast.error('Vui lòng chọn ngày');
+      return false;
+    }
+    
+    if (!customPrice || customPrice.trim() === '') {
+      toast.error('Vui lòng nhập giá');
+      return false;
+    }
+    
+    const priceValue = parseFloat(customPrice);
+    if (isNaN(priceValue) || priceValue <= 0) {
+      toast.error('Giá phải là số dương lớn hơn 0');
+      return false;
+    }
+    
+    if (!roomId) {
+      toast.error('Không có thông tin loại phòng');
+      return false;
+    }
+    
+    return true;
+  };
+
   const saveCustomPrice = async () => {
-    if (!selectedDate || !customPrice || !roomId) return;
+    if (!validateInput()) return;
     
     setIsSaving(true);
     try {
-      const dateStr = format(selectedDate, 'yyyy-MM-dd');
+      const dateStr = format(selectedDate!, 'yyyy-MM-dd');
       const priceValue = parseFloat(customPrice);
       
-      if (isNaN(priceValue)) {
-        toast.error('Giá không hợp lệ');
-        return;
-      }
+      console.log('Saving custom price:', {
+        room_type_id: roomId,
+        date: dateStr,
+        price: priceValue
+      });
       
       const existingCustomPrice = customPrices.find(
         item => item.date === dateStr
       );
       
       if (existingCustomPrice) {
-        const { error } = await supabase
+        console.log('Updating existing custom price:', existingCustomPrice.id);
+        
+        const { data, error } = await supabase
           .from('room_date_prices')
           .update({ price: priceValue })
-          .eq('id', existingCustomPrice.id);
+          .eq('id', existingCustomPrice.id)
+          .select('*')
+          .single();
           
-        if (error) throw error;
+        if (error) {
+          console.error('Error updating custom price:', error);
+          toast.error(`Không thể cập nhật giá: ${error.message}`);
+          return;
+        }
+        
+        console.log('Successfully updated custom price:', data);
         
         setCustomPrices(prev => 
           prev.map(item => 
@@ -109,6 +153,8 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
         
         toast.success('Đã cập nhật giá tùy chỉnh');
       } else {
+        console.log('Creating new custom price');
+        
         const { data, error } = await supabase
           .from('room_date_prices')
           .insert({
@@ -119,22 +165,31 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
           .select('*')
           .single();
           
-        if (error) throw error;
+        if (error) {
+          console.error('Error creating custom price:', error);
+          toast.error(`Không thể tạo giá tùy chỉnh: ${error.message}`);
+          return;
+        }
+        
+        console.log('Successfully created custom price:', data);
         
         setCustomPrices(prev => [...prev, data]);
         
         toast.success('Đã thêm giá tùy chỉnh');
       }
     } catch (error) {
-      console.error('Error saving custom price:', error);
-      toast.error('Không thể lưu giá tùy chỉnh');
+      console.error('Unexpected error saving custom price:', error);
+      toast.error('Lỗi không mong đợi khi lưu giá tùy chỉnh');
     } finally {
       setIsSaving(false);
     }
   };
 
   const removeCustomPrice = async () => {
-    if (!selectedDate || !roomId) return;
+    if (!selectedDate || !roomId) {
+      toast.error('Không có đủ thông tin để xóa giá tùy chỉnh');
+      return;
+    }
     
     setIsSaving(true);
     try {
@@ -145,12 +200,20 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
       );
       
       if (existingCustomPrice) {
+        console.log('Removing custom price:', existingCustomPrice.id);
+        
         const { error } = await supabase
           .from('room_date_prices')
           .delete()
           .eq('id', existingCustomPrice.id);
           
-        if (error) throw error;
+        if (error) {
+          console.error('Error removing custom price:', error);
+          toast.error(`Không thể xóa giá tùy chỉnh: ${error.message}`);
+          return;
+        }
+        
+        console.log('Successfully removed custom price');
         
         setCustomPrices(prev => 
           prev.filter(item => item.id !== existingCustomPrice.id)
@@ -165,8 +228,8 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
         toast.info('Không có giá tùy chỉnh để xóa');
       }
     } catch (error) {
-      console.error('Error removing custom price:', error);
-      toast.error('Không thể xóa giá tùy chỉnh');
+      console.error('Unexpected error removing custom price:', error);
+      toast.error('Lỗi không mong đợi khi xóa giá tùy chỉnh');
     } finally {
       setIsSaving(false);
     }
@@ -175,16 +238,6 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
   const hasCustomPrice = (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
     return customPrices.some(item => item.date === dateStr);
-  };
-
-  const getPriceType = (date: Date) => {
-    if (hasCustomPrice(date)) {
-      return 'Giá tùy chỉnh';
-    } else if (date.getDay() === 6) {
-      return 'Giá cuối tuần';
-    } else {
-      return 'Giá ngày thường';
-    }
   };
 
   const formatPriceInMillions = (price: number): string => {
@@ -245,7 +298,7 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="custom-price">Giá tùy chỉnh</Label>
+              <Label htmlFor="custom-price">Giá tùy chỉnh (VND)</Label>
               <Input
                 id="custom-price"
                 type="number"
@@ -254,6 +307,7 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
                 value={customPrice}
                 onChange={(e) => setCustomPrice(e.target.value)}
                 className="w-full"
+                placeholder="Nhập giá..."
               />
               <p className="text-sm text-muted-foreground">
                 Giá mặc định: {selectedDate && selectedDate.getDay() === 6
@@ -270,7 +324,7 @@ const DatePriceManagement: React.FC<DatePriceManagementProps> = ({
                 className="flex-1"
               >
                 {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                Lưu giá
+                {isSaving ? 'Đang lưu...' : 'Lưu giá'}
               </Button>
               
               <Button 
