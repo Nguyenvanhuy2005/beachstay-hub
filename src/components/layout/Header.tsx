@@ -98,7 +98,7 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            <NavLinks isScrolled={isScrolled} />
+            <NavLinks isScrolled={true} />
           </nav>
 
           {/* Contact Information and Language Switcher */}
@@ -107,7 +107,7 @@ const Header = () => {
               <Phone size={16} className="text-green-900" />
               <span className="text-green-900 font-bold">0933 669 154</span>
             </a>
-            <LanguageSwitcher className={isScrolled ? "text-primary" : "text-white"} />
+            <LanguageSwitcher className="text-primary" />
             <Button 
               size="sm" 
               className="bg-primary hover:bg-green-800 text-white" 
@@ -135,12 +135,12 @@ const Header = () => {
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center space-x-2">
-            <LanguageSwitcher className={isScrolled ? "text-primary" : "text-white"} />
+            <LanguageSwitcher className="text-primary" />
             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
               {isMobileMenuOpen ? (
-                <X className="bg-slate-50" />
+                <X className="text-primary" />
               ) : (
-                <Menu className={isScrolled ? "text-primary" : "text-white"} />
+                <Menu className="text-primary" />
               )}
             </button>
           </div>
@@ -207,8 +207,8 @@ const Header = () => {
 };
 
 const NavLinks = ({ isScrolled }: { isScrolled: boolean }) => {
-  const textColor = isScrolled ? "text-primary" : "text-white";
-  const hoverColor = isScrolled ? "hover:text-secondary" : "hover:text-accent";
+  const textColor = "text-primary";
+  const hoverColor = "hover:text-secondary";
   const { t } = useLanguage();
 
   return (
