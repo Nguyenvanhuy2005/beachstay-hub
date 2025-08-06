@@ -241,33 +241,6 @@ export type Database = {
         }
         Relationships: []
       }
-      gallery_images: {
-        Row: {
-          alt: string
-          category: string
-          created_at: string | null
-          id: string
-          src: string
-          updated_at: string | null
-        }
-        Insert: {
-          alt: string
-          category: string
-          created_at?: string | null
-          id?: string
-          src: string
-          updated_at?: string | null
-        }
-        Update: {
-          alt?: string
-          category?: string
-          created_at?: string | null
-          id?: string
-          src?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       holiday_prices: {
         Row: {
           created_at: string | null
