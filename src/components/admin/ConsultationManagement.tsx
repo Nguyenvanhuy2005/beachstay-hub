@@ -4,11 +4,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Eye, Clock, CheckCircle, XCircle, MessageSquare } from 'lucide-react';
+import { Eye, Clock, CheckCircle, XCircle, MessageSquare, Reply } from 'lucide-react';
 import { toast } from 'sonner';
 import { getConsultationRequests, updateConsultationStatus } from '@/api/consultationApi';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import ConsultationResponseModal from './ConsultationResponseModal';
 
 interface ConsultationRequest {
   id: string;
@@ -26,6 +27,8 @@ const ConsultationManagement = () => {
   const [consultations, setConsultations] = useState<ConsultationRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [responseModalOpen, setResponseModalOpen] = useState(false);
+  const [selectedConsultation, setSelectedConsultation] = useState<ConsultationRequest | null>(null);
 
   useEffect(() => {
     fetchConsultations();
@@ -69,6 +72,8 @@ const ConsultationManagement = () => {
         return <Badge variant="secondary" className="gap-1"><Clock className="w-3 h-3" />Chờ xử lý</Badge>;
       case 'contacted':
         return <Badge variant="default" className="gap-1"><MessageSquare className="w-3 h-3" />Đã liên hệ</Badge>;
+      case 'responded':
+        return <Badge variant="default" className="gap-1 bg-blue-500"><Reply className="w-3 h-3" />Đã phản hồi</Badge>;
       case 'completed':
         return <Badge variant="default" className="gap-1 bg-green-500"><CheckCircle className="w-3 h-3" />Hoàn thành</Badge>;
       case 'cancelled':
@@ -187,6 +192,18 @@ const ConsultationManagement = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedConsultation(consultation);
+                              setResponseModalOpen(true);
+                            }}
+                            className="gap-1"
+                          >
+                            <Reply className="w-3 h-3" />
+                            Phản hồi
+                          </Button>
                           <Select
                             value={consultation.status}
                             onValueChange={(value) => handleStatusUpdate(consultation.id, value)}
@@ -197,6 +214,7 @@ const ConsultationManagement = () => {
                             <SelectContent>
                               <SelectItem value="pending">Chờ xử lý</SelectItem>
                               <SelectItem value="contacted">Đã liên hệ</SelectItem>
+                              <SelectItem value="responded">Đã phản hồi</SelectItem>
                               <SelectItem value="completed">Hoàn thành</SelectItem>
                               <SelectItem value="cancelled">Hủy bỏ</SelectItem>
                             </SelectContent>
@@ -211,6 +229,16 @@ const ConsultationManagement = () => {
           )}
         </CardContent>
       </Card>
+
+      <ConsultationResponseModal
+        isOpen={responseModalOpen}
+        onClose={() => {
+          setResponseModalOpen(false);
+          setSelectedConsultation(null);
+        }}
+        consultation={selectedConsultation}
+        onSuccess={fetchConsultations}
+      />
     </div>
   );
 };

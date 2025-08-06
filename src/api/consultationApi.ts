@@ -30,6 +30,48 @@ export async function createConsultationRequest(consultationData: ConsultationFo
       throw error;
     }
 
+    // Send confirmation email to customer and notification to admin
+    if (data && data[0]) {
+      try {
+        await Promise.all([
+          // Send confirmation email to customer
+          supabase.functions.invoke('send-gmail', {
+            body: {
+              type: 'consultation_confirmation',
+              data: {
+                fullName: consultationData.fullName,
+                email: consultationData.email,
+                phone: consultationData.phone,
+                consultationType: consultationData.consultationType,
+                preferredDate: consultationData.preferredDate?.toISOString().split('T')[0],
+                message: consultationData.message,
+                consultationId: data[0].id,
+              }
+            }
+          }),
+          // Send notification email to admin
+          supabase.functions.invoke('send-gmail', {
+            body: {
+              type: 'consultation_notification',
+              data: {
+                fullName: consultationData.fullName,
+                email: consultationData.email,
+                phone: consultationData.phone,
+                consultationType: consultationData.consultationType,
+                preferredDate: consultationData.preferredDate?.toISOString().split('T')[0],
+                message: consultationData.message,
+                consultationId: data[0].id,
+              }
+            }
+          })
+        ]);
+        console.log('Consultation emails sent successfully');
+      } catch (emailError) {
+        console.error('Error sending consultation emails:', emailError);
+        // Don't fail the consultation creation if email fails
+      }
+    }
+
     return { success: true, data };
   } catch (error) {
     console.error('Error in createConsultationRequest:', error);

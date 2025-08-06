@@ -60,60 +60,55 @@ export const createBooking = async (bookingData: BookingFormData) => {
 
     console.log('Booking created successfully:', data);
 
-    // Booking successful, send email notification with enhanced logging
+    // Send confirmation and notification emails
     try {
-      console.log('Preparing to send email notification for booking...');
+      console.log('Preparing to send booking emails...');
       
-      // Get the admin email from admin_access table instead of hardcoding
-      const { data: adminData, error: adminError } = await supabase
-        .from('admin_access')
-        .select('email')
-        .eq('is_active', true)
-        .limit(1)
-        .single();
+      await Promise.all([
+        // Send confirmation email to customer
+        supabase.functions.invoke('send-gmail', {
+          body: {
+            type: 'booking_confirmation',
+            data: {
+              fullName: bookingData.fullName,
+              email: bookingData.email,
+              phone: bookingData.phone || '',
+              roomType: bookingData.roomType,
+              checkIn: bookingData.checkIn,
+              checkOut: bookingData.checkOut,
+              adults: bookingData.adults,
+              children: bookingData.children,
+              specialRequests: bookingData.specialRequests,
+              totalPrice: 0, // Will be calculated later
+              bookingId: data[0].id,
+            }
+          }
+        }),
+        // Send notification email to admin
+        supabase.functions.invoke('send-gmail', {
+          body: {
+            type: 'booking_notification',
+            data: {
+              fullName: bookingData.fullName,
+              email: bookingData.email,
+              phone: bookingData.phone || '',
+              roomType: bookingData.roomType,
+              checkIn: bookingData.checkIn,
+              checkOut: bookingData.checkOut,
+              adults: bookingData.adults,
+              children: bookingData.children,
+              specialRequests: bookingData.specialRequests,
+              totalPrice: 0, // Will be calculated later
+              bookingId: data[0].id,
+            }
+          }
+        })
+      ]);
       
-      if (adminError) {
-        console.error('Error fetching admin email:', adminError);
-        toast.error('Đặt phòng thành công nhưng không thể gửi email xác nhận. Chúng tôi sẽ liên hệ với bạn sớm.');
-        return { success: true, data, bookingId: data[0]?.id };
-      }
-      
-      const adminEmail = adminData?.email || "nvh.adser@gmail.com"; // Fallback to default if not found
-      console.log('Admin email for notification:', adminEmail);
-      
-      const requestBody = { 
-        booking: bookingData,
-        adminEmail: adminEmail
-      };
-      
-      console.log('Sending notification request to edge function:', JSON.stringify(requestBody));
-      
-      const emailResponse = await supabase.functions.invoke('send-booking-notification', {
-        body: requestBody
-      });
-      
-      console.log('Email notification response received:', emailResponse);
-      
-      if (emailResponse.error) {
-        console.error('Email notification error:', emailResponse.error);
-        console.error('Email error details:', JSON.stringify(emailResponse));
-        
-        // Check for domain verification error in the response
-        const responseData = emailResponse.data as any;
-        if (responseData?.message?.includes('domain is not verified')) {
-          console.error('Domain verification error:', responseData.message);
-          toast.error('Đặt phòng thành công! Tuy nhiên, hệ thống email đang gặp vấn đề về xác thực tên miền. Chúng tôi sẽ liên hệ với bạn sớm nhất.');
-        } else {
-          toast.error('Đặt phòng thành công nhưng không thể gửi email xác nhận. Chúng tôi sẽ liên hệ với bạn sớm.');
-        }
-      } else {
-        console.log('Email notification response data:', emailResponse.data);
-        console.log('Email notification sent successfully');
-        toast.success('Đặt phòng thành công! Email xác nhận đã được gửi.');
-      }
+      console.log('Booking emails sent successfully');
+      toast.success('Đặt phòng thành công! Email xác nhận đã được gửi.');
     } catch (emailError) {
       console.error('Failed to send email notification:', emailError);
-      console.error('Email error stack:', emailError instanceof Error ? emailError.stack : 'No stack trace');
       toast.error('Đặt phòng thành công nhưng không thể gửi email xác nhận. Chúng tôi sẽ liên hệ với bạn sớm.');
     }
 
