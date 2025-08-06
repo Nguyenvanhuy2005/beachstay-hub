@@ -11,6 +11,8 @@ export interface ConsultationFormData {
 
 export async function createConsultationRequest(consultationData: ConsultationFormData) {
   try {
+    console.log('Creating consultation request with data:', consultationData);
+    
     const { data, error } = await supabase
       .from('consultation_requests')
       .insert([
@@ -30,10 +32,14 @@ export async function createConsultationRequest(consultationData: ConsultationFo
       throw error;
     }
 
+    console.log('Consultation request created successfully:', data);
+
     // Send confirmation email to customer and notification to admin
     if (data && data[0]) {
       try {
-        await Promise.all([
+        console.log('Sending consultation emails...');
+        
+        const emailPromises = [
           // Send confirmation email to customer
           supabase.functions.invoke('send-gmail', {
             body: {
@@ -64,8 +70,19 @@ export async function createConsultationRequest(consultationData: ConsultationFo
               }
             }
           })
-        ]);
-        console.log('Consultation emails sent successfully');
+        ];
+        
+        const emailResults = await Promise.allSettled(emailPromises);
+        console.log('Email results:', emailResults);
+        
+        // Check if both emails were successful
+        const failedEmails = emailResults.filter(result => result.status === 'rejected');
+        if (failedEmails.length > 0) {
+          console.error('Some emails failed to send:', failedEmails);
+          // Don't fail the consultation creation if emails fail
+        } else {
+          console.log('All consultation emails sent successfully');
+        }
       } catch (emailError) {
         console.error('Error sending consultation emails:', emailError);
         // Don't fail the consultation creation if email fails
