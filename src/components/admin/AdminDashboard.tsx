@@ -9,6 +9,7 @@ import { isAdmin } from '@/lib/supabase';
 import RoomManagement from './RoomManagement';
 import BookingsManagement from './BookingsManagement';
 import ContentManagement from './ContentManagement';
+import ConsultationManagement from './ConsultationManagement';
 import GalleryManagement from './GalleryManagement';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -103,12 +104,15 @@ const AdminDashboard = () => {
       </div>
       
       <Tabs defaultValue="rooms" className="w-full">
-        <TabsList className="grid grid-cols-4">
+        <TabsList className="grid grid-cols-5">
           <TabsTrigger value="rooms">
             Quản lý phòng
           </TabsTrigger>
           <TabsTrigger value="bookings">
             Đặt phòng
+          </TabsTrigger>
+          <TabsTrigger value="consultations">
+            Tư vấn
           </TabsTrigger>
           <TabsTrigger value="content">
             Nội dung
@@ -124,6 +128,10 @@ const AdminDashboard = () => {
         
         <TabsContent value="bookings" className="mt-6">
           <BookingsManagement />
+        </TabsContent>
+        
+        <TabsContent value="consultations" className="mt-6">
+          <ConsultationManagement />
         </TabsContent>
         
         <TabsContent value="content" className="mt-6">
