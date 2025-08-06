@@ -323,7 +323,7 @@ const RoomTypesSection = () => {
               {language === 'vi' ? 'Hãy Chọn Một Nơi Nghỉ… Vừa Đủ Để Bạn An Yên' : 'Choose A Place To Stay… Just Enough For Your Peace Of Mind'}
             </h2>
             <p className="text-gray-700 max-w-3xl mx-auto">
-              {language === 'vi' ? 'Annam Village cung cấp đa dạng loại phòng nghỉ sang trọng, từ Villa với hồ bơi riêng đến căn hộ hướng biển, đáp ứng mọi nhu cầu của bạn.' : 'AnNam has the perfect choices for you and your loved ones to make your trip even more complete: A peaceful bedroom by the sound of ocean waves… A villa that holds its own mini forest ecosystem… A space where children can run and play on the grass… Or a quiet corner to share heartfelt conversations together…  In the end, the choice of room matters less than this: Which moments do you want to keep for your holiday?'}
+              {language === 'vi' ? 'AnNam có “trọn” các lựa chọn cho bạn và những người thân yêu để chuyến đi thêm “vẹn” tròn hơn' : 'AnNam has the perfect choices for you and your loved ones to make your trip even more complete: A peaceful bedroom by the sound of ocean waves… A villa that holds its own mini forest ecosystem… A space where children can run and play on the grass… Or a quiet corner to share heartfelt conversations together…  In the end, the choice of room matters less than this: Which moments do you want to keep for your holiday?'}
             </p>
           </div>
         </AnimationWrapper>
