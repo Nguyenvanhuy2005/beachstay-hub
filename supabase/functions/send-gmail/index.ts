@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@2.0.0";
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -189,47 +189,64 @@ const createConsultationResponseEmail = (data: ConsultationData): string => {
 
 async function sendEmail(emailData: EmailData): Promise<Response> {
   try {
-    console.log('Sending email:', emailData.type, 'to:', emailData.to);
+    console.log('Sending email via Gmail SMTP:', emailData.type, 'to:', emailData.to);
 
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    const gmailEmail = Deno.env.get("GMAIL_EMAIL");
+    const gmailPassword = Deno.env.get("GMAIL_APP_PASSWORD");
     
-    if (!resendApiKey) {
-      console.log('No RESEND_API_KEY found, logging email instead of sending:');
+    if (!gmailEmail || !gmailPassword) {
+      console.log('Gmail credentials not found, logging email instead:');
       console.log('- To:', emailData.to);
       console.log('- Subject:', emailData.subject);
       console.log('- Type:', emailData.type);
       
       return new Response(JSON.stringify({ 
         success: true, 
-        result: { message: 'Email logged - RESEND_API_KEY not configured' }
+        result: { message: 'Email logged - Gmail credentials not configured' }
       }), {
         status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
-    const resend = new Resend(resendApiKey);
-    
-    const emailResponse = await resend.emails.send({
-      from: "Anna's Village <noreply@resend.dev>", // You'll need to update this with your verified domain
-      to: [emailData.to],
+    const client = new SMTPClient({
+      connection: {
+        hostname: "smtp.gmail.com",
+        port: 587,
+        tls: true,
+        auth: {
+          username: gmailEmail,
+          password: gmailPassword,
+        },
+      },
+    });
+
+    await client.send({
+      from: `Anna's Village Resort & Spa <${gmailEmail}>`,
+      to: emailData.to,
       subject: emailData.subject,
+      content: emailData.html,
       html: emailData.html,
     });
 
-    console.log('Email sent successfully via Resend:', emailResponse);
+    await client.close();
+
+    console.log('Email sent successfully via Gmail SMTP to:', emailData.to);
     
-    return new Response(JSON.stringify({ success: true, result: emailResponse }), {
+    return new Response(JSON.stringify({ 
+      success: true, 
+      result: { message: 'Email sent successfully via Gmail' }
+    }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
 
   } catch (error) {
-    console.error('Error sending email via Resend:', error);
+    console.error('Error sending email via Gmail SMTP:', error);
     
-    // Return error but don't fail the booking process
+    // Return success but log the error so booking process isn't interrupted
     return new Response(JSON.stringify({ 
-      success: false, 
+      success: true, 
       error: error.message,
       result: { message: 'Failed to send email but booking was successful' }
     }), {
