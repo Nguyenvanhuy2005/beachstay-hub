@@ -10,7 +10,7 @@ import RoomManagement from './RoomManagement';
 import BookingsManagement from './BookingsManagement';
 import ContentManagement from './ContentManagement';
 import ConsultationManagement from './ConsultationManagement';
-import GalleryManagement from './GalleryManagement';
+
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LogOut } from 'lucide-react';
@@ -104,7 +104,7 @@ const AdminDashboard = () => {
       </div>
       
       <Tabs defaultValue="rooms" className="w-full">
-        <TabsList className="grid grid-cols-5">
+        <TabsList className="grid grid-cols-4">
           <TabsTrigger value="rooms">
             Quản lý phòng
           </TabsTrigger>
@@ -116,9 +116,6 @@ const AdminDashboard = () => {
           </TabsTrigger>
           <TabsTrigger value="content">
             Nội dung
-          </TabsTrigger>
-          <TabsTrigger value="gallery">
-            Thư viện ảnh
           </TabsTrigger>
         </TabsList>
         
@@ -138,9 +135,6 @@ const AdminDashboard = () => {
           <ContentManagement />
         </TabsContent>
         
-        <TabsContent value="gallery" className="mt-6">
-          <GalleryManagement />
-        </TabsContent>
       </Tabs>
     </div>
   );
