@@ -50,24 +50,27 @@ const createBookingConfirmationEmail = (data: BookingData): string => {
       
       <p>Xin chào ${data.fullName},</p>
       
-      <p>Cảm ơn bạn đã đặt phòng tại Anna's Village Resort & Spa. Chúng tôi đã nhận được yêu cầu đặt phòng của bạn với thông tin như sau:</p>
+      <p>Cảm ơn bạn đã chọn Anna's Village Resort & Spa. Chúng tôi vui mừng xác nhận đặt phòng của bạn:</p>
       
-      <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
-        <h3 style="margin-top: 0; color: #1f2937;">Thông tin đặt phòng</h3>
+      <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="color: #1f2937; margin-top: 0;">Chi tiết đặt phòng</h3>
         <p><strong>Mã đặt phòng:</strong> ${data.bookingId}</p>
         <p><strong>Loại phòng:</strong> ${data.roomType}</p>
         <p><strong>Ngày nhận phòng:</strong> ${data.checkIn}</p>
         <p><strong>Ngày trả phòng:</strong> ${data.checkOut}</p>
-        <p><strong>Số khách:</strong> ${data.adults} người lớn${data.children > 0 ? `, ${data.children} trẻ em` : ''}</p>
-        <p><strong>Tổng tiền:</strong> ${data.totalPrice.toLocaleString('vi-VN')} VNĐ</p>
+        <p><strong>Số khách:</strong> ${data.adults} người lớn, ${data.children} trẻ em</p>
         ${data.specialRequests ? `<p><strong>Yêu cầu đặc biệt:</strong> ${data.specialRequests}</p>` : ''}
       </div>
       
-      <p>Yêu cầu đặt phòng của bạn đang được xem xét. Chúng tôi sẽ liên hệ với bạn trong vòng 24 giờ để xác nhận và hướng dẫn thanh toán.</p>
+      <p><strong>Trạng thái:</strong> Đang chờ xác nhận</p>
       
-      <p>Nếu có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi:</p>
-      <p>📞 Hotline: 0123 456 789<br>
-      📧 Email: annamvillage.vn@gmail.com</p>
+      <p>Chúng tôi sẽ liên hệ với bạn trong vòng 24 giờ để xác nhận đặt phòng và cung cấp thông tin chi tiết về thanh toán.</p>
+      
+      <div style="border-top: 1px solid #e5e7eb; margin-top: 30px; padding-top: 20px;">
+        <p><strong>Thông tin liên hệ:</strong></p>
+        <p>📧 Email: annamvillage.vn@gmail.com<br>
+        📞 Hotline: 0123 456 789</p>
+      </div>
       
       <p>Trân trọng,<br>
       Đội ngũ Anna's Village Resort & Spa</p>
@@ -78,25 +81,26 @@ const createBookingConfirmationEmail = (data: BookingData): string => {
 const createBookingNotificationEmail = (data: BookingData): string => {
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <h2 style="color: #dc2626;">Thông báo đặt phòng mới</h2>
+      <h2 style="color: #dc2626;">Đặt phòng mới - Anna's Village Resort & Spa</h2>
       
       <div style="background-color: #fef2f2; padding: 20px; border-radius: 8px; border-left: 4px solid #dc2626;">
-        <h3 style="margin-top: 0; color: #1f2937;">Thông tin khách hàng</h3>
+        <h3 style="margin-top: 0;">Thông tin khách hàng</h3>
         <p><strong>Họ tên:</strong> ${data.fullName}</p>
         <p><strong>Email:</strong> ${data.email}</p>
         <p><strong>Điện thoại:</strong> ${data.phone}</p>
-        
-        <h3 style="color: #1f2937;">Thông tin đặt phòng</h3>
+      </div>
+      
+      <div style="background-color: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2563eb;">
+        <h3 style="margin-top: 0;">Chi tiết đặt phòng</h3>
         <p><strong>Mã đặt phòng:</strong> ${data.bookingId}</p>
         <p><strong>Loại phòng:</strong> ${data.roomType}</p>
         <p><strong>Ngày nhận phòng:</strong> ${data.checkIn}</p>
         <p><strong>Ngày trả phòng:</strong> ${data.checkOut}</p>
-        <p><strong>Số khách:</strong> ${data.adults} người lớn${data.children > 0 ? `, ${data.children} trẻ em` : ''}</p>
-        <p><strong>Tổng tiền:</strong> ${data.totalPrice.toLocaleString('vi-VN')} VNĐ</p>
+        <p><strong>Số khách:</strong> ${data.adults} người lớn, ${data.children} trẻ em</p>
         ${data.specialRequests ? `<p><strong>Yêu cầu đặc biệt:</strong> ${data.specialRequests}</p>` : ''}
       </div>
       
-      <p>Vui lòng kiểm tra và xác nhận đặt phòng trong hệ thống quản trị.</p>
+      <p style="color: #dc2626; font-weight: bold;">Vui lòng liên hệ khách hàng để xác nhận đặt phòng!</p>
     </div>
   `;
 };
@@ -115,17 +119,16 @@ const createConsultationConfirmationEmail = (data: ConsultationData): string => 
       
       <p>Cảm ơn bạn đã gửi yêu cầu tư vấn đến Anna's Village Resort & Spa. Chúng tôi đã nhận được thông tin của bạn:</p>
       
-      <div style="background-color: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
-        <h3 style="margin-top: 0; color: #1f2937;">Thông tin tư vấn</h3>
-        <p><strong>Mã yêu cầu:</strong> ${data.consultationId}</p>
+      <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="color: #1f2937; margin-top: 0;">Thông tin tư vấn</h3>
+        <p><strong>Mã tư vấn:</strong> ${data.consultationId}</p>
         <p><strong>Loại tư vấn:</strong> ${data.consultationType}</p>
         ${data.preferredDate ? `<p><strong>Ngày mong muốn:</strong> ${data.preferredDate}</p>` : ''}
-        ${data.message ? `<p><strong>Nội dung:</strong> ${data.message}</p>` : ''}
+        ${data.message ? `<p><strong>Tin nhắn:</strong> ${data.message}</p>` : ''}
       </div>
       
-      <p>Đội ngũ tư vấn của chúng tôi sẽ liên hệ với bạn trong vòng 24 giờ để hỗ trợ tốt nhất.</p>
+      <p>Chúng tôi sẽ liên hệ với bạn trong vòng 24 giờ để tư vấn chi tiết.</p>
       
-      <p>Nếu có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi:</p>
       <p>📞 Hotline: 0123 456 789<br>
       📧 Email: annamvillage.vn@gmail.com</p>
       
@@ -138,41 +141,24 @@ const createConsultationConfirmationEmail = (data: ConsultationData): string => 
 const createConsultationNotificationEmail = (data: ConsultationData): string => {
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <h2 style="color: #dc2626;">Yêu cầu tư vấn mới</h2>
+      <h2 style="color: #dc2626;">Yêu cầu tư vấn mới - Anna's Village Resort & Spa</h2>
       
       <div style="background-color: #fef2f2; padding: 20px; border-radius: 8px; border-left: 4px solid #dc2626;">
-        <h3 style="margin-top: 0; color: #1f2937;">Thông tin khách hàng</h3>
+        <h3 style="margin-top: 0;">Thông tin khách hàng</h3>
         <p><strong>Họ tên:</strong> ${data.fullName}</p>
         <p><strong>Email:</strong> ${data.email}</p>
         <p><strong>Điện thoại:</strong> ${data.phone}</p>
-        
-        <h3 style="color: #1f2937;">Thông tin tư vấn</h3>
-        <p><strong>Mã yêu cầu:</strong> ${data.consultationId}</p>
+      </div>
+      
+      <div style="background-color: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2563eb;">
+        <h3 style="margin-top: 0;">Chi tiết tư vấn</h3>
+        <p><strong>Mã tư vấn:</strong> ${data.consultationId}</p>
         <p><strong>Loại tư vấn:</strong> ${data.consultationType}</p>
         ${data.preferredDate ? `<p><strong>Ngày mong muốn:</strong> ${data.preferredDate}</p>` : ''}
-        ${data.message ? `<p><strong>Nội dung:</strong> ${data.message}</p>` : ''}
+        ${data.message ? `<p><strong>Tin nhắn:</strong> ${data.message}</p>` : ''}
       </div>
       
-      <p>Vui lòng kiểm tra và phản hồi trong hệ thống quản trị.</p>
-    </div>
-  `;
-};
-
-const createBlogNotificationEmail = (data: any): string => {
-  return `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <h2 style="color: #dc2626;">Thông báo bài viết mới</h2>
-      
-      <div style="background-color: #fef2f2; padding: 20px; border-radius: 8px; border-left: 4px solid #dc2626;">
-        <h3 style="margin-top: 0; color: #1f2937;">Chi tiết bài viết</h3>
-        <p><strong>Tiêu đề:</strong> ${data.title}</p>
-        <p><strong>Tác giả:</strong> ${data.author}</p>
-        <p><strong>Ngày tạo:</strong> ${new Date(data.created_at).toLocaleDateString('vi-VN')}</p>
-        <p><strong>Trạng thái:</strong> ${data.published ? 'Đã xuất bản' : 'Bản nháp'}</p>
-        <p><strong>Đường dẫn:</strong> /blog/${data.slug}</p>
-      </div>
-      
-      <p>Vui lòng kiểm tra và quản lý bài viết trong hệ thống quản trị.</p>
+      <p style="color: #dc2626; font-weight: bold;">Vui lòng liên hệ khách hàng để tư vấn!</p>
     </div>
   `;
 };
@@ -189,19 +175,37 @@ const createConsultationResponseEmail = (data: ConsultationData): string => {
       
       <p>Xin chào ${data.fullName},</p>
       
-      <p>Cảm ơn bạn đã tin tưởng Anna's Village Resort & Spa. Chúng tôi gửi phản hồi cho yêu cầu tư vấn của bạn:</p>
+      <p>Chúng tôi đã có phản hồi cho yêu cầu tư vấn của bạn (Mã: ${data.consultationId}):</p>
       
-      <div style="background-color: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
-        <h3 style="margin-top: 0; color: #1f2937;">Phản hồi từ đội ngũ tư vấn</h3>
-        <p style="line-height: 1.6;">${data.adminResponse}</p>
+      <div style="background-color: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2563eb;">
+        <h3 style="color: #1f2937; margin-top: 0;">Phản hồi từ chuyên gia</h3>
+        <p style="white-space: pre-wrap;">${data.adminResponse}</p>
       </div>
       
-      <p>Nếu bạn có thêm bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi:</p>
+      <p>Nếu bạn có thêm câu hỏi, vui lòng liên hệ với chúng tôi:</p>
+      
       <p>📞 Hotline: 0123 456 789<br>
       📧 Email: annamvillage.vn@gmail.com</p>
       
       <p>Trân trọng,<br>
       Đội ngũ Anna's Village Resort & Spa</p>
+    </div>
+  `;
+};
+
+const createBlogNotificationEmail = (data: any): string => {
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h2 style="color: #dc2626;">Bài viết mới - Anna's Village Resort & Spa</h2>
+      
+      <div style="background-color: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2563eb;">
+        <h3 style="margin-top: 0;">Thông tin bài viết</h3>
+        <p><strong>Tiêu đề:</strong> ${data.title}</p>
+        <p><strong>Tác giả:</strong> ${data.author}</p>
+        <p><strong>Trạng thái:</strong> ${data.published ? 'Đã xuất bản' : 'Nháp'}</p>
+      </div>
+      
+      <p>Bài viết mới đã được ${data.published ? 'xuất bản' : 'tạo'} trên website.</p>
     </div>
   `;
 };
@@ -282,7 +286,7 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const { type, data } = await req.json();
-
+    
     let emailData: EmailData;
 
     switch (type) {
