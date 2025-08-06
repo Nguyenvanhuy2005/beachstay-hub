@@ -48,7 +48,7 @@ const Footer = () => {
               <img alt="Annam Village Logo" className="h-32" src="/lovable-uploads/72670842-649b-4ad9-9829-1c328d5969ab.png" />
             </Link>
             <p className="mb-4 text-slate-50">
-              {language === 'vi' ? 'Nơi hòa quyện giữa thiên nhiên và không gian nghỉ dưỡng sang trọng tại thành phố biển Vũng Tàu.' : 'A harmonious blend of nature and luxury retreat space in the coastal city of Vung Tau.'}
+              {language === 'vi' ? 'Chuỗi villa xanh hoá với phong cách nhiệt đới, đủ xanh mát và yên lành để bạn được căng tràn hơi thở thiên nhiên.' : 'A harmonious blend of nature and luxury retreat space in the coastal city of Vung Tau.'}
             </p>
             <div className="flex space-x-4 mt-6">
               <motion.a href="https://facebook.com/111530511968486" target="_blank" rel="noopener noreferrer" className="text-white hover:text-terra-300 transition-colors transform hover:scale-110 duration-300" whileHover={{
