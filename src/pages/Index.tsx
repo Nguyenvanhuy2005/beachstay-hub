@@ -5,7 +5,7 @@ import AboutSection from "@/components/home/AboutSection";
 import RoomTypesSection from "@/components/home/RoomTypesSection";
 import AmenitiesSection from "@/components/home/AmenitiesSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
-import GallerySection from "@/components/home/GallerySection";
+
 import CtaSection from "@/components/home/CtaSection";
 
 const Index = () => {
@@ -16,7 +16,7 @@ const Index = () => {
       <RoomTypesSection />
       <AmenitiesSection />
       <TestimonialsSection />
-      <GallerySection />
+      
       <CtaSection />
     </MainLayout>
   );
