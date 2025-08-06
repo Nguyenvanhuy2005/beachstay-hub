@@ -102,8 +102,8 @@ const viTranslations: Record<TranslationKey, string> = {
   room_types_subtitle: "AnNam có \"trọn\" các lựa chọn cho bạn và những người thân yêu để chuyến đi thêm \"vẹn\" tròn hơn: Một căn phòng ngủ yên bình bên tiếng sóng biển.. Một căn villa chứa đựng cả hệ sinh thái rừng mini… Một không gian để con trẻ nô đùa bên sân cỏ… Hay một góc yên tĩnh để ngồi bộc bạch cùng nhau… Chọn căn nào không quan trọng bằng việc: bạn muốn giữ lại khoảnh khắc nào cho kỳ nghỉ của mình?",
   
   // ... keep existing code (testimonials section)
-  testimonials_title: "Lắng nghe những vị khách chọn dừng chân tại AnNam",
-  testimonials_subtitle: "Lắng nghe chia sẻ chân thành từ những người từng dừng chân – bởi đôi khi, cảm nhận của họ chính là lời giới thiệu tốt nhất dành cho AnNam Village",
+  testimonials_title: "Đánh Giá Từ Khách Hàng",
+  testimonials_subtitle: "Khách hàng nói gì về chúng tôi",
   
   // ... keep existing code (gallery section)
   gallery_title: "Thư Viện Ảnh",
@@ -115,8 +115,8 @@ const viTranslations: Record<TranslationKey, string> = {
   all: "Tất Cả",
   
   // ... keep existing code (CTA section)
-  cta_title: "Đặt Phòng Ngay Hôm Nay",
-  cta_subtitle: "Và Nhận Ưu Đãi Đặc Biệt",
+  cta_title: "Đăng ký nhận tư vấn",
+  cta_subtitle: "phòng nghỉ dưỡng",
   cta_description: "Đặt phòng trực tiếp trên website chính thức của chúng tôi để nhận được giá tốt nhất cùng nhiều ưu đãi hấp dẫn chỉ dành riêng cho khách hàng đặt phòng online.",
   
   // ... keep existing code (footer, about page, room types page, services page, blog page, contact page, booking page, admin, admin login, error page, error messages)
