@@ -24,10 +24,10 @@ const AmenitiesPage = () => {
     },
     {
       id: '2',
-      name: 'Góc bếp tiện nghi',
-      name_en: 'Fully-Equipped Kitchen',
-      description: 'Một gian bếp đủ đầy để bạn tự tay nấu nướng, pha cà phê hay bày biện bữa cơm ấm áp cùng người thân — bởi đôi khi, cảm giác "được về nhà" lại đến từ những điều thật giản dị.',
-      description_en: 'A complete kitchen where you can cook your own meals, brew coffee, or prepare a warm family dinner — because sometimes, the feeling of "coming home" comes from the simplest things.',
+      name: 'Góc bếp giản dị - đủ đầy',
+      name_en: 'A simple kitchen, complete in every way',
+      description: 'Một góc nhỏ để bạn nấu bữa sáng cho người thương, pha ly cà phê đúng vị mình thích – bởi “cảm giác được về nhà” đôi khi đến từ những điều giản dị nhất.',
+      description_en: 'A little corner where you can cook breakfast for your loved one, brew a cup of coffee just the way you like – because the feeling of “coming home” sometimes comes from the simplest things.',
       icon: 'Utensils'
     },
     {
