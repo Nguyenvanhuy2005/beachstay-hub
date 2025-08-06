@@ -245,13 +245,22 @@ const BookingForm: React.FC<BookingFormProps> = ({ roomTypes, isLoading }) => {
       console.log('[BookingForm] Dữ liệu Supabase:', bookingData);
       
       // Gửi dữ liệu đặt phòng đến Supabase
+      console.log('[BookingForm] Đang gửi dữ liệu đến Supabase:', bookingData);
       const { data: newBooking, error } = await supabase
         .from('bookings')
         .insert(bookingData)
         .select();
       
+      console.log('[BookingForm] Kết quả từ Supabase:', { newBooking, error });
+      
       if (error) {
         console.error('[BookingForm] Lỗi khi đặt phòng:', error);
+        console.error('[BookingForm] Chi tiết lỗi:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
         toast.error('Đã xảy ra lỗi khi đặt phòng! Vui lòng thử lại sau.');
         return;
       }
