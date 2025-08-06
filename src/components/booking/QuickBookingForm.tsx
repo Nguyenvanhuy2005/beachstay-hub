@@ -18,7 +18,7 @@ const QuickBookingForm: React.FC<QuickBookingFormProps> = ({
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [roomType, setRoomType] = useState('');
+  const [guestCount, setGuestCount] = useState('');
   const [date, setDate] = useState<Date | undefined>(undefined);
   const {
     language
@@ -26,80 +26,107 @@ const QuickBookingForm: React.FC<QuickBookingFormProps> = ({
   const isVietnamese = language === 'vi';
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email || !phone || !roomType || !date) {
-      toast.error(isVietnamese ? 'Vui lòng điền đầy đủ thông tin đặt phòng!' : 'Please fill in all booking information!');
+    
+    // Validate required fields (name, phone, guest count, date)
+    if (!name || !phone || !guestCount || !date) {
+      toast.error(isVietnamese ? 'Vui lòng điền đầy đủ thông tin bắt buộc: Họ và tên, Số điện thoại, Số lượng người đi và Ngày nhận phòng!' : 'Please fill in all required information: Name, Phone Number, Number of Guests and Check-in Date!');
       return;
     }
-    toast.success(isVietnamese ? 'Yêu cầu đặt phòng đã được gửi thành công!' : 'Booking request has been sent successfully!');
+    
+    toast.success(isVietnamese ? 'Yêu cầu tư vấn phòng nghỉ dưỡng đã được gửi thành công!' : 'Resort room consultation request has been sent successfully!');
 
     // Reset form
     setName('');
     setEmail('');
     setPhone('');
-    setRoomType('');
+    setGuestCount('');
     setDate(undefined);
   };
-  return <div className="bg-white rounded-lg shadow-xl p-6 md:p-8">
-      <h3 className="text-xl font-bold text-gray-900 mb-6">
-        {isVietnamese ? 'Đặt Phòng Nhanh' : 'Quick Booking'}
-      </h3>
+  return <div className="bg-gradient-to-br from-green-600 to-green-700 rounded-lg shadow-xl p-6 md:p-8 text-white">
+      <div className="text-center mb-6">
+        <h3 className="text-2xl font-bold mb-2">
+          {isVietnamese ? 'Đặt Phòng Ngay Hôm Nay' : 'Book Today'}
+        </h3>
+        <h4 className="text-xl font-semibold mb-3">
+          {isVietnamese ? 'Và Nhận Ưu Đãi Đặc Biệt' : 'And Receive Special Offers'}
+        </h4>
+        <p className="text-green-100 text-sm">
+          {isVietnamese ? 'Đặt phòng trực tiếp trên website chính thức của chúng tôi để nhận được giá tốt nhất cùng nhiều ưu đãi hấp dẫn chỉ dành riêng cho khách hàng đặt phòng online.' : 'Book directly on our official website to get the best prices with many attractive offers exclusively for online booking customers.'}
+        </p>
+      </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <Label htmlFor="name" className="text-gray-700">
-            {isVietnamese ? 'Họ và tên' : 'Full Name'}
+          <Label htmlFor="name" className="text-white font-medium">
+            {isVietnamese ? 'Họ và tên' : 'Full Name'} <span className="text-red-300">*</span>
           </Label>
-          <Input id="name" type="text" value={name} onChange={e => setName(e.target.value)} placeholder={isVietnamese ? 'Nhập họ và tên' : 'Enter your full name'} className="mt-1" />
+          <Input 
+            id="name" 
+            type="text" 
+            value={name} 
+            onChange={e => setName(e.target.value)} 
+            placeholder={isVietnamese ? 'Nhập họ và tên' : 'Enter your full name'} 
+            className="mt-1 bg-white/90 border-green-300 focus:border-green-500" 
+            required
+          />
         </div>
         
         <div>
-          <Label htmlFor="email" className="text-gray-700">
+          <Label htmlFor="email" className="text-white font-medium">
             Email
           </Label>
-          <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={isVietnamese ? 'Nhập địa chỉ email' : 'Enter your email address'} className="mt-1" />
+          <Input 
+            id="email" 
+            type="email" 
+            value={email} 
+            onChange={e => setEmail(e.target.value)} 
+            placeholder={isVietnamese ? 'Nhập địa chỉ email' : 'Enter your email address'} 
+            className="mt-1 bg-white/90 border-green-300 focus:border-green-500" 
+          />
         </div>
         
         <div>
-          <Label htmlFor="phone" className="text-gray-700">
-            {isVietnamese ? 'Số điện thoại' : 'Phone Number'}
+          <Label htmlFor="phone" className="text-white font-medium">
+            {isVietnamese ? 'Số điện thoại' : 'Phone Number'} <span className="text-red-300">*</span>
           </Label>
-          <Input id="phone" type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder={isVietnamese ? 'Nhập số điện thoại' : 'Enter your phone number'} className="mt-1" />
+          <Input 
+            id="phone" 
+            type="tel" 
+            value={phone} 
+            onChange={e => setPhone(e.target.value)} 
+            placeholder={isVietnamese ? 'Nhập số điện thoại' : 'Enter your phone number'} 
+            className="mt-1 bg-white/90 border-green-300 focus:border-green-500" 
+            required
+          />
         </div>
         
         <div>
-          <Label htmlFor="roomType" className="text-gray-700">
-            {isVietnamese ? 'Loại phòng' : 'Room Type'}
+          <Label htmlFor="guestCount" className="text-white font-medium">
+            {isVietnamese ? 'Số lượng người đi' : 'Number of Guests'} <span className="text-red-300">*</span>
           </Label>
-          <Select value={roomType} onValueChange={setRoomType}>
-            <SelectTrigger id="roomType" className="mt-1">
-              <SelectValue placeholder={isVietnamese ? 'Chọn loại phòng' : 'Select room type'} />
+          <Select value={guestCount} onValueChange={setGuestCount}>
+            <SelectTrigger id="guestCount" className="mt-1 bg-white/90 border-green-300">
+              <SelectValue placeholder={isVietnamese ? 'Chọn số lượng người đi' : 'Select number of guests'} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="standard">
-                {isVietnamese ? 'Phòng Tiêu Chuẩn' : 'Standard Room'}
-              </SelectItem>
-              <SelectItem value="deluxe">
-                {isVietnamese ? 'Phòng Deluxe' : 'Deluxe Room'}
-              </SelectItem>
-              <SelectItem value="suite">
-                {isVietnamese ? 'Phòng Suite' : 'Suite Room'}
-              </SelectItem>
-              <SelectItem value="villa">
-                {isVietnamese ? 'Biệt Thự' : 'Villa'}
-              </SelectItem>
+              <SelectItem value="1-2">1-2 {isVietnamese ? 'người' : 'guests'}</SelectItem>
+              <SelectItem value="3-4">3-4 {isVietnamese ? 'người' : 'guests'}</SelectItem>
+              <SelectItem value="5-6">5-6 {isVietnamese ? 'người' : 'guests'}</SelectItem>
+              <SelectItem value="7-8">7-8 {isVietnamese ? 'người' : 'guests'}</SelectItem>
+              <SelectItem value="9+">9+ {isVietnamese ? 'người' : 'guests'}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         
         <div>
-          <Label htmlFor="date" className="text-gray-700">
-            {isVietnamese ? 'Chọn ngày ở' : 'Select Stay Date'}
+          <Label htmlFor="date" className="text-white font-medium">
+            {isVietnamese ? 'Chọn ngày muốn nhận phòng' : 'Choose desired check-in date'} <span className="text-red-300">*</span>
           </Label>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="w-full justify-start text-left font-normal mt-1 text-zinc-950">
+              <Button variant="outline" className="w-full justify-start text-left font-normal mt-1 bg-white/90 border-green-300 text-gray-700 hover:bg-white">
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {date ? format(date, 'PP') : <span className="text-zinc-950">
-                    {isVietnamese ? 'Chọn ngày nhận và trả phòng' : 'Select check-in and check-out dates'}
+                {date ? format(date, 'PP') : <span className="text-gray-500">
+                    {isVietnamese ? 'Chọn ngày muốn nhận phòng' : 'Choose desired check-in date'}
                   </span>}
               </Button>
             </PopoverTrigger>
@@ -109,7 +136,7 @@ const QuickBookingForm: React.FC<QuickBookingFormProps> = ({
           </Popover>
         </div>
         
-        <Button type="submit" className="w-full bg-beach-600 hover:bg-beach-700 py-6 bg-[gree-900] hover:bg-[[gree-800] bg-green-900 hover:bg-green-800">
+        <Button type="submit" className="w-full bg-white text-green-700 hover:bg-green-50 py-6 font-bold text-lg border-2 border-white">
           {isVietnamese ? 'Gửi Yêu Cầu' : 'Submit Request'}
         </Button>
       </form>
