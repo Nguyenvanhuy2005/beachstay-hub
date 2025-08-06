@@ -5,8 +5,8 @@ import ConsultationForm from "@/components/booking/ConsultationForm";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const benefits = {
-  vi: ["Tư vấn miễn phí từ chuyên gia", "Hỗ trợ 24/7", "Đặt phòng nhanh chóng, dễ dàng", "Hủy miễn phí trước 7 ngày", "Thanh toán an toàn, bảo mật"],
-  en: ["Free expert consultation", "24/7 support", "Quick and easy booking", "Free cancellation before 7 days", "Secure payment"]
+  vi: ["Giữ chỗ cho những ngày muốn bình yên", "Đặt phòng trực tiếp tại website của AnNam - để không bỏ lỡ vai bất ngờ nhỏ mà đội ngũ AnNam đã dành riêng cho bạn tại phòng, như một lời chào từ tê và dê mến từ chúng tôi"],
+  en: ["Reserve spots for peaceful days", "Book directly on AnNam's website - so you don't miss the little surprises that our AnNam team has prepared especially for you in your room, as a greeting from us with love and care"]
 };
 
 const CtaSection = () => {
