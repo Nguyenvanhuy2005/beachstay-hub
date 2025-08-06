@@ -27,3 +27,9 @@ enabled = true
 [functions]
 [functions.send-gmail]
 verify_jwt = false
+
+[functions.create-image-bucket]
+verify_jwt = false
+
+[functions.create-storage-buckets]
+verify_jwt = false
