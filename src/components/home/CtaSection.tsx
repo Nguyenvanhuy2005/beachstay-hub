@@ -1,25 +1,28 @@
-
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import BenefitsList from "@/components/home/BenefitsList";
-import QuickBookingForm from "@/components/booking/QuickBookingForm";
+import ConsultationForm from "@/components/booking/QuickBookingForm";
 import { useLanguage } from "@/contexts/LanguageContext";
+
 const benefits = {
-  vi: ["Giá tốt nhất đảm bảo", "Ưu đãi độc quyền chỉ có trên website", "Đặt phòng nhanh chóng, dễ dàng", "Hủy miễn phí trước 7 ngày", "Thanh toán an toàn, bảo mật"],
-  en: ["Best price guarantee", "Exclusive offers only on our website", "Quick and easy booking", "Free cancellation before 7 days", "Secure payment"]
+  vi: ["Tư vấn miễn phí từ chuyên gia", "Hỗ trợ 24/7", "Đặt phòng nhanh chóng, dễ dàng", "Hủy miễn phí trước 7 ngày", "Thanh toán an toàn, bảo mật"],
+  en: ["Free expert consultation", "24/7 support", "Quick and easy booking", "Free cancellation before 7 days", "Secure payment"]
 };
+
 const CtaSection = () => {
   const navigate = useNavigate();
-  const {
-    language
-  } = useLanguage();
+  const { language } = useLanguage();
+  
   const handleFullBooking = () => {
     navigate('/dat-phong');
   };
+  
   const handleViewDeals = () => {
     navigate('/loai-phong');
   };
-  return <section className="py-20 bg-gradient-to-r from-primary to-green-700 text-white relative overflow-hidden">
+  
+  return (
+    <section className="py-20 bg-gradient-to-r from-primary to-green-700 text-white relative overflow-hidden">
       <div className="absolute top-0 right-0 w-1/3 h-full bg-secondary/20 -skew-x-12 transform origin-top-right"></div>
       
       <div className="container mx-auto px-4 md:px-6 relative z-10">
@@ -45,9 +48,11 @@ const CtaSection = () => {
             </div>
           </div>
           
-          <QuickBookingForm onFullBooking={handleFullBooking} />
+          <ConsultationForm onFullBooking={handleFullBooking} />
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
+
 export default CtaSection;
