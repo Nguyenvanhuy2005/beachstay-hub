@@ -83,10 +83,10 @@ const viTranslations: Record<TranslationKey, string> = {
   amenity_pool_desc: "Thả mình thư giãn trong làn nước mát lành, phóng tầm mắt ra khung cảnh xanh mát - nơi hồ bơi ngoài trời chan hoà nắng gió từ biển xanh.",
   amenity_kitchen: "Góc bếp tiện nghi",
   amenity_kitchen_desc: "Một gian bếp đủ đầy để bạn tự tay nấu nướng, pha cà phê hay bày biện bữa cơm ấm áp cùng người thân — bởi đôi khi, cảm giác \"được về nhà\" lại đến từ những điều thật giản dị.",
-  amenity_wifi: "Wifi",
-  amenity_wifi_desc: "Luôn kết nối dễ dàng với wifi tốc độ cao phủ khắp khu vực nghỉ ngơi - dù làm việc hay giải trí cũng đều trọn vẹn.",
+  amenity_wifi: "Wifi ổn định",
+  amenity_wifi_desc: "Kết nối mượt mà để bạn yên tâm check mail, xem phim hay chia sẻ vài khoảnh khắc đẹp của chuyến đi – không bị gián đoạn dù ở bất kỳ đâu trong khuôn viên.",
   amenity_food_guide: "Gợi ý ẩm thực địa phương",
-  amenity_food_guide_desc: "AnNam luôn sẵn lòng gửi bạn các Travel Maps về những địa điểm ẩm thực & du ngoạn nội địa - từ hải sản tươi ngon đến những hàng quán lâu năm chỉ người bản xứ mới rành.",
+  amenity_food_guide_desc: "Chúng mình luôn có sẵn Travel Maps với những quán ăn quen mà ngon – từ hải sản đậm vị biển đến hàng bún nước chỉ người bản xứ mới chỉ.",
   amenity_open_space: "Không gian mở",
   amenity_open_space_desc: "Một khoảng xanh đủ yên để bạn ngồi lại với chính mình. Cũng đủ thoáng để cùng bạn bè hay gia đình tụ họp, kể cho nhau nghe vài câu chuyện vội quên giữa cuộc sống thường ngày.",
   
