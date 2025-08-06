@@ -248,7 +248,6 @@ async function sendEmail(emailData: EmailData): Promise<Response> {
       from: `Anna's Village Resort & Spa <${gmailEmail}>`,
       to: emailData.to,
       subject: emailData.subject,
-      content: emailData.html,
       html: emailData.html,
     });
 
