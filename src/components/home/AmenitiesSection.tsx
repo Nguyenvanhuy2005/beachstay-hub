@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { Bath, Utensils, Wifi, Coffee, LayoutGrid } from "lucide-react";
+import { Bath, Utensils, Wifi, Coffee, LayoutGrid, Users, Flame } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
 
@@ -72,6 +72,22 @@ const AmenitiesSection = () => {
       description: "Một khoảng xanh đủ yên để bạn ngồi lại với chính mình. Cũng đủ thoáng để cùng bạn bè hay gia đình tụ họp, kể cho nhau nghe vài câu chuyện vội quên giữa cuộc sống thường ngày.",
       description_en: "A green space peaceful enough for self-reflection. Also spacious enough for friends and family to gather, sharing stories that are often forgotten in everyday life.",
       icon: <LayoutGrid className="text-beach-600 h-6 w-6" />
+    },
+    {
+      id: 6,
+      name: "Quản gia hỗ trợ 24/7",
+      name_en: "24/7 Butler Support",
+      description: "Dù bạn đến sớm hay về muộn, luôn có người sẵn sàng chào đón, lắng nghe và hỗ trợ bạn từ những điều nhỏ nhất – chỉ cần bạn cần, AnNam sẽ có mặt.",
+      description_en: "Whether you arrive early or return late, there's always someone ready to welcome, listen and support you with the smallest things – whenever you need, AnNam will be there.",
+      icon: <Users className="text-beach-600 h-6 w-6" />
+    },
+    {
+      id: 7,
+      name: "Dịch vụ tiệc BBQ & ăn tối ngoài trời",
+      name_en: "BBQ & Outdoor Dining Service",
+      description: "AnNam có sẵn sân vườn nhỏ ấm cúng để bạn tổ chức bữa tiệc BBQ cùng bạn bè, người thân. Than nướng, bếp gas hay cho dù là món ngon cũng sẽ người hỗ trợ setup sẵn sàng khi bạn cần.",
+      description_en: "AnNam has a cozy small garden where you can organize BBQ parties with friends and family. Charcoal, gas stove or even delicious dishes will be set up ready when you need.",
+      icon: <Flame className="text-beach-600 h-6 w-6" />
     }
   ];
 
