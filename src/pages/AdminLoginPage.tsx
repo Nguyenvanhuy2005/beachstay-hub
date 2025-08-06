@@ -118,57 +118,8 @@ const AdminLoginPage = () => {
       setIsLoading(false);
     }
   };
-  const createAdminAccount = async () => {
-    setIsCreatingAccount(true);
-    setErrorMessage('');
-    try {
-      // First check if the account already exists
-      const {
-        data: {
-          user
-        },
-        error: signUpError
-      } = await supabase.auth.signUp({
-        email: 'nvh.adser@gmail.com',
-        password: 'Admin@123456'
-      });
-      if (signUpError) {
-        if (signUpError.message.includes('User already registered')) {
-          toast.info('Tài khoản admin đã tồn tại');
-          setEmail('nvh.adser@gmail.com');
-          setPassword('Admin@123456');
-        } else {
-          console.error('Error creating admin account:', signUpError);
-          setErrorMessage(`Lỗi: ${signUpError.message}`);
-          toast.error('Không thể tạo tài khoản admin');
-        }
-        return;
-      }
-      if (user) {
-        // Make sure user is in admin_access table
-        const {
-          error: dbError
-        } = await supabase.from('admin_access').upsert({
-          email: 'nvh.adser@gmail.com',
-          is_active: true
-        }).select();
-        if (dbError) {
-          console.error('Error updating admin_access:', dbError);
-          setErrorMessage(`Lỗi cập nhật admin_access: ${dbError.message}`);
-        } else {
-          toast.success('Tài khoản admin đã được tạo');
-          setEmail('nvh.adser@gmail.com');
-          setPassword('Admin@123456');
-        }
-      }
-    } catch (error: any) {
-      console.error('Error in creating account:', error);
-      setErrorMessage(`Lỗi: ${error.message}`);
-      toast.error('Lỗi tạo tài khoản admin');
-    } finally {
-      setIsCreatingAccount(false);
-    }
-  };
+  // Removed createAdminAccount function for security
+  // Admin accounts should be created manually through proper channels
   const renderForgotPasswordForm = () => {
     return <form onSubmit={handleForgotPassword} className="space-y-4">
       <div className="space-y-2">
