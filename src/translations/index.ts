@@ -74,7 +74,7 @@ const viTranslations: Record<TranslationKey, string> = {
   nature_desc: "Mỗi kiến trúc từ AnNam luôn hướng đến không gian sống thuần thiên nhiên - để du khách như được đắm mình giữa lòng thiên nhiên xanh mát.",
   
   // Amenities section
-  amenities_title: "Dịch vụ & tiện ích",
+  amenities_title: "Để từng điều nhỏ đều trở thành điều đáng nhớ",
   amenities_subtitle: "Luôn chăm chút từng trải nghiệm nhỏ nhặt, để mỗi khoảnh khắc tại AnNam đều trở nên dễ chịu và trọn vẹn nhất với du khách.",
   amenities_intro: "Luôn chăm chút từng trải nghiệm nhỏ nhặt, để mỗi khoảnh khắc tại AnNam đều trở nên dễ chịu và trọn vẹn nhất với du khách.",
   
