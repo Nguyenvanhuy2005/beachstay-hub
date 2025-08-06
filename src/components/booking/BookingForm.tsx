@@ -264,10 +264,62 @@ const BookingForm: React.FC<BookingFormProps> = ({ roomTypes, isLoading }) => {
         toast.error('Đã xảy ra lỗi khi đặt phòng! Vui lòng thử lại sau.');
         return;
       }
-      
+
       console.log('[BookingForm] Đặt phòng thành công:', newBooking);
       
-      // Đặt phòng thành công
+      // Đặt phòng thành công - bây giờ gửi email
+      console.log('[BookingForm] Bắt đầu gửi email confirmation...');
+      try {
+        const emailPromises = [
+          // Send confirmation email to customer
+          supabase.functions.invoke('send-gmail', {
+            body: {
+              type: 'booking_confirmation',
+              data: {
+                fullName: data.fullName,
+                email: data.email,
+                phone: data.phone || '',
+                roomType: data.roomType,
+                checkIn: data.checkIn,
+                checkOut: data.checkOut,
+                adults: data.adults,
+                children: data.children,
+                specialRequests: data.specialRequests,
+                totalPrice: 0, // Will be calculated later
+                bookingId: newBooking[0].id,
+              }
+            }
+          }),
+          // Send notification email to admin
+          supabase.functions.invoke('send-gmail', {
+            body: {
+              type: 'booking_notification',
+              data: {
+                fullName: data.fullName,
+                email: data.email,
+                phone: data.phone || '',
+                roomType: data.roomType,
+                checkIn: data.checkIn,
+                checkOut: data.checkOut,
+                adults: data.adults,
+                children: data.children,
+                specialRequests: data.specialRequests,
+                totalPrice: 0, // Will be calculated later
+                bookingId: newBooking[0].id,
+              }
+            }
+          })
+        ];
+        
+        console.log('[BookingForm] Đang gửi email promises...');
+        const emailResults = await Promise.all(emailPromises);
+        console.log('[BookingForm] Email results:', emailResults);
+        
+      } catch (emailError) {
+        console.error('[BookingForm] Lỗi khi gửi email:', emailError);
+        // Don't fail the booking process because of email errors
+      }
+      
       toast.success('Đặt phòng thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.');
       form.reset();
       

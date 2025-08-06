@@ -60,60 +60,7 @@ export const createBooking = async (bookingData: BookingFormData) => {
 
     console.log('Booking created successfully:', data);
 
-    // Send confirmation and notification emails
-    try {
-      console.log('Preparing to send booking emails...');
-      
-      await Promise.all([
-        // Send confirmation email to customer
-        supabase.functions.invoke('send-gmail', {
-          body: {
-            type: 'booking_confirmation',
-            data: {
-              fullName: bookingData.fullName,
-              email: bookingData.email,
-              phone: bookingData.phone || '',
-              roomType: bookingData.roomType,
-              checkIn: bookingData.checkIn,
-              checkOut: bookingData.checkOut,
-              adults: bookingData.adults,
-              children: bookingData.children,
-              specialRequests: bookingData.specialRequests,
-              totalPrice: 0, // Will be calculated later
-              bookingId: data[0].id,
-            }
-          }
-        }),
-        // Send notification email to admin
-        supabase.functions.invoke('send-gmail', {
-          body: {
-            type: 'booking_notification',
-            data: {
-              fullName: bookingData.fullName,
-              email: bookingData.email,
-              phone: bookingData.phone || '',
-              roomType: bookingData.roomType,
-              checkIn: bookingData.checkIn,
-              checkOut: bookingData.checkOut,
-              adults: bookingData.adults,
-              children: bookingData.children,
-              specialRequests: bookingData.specialRequests,
-              totalPrice: 0, // Will be calculated later
-              bookingId: data[0].id,
-            }
-          }
-        })
-      ]);
-      
-      console.log('Booking emails sent successfully');
-      toast.success('Đặt phòng thành công! Email xác nhận đã được gửi.');
-    } catch (emailError) {
-      console.error('Failed to send email notification:', emailError);
-      toast.error('Đặt phòng thành công nhưng không thể gửi email xác nhận. Chúng tôi sẽ liên hệ với bạn sớm.');
-    }
-
-    // Booking successful
-    toast.success('Đặt phòng thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.');
+    // Return booking data - email will be sent from BookingForm
     return { success: true, data, bookingId: data[0]?.id };
   } catch (error) {
     console.error('Unexpected error:', error);
