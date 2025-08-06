@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -190,41 +191,49 @@ async function sendEmail(emailData: EmailData): Promise<Response> {
   try {
     console.log('Sending email:', emailData.type, 'to:', emailData.to);
 
-    // Simple fallback using a basic email service or just log it
-    // For now, we'll just simulate success and log the email content
-    console.log('Email would be sent:');
-    console.log('- To:', emailData.to);
-    console.log('- Subject:', emailData.subject);
-    console.log('- Type:', emailData.type);
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
     
-    // TODO: Implement proper Gmail SMTP later
-    // For now, just return success to not block the consultation creation
+    if (!resendApiKey) {
+      console.log('No RESEND_API_KEY found, logging email instead of sending:');
+      console.log('- To:', emailData.to);
+      console.log('- Subject:', emailData.subject);
+      console.log('- Type:', emailData.type);
+      
+      return new Response(JSON.stringify({ 
+        success: true, 
+        result: { message: 'Email logged - RESEND_API_KEY not configured' }
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    const resend = new Resend(resendApiKey);
     
-    const result = {
-      success: true,
-      message: 'Email logged (not actually sent yet - SMTP integration pending)',
-      emailData: {
-        to: emailData.to,
-        subject: emailData.subject,
-        type: emailData.type
-      }
-    };
+    const emailResponse = await resend.emails.send({
+      from: "Anna's Village <noreply@resend.dev>", // You'll need to update this with your verified domain
+      to: [emailData.to],
+      subject: emailData.subject,
+      html: emailData.html,
+    });
+
+    console.log('Email sent successfully via Resend:', emailResponse);
     
-    console.log('Email "sent" successfully:', result);
-    return new Response(JSON.stringify({ success: true, result }), {
+    return new Response(JSON.stringify({ success: true, result: emailResponse }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
 
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('Error sending email via Resend:', error);
     
-    // Don't fail - just log and return success for now
+    // Return error but don't fail the booking process
     return new Response(JSON.stringify({ 
-      success: true, 
-      result: { message: 'Email logged but not sent due to SMTP configuration' }
+      success: false, 
+      error: error.message,
+      result: { message: 'Failed to send email but booking was successful' }
     }), {
-      status: 200,
+      status: 200, // Still return 200 to not break booking flow
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   }
