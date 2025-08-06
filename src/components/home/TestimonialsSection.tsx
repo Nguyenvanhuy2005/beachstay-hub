@@ -56,10 +56,14 @@ const testimonials = [{
   },
   rating: 5,
   content: {
-    vi: 'Vị trí tuyệt vời, gần biển và các điểm tham quan. Villa rộng rãi, thiết kế hiện đại. Đội ngũ nhân viên chu đáo. Sẽ quay lại trong kỳ nghỉ tiếp theo.',
-    en: 'Great location, close to the beach and attractions. Spacious villa, modern design. Attentive staff. Will return on our next vacation.'
+    vi: 'Đi dịp sinh nhật bạn, có thêm mấy đứa nhỏ nữa mà chuyến đi này book villa AnNam thật sự làm bọn mình kết nối luôn, tụi nhỏ có hồ bơi để nghịch, lúc bận nấu nướng quá thì tụi mình đóng hồ bơi lại là an toàn liền. Quản gia thì kêu cái là có mặt hỗ trợ, đi tới đâu cũng thấy hoa lá trong villa nên không khí ở đây đáng thở lắm.',
+    en: 'Went for a friend\'s birthday, with some kids too, and this trip booking AnNam villa really brought us together. The kids had the pool to play in, when we were busy cooking, we could close the pool for safety. The butler was there to support whenever called, everywhere in the villa we see flowers and plants so the atmosphere here is really worth breathing.'
   },
-  image: '/lovable-uploads/21668da3-408e-4c55-845e-d0812b05e091.png'
+  highlight: {
+    vi: 'không khí ở đây đáng thở lắm',
+    en: 'the atmosphere here is really worth breathing'
+  },
+  image: '/lovable-uploads/4bee6ac3-bbf6-4063-954d-2e8096edbec5.png'
 }];
 const TestimonialsSection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
