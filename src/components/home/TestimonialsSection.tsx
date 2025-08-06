@@ -16,10 +16,14 @@ const testimonials = [{
   },
   rating: 5,
   content: {
-    vi: 'Kỳ nghỉ tuyệt vời tại Annam Village! Villa với hồ bơi riêng rất sạch sẽ và thoải mái. Nhân viên thân thiện và nhiệt tình. Chắc chắn sẽ quay lại!',
-    en: 'Wonderful vacation at Annam Village! The villa with private pool was very clean and comfortable. Friendly and enthusiastic staff. Will definitely come back!'
+    vi: 'Chuyến nghỉ lần này mình cảm thấy vô cùng dễ chịu luôn vì villa thiết kế dễ thương, nhẹ nhàng, hồ bơi thì sạch, chăn mền mới, thơm và rất yên tĩnh, mình có thể nằm phơi nắng đọc sách cả buổi. Nhân viên thì tận tâm cực, còn giúp tụi mình đặt hải sản về nướng tại villa. Rất biết ơn vì mọi điều nhỏ đều được chăm chút.',
+    en: 'This vacation was extremely comfortable because the villa has a cute, gentle design, the pool is clean, the blankets are new, fragrant and very quiet, I can lie in the sun and read books all day. The staff is extremely dedicated and even helped us order seafood to grill at the villa. Very grateful that every little detail is taken care of.'
   },
-  image: '/lovable-uploads/ff2fe940-82b8-4f88-a56c-eeaea2c86b0c.png'
+  highlight: {
+    vi: 'Rất biết ơn vì mọi điều nhỏ đều được chăm chút',
+    en: 'Very grateful that every little detail is taken care of'
+  },
+  image: '/lovable-uploads/b453ee05-3e2c-4c5c-914c-80232a28fcf7.png'
 }, {
   id: 2,
   name: {
@@ -30,12 +34,16 @@ const testimonials = [{
     vi: 'Khách Hàng',
     en: 'Customer'
   },
-  rating: 4,
+  rating: 5,
   content: {
-    vi: 'Không gian yên tĩnh, phòng ốc sạch sẽ, tiện nghi đầy đủ. Điểm cộng cho bữa sáng ngon và đa dạng. Sẽ giới thiệu cho bạn bè và người thân.',
-    en: 'Quiet space, clean rooms, full amenities. Plus point for delicious and diverse breakfast. Will recommend to friends and family.'
+    vi: 'Ba mẹ mình nói chưa bao giờ đi Vũng Tàu mà thấy đáng như lần này, mọi khi đi ngắn ngày mình đặt tạm bợ cho có chỗ nghỉ, nay chi ra để đặt cho cả nhà đi mà phải nói Villa ở đây làm chuyến đi trọn vẹn hơn hẳn. Vừa mát mẻ, vừa đủ đồ dùng cho cả nhà, có luôn mọi thứ để giải trí ồn ào vậy đó nhưng cứ ngồi ở đây chỉ thấy chữa lành tâm trạng; ba mẹ mình ưng lắm!',
+    en: 'My parents said they have never been to Vung Tau and found it as worthwhile as this time. Usually when going on short trips, I just book temporarily to have a place to rest, but this time I spent money to book for the whole family and I must say the Villa here makes the trip much more complete. It is both cool and has enough amenities for the whole family, with everything for entertainment. Despite all the noise, sitting here just heals the soul; my parents love it!'
   },
-  image: '/lovable-uploads/dd828878-82ae-4104-959b-b8793c180d89.png'
+  highlight: {
+    vi: 'Villa ở đây làm chuyến đi trọn vẹn hơn hẳn',
+    en: 'The Villa here makes the trip much more complete'
+  },
+  image: '/lovable-uploads/69fab503-b4cb-4837-857f-b43ad6994a94.png'
 }, {
   id: 3,
   name: {
@@ -102,6 +110,12 @@ const TestimonialsSection = () => {
                   <div className="flex mb-2">
                     {[...Array(5)].map((_, i) => <Star key={i} size={18} className={i < testimonials[activeIndex].rating ? "text-yellow-400 fill-yellow-400" : "text-gray-400"} />)}
                   </div>
+                  
+                  {testimonials[activeIndex].highlight && (
+                    <p className="text-lg font-bold mb-4 text-yellow-300">
+                      "{testimonials[activeIndex].highlight[language]}"
+                    </p>
+                  )}
                   
                   <blockquote className="text-lg mb-6 italic text-beach-50">
                     "{testimonials[activeIndex].content[language]}"
