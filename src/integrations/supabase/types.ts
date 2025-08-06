@@ -202,6 +202,45 @@ export type Database = {
           },
         ]
       }
+      consultation_requests: {
+        Row: {
+          consultation_type: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          message: string | null
+          phone: string
+          preferred_date: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          consultation_type: string
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          message?: string | null
+          phone: string
+          preferred_date?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          consultation_type?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          message?: string | null
+          phone?: string
+          preferred_date?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       gallery_images: {
         Row: {
           alt: string
