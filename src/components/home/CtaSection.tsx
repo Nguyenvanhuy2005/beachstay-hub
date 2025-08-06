@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import BenefitsList from "@/components/home/BenefitsList";
-import ConsultationForm from "@/components/booking/QuickBookingForm";
+import ConsultationForm from "@/components/booking/ConsultationForm";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const benefits = {
