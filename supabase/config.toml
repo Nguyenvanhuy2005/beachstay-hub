@@ -25,5 +25,5 @@ enabled = true
 enabled = true
 
 [functions]
-[functions.send-booking-notification]
+[functions.send-gmail]
 verify_jwt = false
