@@ -10,7 +10,7 @@ interface EmailData {
   to: string;
   subject: string;
   html: string;
-  type: 'booking_confirmation' | 'booking_notification' | 'consultation_confirmation' | 'consultation_notification' | 'consultation_response';
+  type: 'booking_confirmation' | 'booking_notification' | 'consultation_confirmation' | 'consultation_notification' | 'consultation_response' | 'blog_notification';
 }
 
 interface BookingData {
@@ -154,6 +154,25 @@ const createConsultationNotificationEmail = (data: ConsultationData): string => 
       </div>
       
       <p>Vui lòng kiểm tra và phản hồi trong hệ thống quản trị.</p>
+    </div>
+  `;
+};
+
+const createBlogNotificationEmail = (data: any): string => {
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h2 style="color: #dc2626;">Thông báo bài viết mới</h2>
+      
+      <div style="background-color: #fef2f2; padding: 20px; border-radius: 8px; border-left: 4px solid #dc2626;">
+        <h3 style="margin-top: 0; color: #1f2937;">Chi tiết bài viết</h3>
+        <p><strong>Tiêu đề:</strong> ${data.title}</p>
+        <p><strong>Tác giả:</strong> ${data.author}</p>
+        <p><strong>Ngày tạo:</strong> ${new Date(data.created_at).toLocaleDateString('vi-VN')}</p>
+        <p><strong>Trạng thái:</strong> ${data.published ? 'Đã xuất bản' : 'Bản nháp'}</p>
+        <p><strong>Đường dẫn:</strong> /blog/${data.slug}</p>
+      </div>
+      
+      <p>Vui lòng kiểm tra và quản lý bài viết trong hệ thống quản trị.</p>
     </div>
   `;
 };
@@ -309,6 +328,15 @@ const handler = async (req: Request): Promise<Response> => {
           subject: `Phản hồi tư vấn - Anna's Village Resort & Spa`,
           html: createConsultationResponseEmail(data),
           type: 'consultation_response'
+        };
+        break;
+
+      case 'blog_notification':
+        emailData = {
+          to: data.adminEmail,
+          subject: `Bài viết mới - ${data.title}`,
+          html: createBlogNotificationEmail(data),
+          type: 'blog_notification'
         };
         break;
 

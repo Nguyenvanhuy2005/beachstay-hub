@@ -257,10 +257,17 @@ const AddBlogPostModal = ({ open, onOpenChange, onPostAdded }: AddBlogPostModalP
         if (!adminError && adminData?.email) {
           console.log('Sending blog post notification to:', adminData.email);
           
-          await supabase.functions.invoke('send-booking-notification', {
+          await supabase.functions.invoke('send-gmail', {
             body: { 
-              blogPost: data,
-              adminEmail: adminData.email
+              type: 'blog_notification',
+              data: {
+                title: data.title,
+                author: data.author,
+                created_at: data.created_at,
+                published: data.published,
+                slug: data.slug,
+                adminEmail: adminData.email
+              }
             }
           });
         }
