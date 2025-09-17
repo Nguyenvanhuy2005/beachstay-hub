@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+# Allow Facebook crawler for domain verification and sharing
+User-agent: facebookexternalhit
+Allow: /
+
+# Allow other social media crawlers
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+# Sitemap location
+Sitemap: https://annamvillage.com/sitemap.xml
