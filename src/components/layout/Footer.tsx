@@ -46,6 +46,7 @@ const Footer = () => {
         }} custom={1}>
             <Link to="/" className="inline-block mb-4">
               <img alt="Annam Village Logo" className="h-32" src="/lovable-uploads/72670842-649b-4ad9-9829-1c328d5969ab.png" />
+              <h2 className="text-xl font-bold text-white mt-2">AnNam Village</h2>
             </Link>
             <p className="mb-4 text-slate-50">
               {language === 'vi' ? 'Nơi hòa quyện giữa thiên nhiên và không gian nghỉ dưỡng sang trọng tại thành phố biển Vũng Tàu.' : 'A collection of eco‑green villas in tropical style, offering all the lushness and serenity you need to breathe in nature to the fullest.'}
@@ -115,16 +116,19 @@ const Footer = () => {
               <li className="flex items-start">
                 <MapPin size={18} className="mr-2 mt-1 text-terra-400" />
                 <span className="text-slate-50">
-                  234 Phan Chu Trinh, Phường 2, TP. Vũng Tàu, Việt Nam
+                  11 đường Trần Thượng Xuyên, Phường 8, Thành phố Vũng Tàu, Tỉnh Bà Rịa - Vũng Tàu, Việt Nam
                 </span>
               </li>
               <li className="flex items-center">
                 <Phone size={18} className="mr-2 text-terra-400" />
-                <a href="tel:+84933669154" className="text-gray-50 hover:text-terra-300 transition-colors">0933 669 154</a>
+                <a href="tel:+84903858788" className="text-gray-50 hover:text-terra-300 transition-colors">+84903858788</a>
               </li>
               <li className="flex items-center">
                 <Mail size={18} className="mr-2 text-terra-400" />
                 <a href="mailto:info@annamvillage.vn" className="text-gray-50 hover:text-terra-300 transition-colors">info@annamvillage.vn</a>
+              </li>
+              <li className="flex items-center">
+                <span className="text-sm text-gray-300">Mã số thuế: 8876489659-001</span>
               </li>
             </ul>
           </motion.div>
