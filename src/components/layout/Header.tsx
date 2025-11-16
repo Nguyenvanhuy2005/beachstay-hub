@@ -103,9 +103,9 @@ const Header = () => {
 
           {/* Contact Information and Language Switcher */}
           <div className="hidden md:flex items-center space-x-4">
-            <a href="tel:+84933669154" className="flex items-center space-x-1 text-sm">
+            <a href="tel:+84986742999" className="flex items-center space-x-1 text-sm">
               <Phone size={16} className="text-green-900" />
-              <span className="text-green-900 font-bold">0933 669 154</span>
+              <span className="text-green-900 font-bold">0986 742 999</span>
             </a>
             <LanguageSwitcher className="text-primary" />
             <Button 
@@ -154,9 +154,9 @@ const Header = () => {
             <NavLinks isScrolled={true} />
           </nav>
           <div className="mt-4 flex flex-col space-y-2">
-            <a href="tel:+84933669154" className="flex items-center space-x-1 text-primary">
+            <a href="tel:+84986742999" className="flex items-center space-x-1 text-primary">
               <Phone size={16} className="text-green-900" />
-              <span>0933 669 154</span>
+              <span>0986 742 999</span>
             </a>
             <a href="mailto:annamvillage.vn@gmail.com" className="flex items-center space-x-1 text-primary">
               <AtSign size={16} />
