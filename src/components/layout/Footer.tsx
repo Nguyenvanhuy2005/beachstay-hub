@@ -121,14 +121,11 @@ const Footer = () => {
               </li>
               <li className="flex items-center">
                 <Phone size={18} className="mr-2 text-terra-400" />
-                <a href="tel:+84903858788" className="text-gray-50 hover:text-terra-300 transition-colors">+84903858788</a>
+                <a href="tel:+84986742999" className="text-gray-50 hover:text-terra-300 transition-colors">+84986742999</a>
               </li>
               <li className="flex items-center">
                 <Mail size={18} className="mr-2 text-terra-400" />
-                <a href="mailto:info@annamvillage.vn" className="text-gray-50 hover:text-terra-300 transition-colors">info@annamvillage.vn</a>
-              </li>
-              <li className="flex items-center">
-                <span className="text-sm text-gray-300">Mã số thuế: 8876489659-001</span>
+                <a href="mailto:annamvillage.vn@gmail.com" className="text-gray-50 hover:text-terra-300 transition-colors">annamvillage.vn@gmail.com</a>
               </li>
             </ul>
           </motion.div>
